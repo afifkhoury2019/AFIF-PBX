@@ -1,0 +1,39 @@
+name: Publish installer from a build
+
+# Turns the AFIF-PBX-Setup artifact of an earlier "Build AFIF-PBX" run into a GitHub release,
+# without rebuilding anything.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run id of the Build AFIF-PBX run"
+        required: true
+      tag:
+        description: "Release tag (e.g. v1.0.3)"
+        required: true
+      title:
+        description: "Release title"
+        default: "AFIF-PBX"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: AFIF-PBX-Setup
+          path: out
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l out
+          gh release create "${{ inputs.tag }}" out/*.exe --repo "$GITHUB_REPOSITORY" \
+            --title "${{ inputs.title }}" \
+            --notes "AFIF-PBX installer for Windows 11. Run it as administrator; plug in the Huawei E303 after AFIF-PBX has started. Built by run ${{ inputs.run_id }}."
