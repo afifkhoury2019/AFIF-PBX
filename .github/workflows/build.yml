@@ -1,4 +1,4 @@
-name: Build AFIF-PBX
+name: Build AFIF-PBX (WSL edition, retired)
 
 on:
   workflow_dispatch:
@@ -11,9 +11,6 @@ on:
         description: "Publish the installer as a GitHub release"
         type: boolean
         default: true
-  push:
-    branches: [main]
-    paths-ignore: ["**.md"]
 
 permissions:
   contents: write

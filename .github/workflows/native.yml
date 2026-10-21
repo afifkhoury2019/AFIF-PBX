@@ -1,0 +1,39 @@
+name: AFIF-PBX Native (Windows)
+
+on:
+  push:
+    branches: [main]
+    paths: ["native/**", ".github/workflows/native.yml"]
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Publish the installer as a GitHub release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  VERSION: 2.0.${{ github.run_number }}
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+
+jobs:
+  test:
+    name: Build and test the PBX core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "8.0.x" }
+      - name: Build
+        run: dotnet build native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release
+      - name: Test
+        run: dotnet test native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release --no-build --logger "console;verbosity=normal" --logger "trx;LogFileName=results.trx" --blame-hang-timeout 3m
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: native/tests/AfifPbx.Tests/TestResults/
