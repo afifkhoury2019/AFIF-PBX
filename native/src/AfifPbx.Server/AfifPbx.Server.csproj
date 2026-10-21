@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AFIF-PBX-Service</AssemblyName>
+    <RootNamespace>AfifPbx.Server</RootNamespace>
+    <Product>AFIF-PBX</Product>
+    <Company>AFIF-TECH</Company>
+    <Version>2.0.0</Version>
+    <NoWarn>CA1416</NoWarn>
+    <InvariantGlobalization>false</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AfifPbx.Core\AfifPbx.Core.csproj" />
+  </ItemGroup>
+</Project>
