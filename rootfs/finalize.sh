@@ -5,6 +5,8 @@ set -e
 rm -rf /opt/afif-pbx/restore
 # Keep the helper scripts and branding for re-applying later (afif-rebrand)
 install -m 0755 /opt/afif-pbx/branding/apply-branding.sh /usr/local/bin/afif-rebrand
+# Debian's Apache placeholder page would hide the AFIF-PBX landing page
+rm -f /var/www/html/index.html
 # Docker-specific files that WSL regenerates
 rm -f /.dockerenv || true
 echo afif-pbx > /etc/hostname 2>/dev/null || true

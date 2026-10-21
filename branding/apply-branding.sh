@@ -60,6 +60,7 @@ set_conf FREEPBX_SYSTEM_IDENT          "AFIF-PBX"
 set_conf DASHBOARD_FREEPBX_BRAND       "AFIF-PBX"
 
 # ---- animated landing page at http://<pc>/ ----
+rm -f "$WEB/index.html"
 install -m 0644 "$SRC/index_custom.php" "$WEB/index_custom.php"
 cp "$SRC/landing.css" "$A/landing.css"
 
