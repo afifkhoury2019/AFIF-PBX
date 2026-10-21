@@ -1,52 +1,47 @@
 # AFIF-PBX
 
-AFIF-PBX is a business phone system for **Windows 11** with a **Huawei E303 GSM gateway**, by AFIF-TECH.
-It is a clone of the Raspberry Pi FreePBX system (`RPBX.img`), rebuilt to run on a Windows PC: same extensions, trunks, routes, voicemail and dongle setup, under the AFIF-PBX name and logo.
+AFIF-PBX is the AFIF-TECH phone system for **Windows**. It runs as a normal Windows service, with **no WSL, Linux or virtual machine**. It uses a **Huawei GSM dongle** (E303, E1550, E173…) as a phone line.
 
-## How it works
+## Features
 
-| Part | What it is |
+| Feature | How it works |
 |---|---|
-| **AFIF-PBX system** | Debian 12 running inside WSL 2 with Asterisk 22, the FreePBX 17 open-source engine and `chan_dongle` for the E303. Your Raspberry Pi configuration is restored into it during the build. |
-| **AFIF-PBX launcher** (`AFIF-PBX.exe`) | Tray app with an animated logo splash. It starts the PBX at sign-in, passes the E303 through to it automatically (usbipd-win) and shows engine / dongle status. |
-| **Web interface** | `http://localhost/` (or the PC's LAN IP from phones): animated AFIF-PBX landing page and the rebranded admin panel. |
-| **Networking** | WSL mirrored mode — phones register to the Windows PC's own IP address. |
+| **Extensions** | Built-in SIP server. IP phones and softphones (Zoiper, MicroSIP, Grandstream, Yealink…) register with the extension number and its secret. |
+| **GSM line in and out** | Direct driver for Huawei voice dongles through the two COM ports the Huawei Windows driver creates: *PC UI Interface* for commands and *Application Interface* for voice. Calls to the SIM go to any destination. Extensions dial outside numbers through the SIM. |
+| **Ring groups** | Ring all members at once, or one after another, with a fallback destination. |
+| **IVR menus** | Greeting spoken by Windows text-to-speech (including Arabic voices) or an uploaded recording. Keys 0–9 route the caller, and callers can dial extensions directly. |
+| **Voicemail** | One mailbox per extension. Messages can be played in the web panel or by dialling **\*97** from a phone. |
+| **SMS** | Send and receive through the SIM, including Arabic (Unicode) and long multi-part messages. |
+| **Call recording** | Per extension, or every call on the GSM line. Recordings are stereo WAV files that can be played and downloaded in the panel. |
+| **Web panel** | `http://<pc>/`, branded AFIF-PBX with the animated logo render. Includes dashboard, live calls, call log, GSM status and signal, USSD balance check, prompts, backup and logs. |
+| **Tray app** | Animated splash screen, status window, and alerts when the dongle changes state or new voicemail arrives. |
+
+Feature codes: **\*97** voicemail · **\*43** echo test · **\*&lt;ext&gt;** leave a voicemail for an extension.
+
+## Install
+
+1. Download `AFIF-PBX-Setup-x.y.z.exe` from **Releases** and run it as administrator.
+   If the old WSL edition is installed, it is removed and the dongle is given back to Windows.
+2. Install the **Huawei driver** if Windows does not show the dongle's COM ports. Open the dongle's virtual CD drive and run its setup (Mobile Partner / Mobile Connect). Then **exit Mobile Partner** and stop it from starting with Windows, because it holds the ports.
+3. Open **http://localhost/**. Sign in with `admin` / `admin` and choose a new password.
+4. Under **Extensions**, note each extension's secret. On each phone, set the server to the PC's IP address, the user name to the extension number, and the password to the secret.
+5. Under **GSM line**, choose where calls to the SIM go. Use a SIM with the **PIN turned off**.
 
 ## Building
 
-Everything builds in GitHub Actions (`.github/workflows/build.yml`):
+Everything builds on GitHub Actions (`.github/workflows/native.yml`):
 
-1. **Read the Raspberry Pi image** — downloads `RPBX.img` from Google Drive, mounts it read-only, dumps the database and copies the Asterisk/dongle configuration. The step summary shows a password-free inventory; `CREDENTIALS.md` is in the private `credentials` artifact.
-2. **Branding assets** — logo, icon and installer artwork from `branding/`.
-3. **AFIF-PBX system** — builds the WSL root filesystem, compiles `chan_dongle`, restores the Pi configuration, applies branding and runs self-tests.
-4. **Windows** — builds the launcher and the `AFIF-PBX-Setup-x.y.z.exe` installer (Inno Setup) and publishes it as a release.
+- **Build and test the PBX core** runs on Linux. It tests real SIP calls between software phones, ring groups, IVR key routing, voicemail, call recording, and a simulated Huawei E303 for GSM calls in and out and for SMS in Arabic.
+- **Windows** builds the service and tray app, starts the service and checks the web panel and API, then builds the Inno Setup installer.
 
-Run it from **Actions → Build AFIF-PBX → Run workflow**. Leave the Drive id empty for a clean system without the restore.
+Run **Actions → AFIF-PBX Native → Run workflow** with *publish release* ticked to publish an installer.
 
-> Keep this repository **private** — the build reads your PBX passwords.
+`native/src/AfifPbx.Core` contains the PBX: SIP (SIPSorcery), media, the GSM driver, call logic, and storage. `native/src/AfifPbx.Server` is the Windows service and web panel. `native/src/AfifPbx.Tray` is the tray app.
 
 ## Your logo
 
-Put the official logo at `branding/logo.png` (transparent PNG, wide) and optionally a square `branding/icon.png`, then run the workflow again. Until then a placeholder AFIF-PBX mark (`branding/logo.svg`) is used.
-
-## Installing on Windows 11
-
-1. Run `AFIF-PBX-Setup-….exe` as administrator. It installs/updates WSL, usbipd-win and the AFIF-PBX system, opens the SIP/RTP/web ports and adds AFIF-PBX to sign-in.
-   If WSL was not installed yet, Windows restarts once and setup continues by itself.
-2. AFIF-PBX starts with its splash screen. Log in at `http://localhost/` with the **same admin username and password as on the Raspberry Pi**.
-3. Plug in the E303 with your SIM (PIN disabled). The launcher shares it with the PBX, Linux switches it from CD-ROM to modem mode, and `chan_dongle` picks it up. The first time, Windows may need you to unplug and re-plug it once.
-4. Point your phones at the PC's IP address (shown in the control panel).
-
-## Useful commands
-
-From the launcher: **Asterisk CLI**, **Rescan dongle**, **Reload**, **Restart**. Inside the system (`wsl -d AFIF-PBX`):
-
-```bash
-afif-dongle status     # USB / serial ports / chan_dongle view
-afif-rebrand           # re-apply AFIF-PBX branding after FreePBX module updates
-asterisk -rx "dongle show devices"
-```
+Put the official logo at `branding/logo.png` (wide, transparent background), and optionally a square `branding/icon.png`. The next build uses them everywhere.
 
 ## Licences
 
-AFIF-PBX is built on open-source software: Asterisk (GPLv2), FreePBX open-source modules (GPLv3+/AGPLv3), chan_dongle (GPLv2), Debian, usbipd-win (GPLv3). FreePBX® is a trademark of Sangoma Technologies; AFIF-PBX is not affiliated with Sangoma. Commercial FreePBX modules are not included. Source for all GPL components is available from their upstream projects linked in the build scripts.
+AFIF-PBX uses SIPSorcery (BSD-3-Clause), Microsoft .NET (MIT) and SQLite (public domain). The earlier WSL edition (`rootfs/`, `windows/`, `.github/workflows/build.yml`) is kept for reference and is no longer built automatically.
