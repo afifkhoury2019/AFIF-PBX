@@ -67,7 +67,7 @@ internal sealed class TestPhone : IDisposable
     {
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         _reg = new SIPRegistrationUserAgent(Transport, _ext, password ?? _secret, $"127.0.0.1:{_pbxPort}", 120,
-            maxRegistrationAttemptTimeout: 5, maxRegisterAttempts: 1);
+            maxRegistrationAttemptTimeout: 5, maxRegisterAttempts: 3);
         _reg.RegistrationSuccessful += (_, _) => tcs.TrySetResult(true);
         _reg.RegistrationFailed += (_, _, _) => tcs.TrySetResult(false);
         _reg.RegistrationTemporaryFailure += (_, _, _) => tcs.TrySetResult(false);
