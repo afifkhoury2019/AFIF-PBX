@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFIF-PBX</title>
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<!-- Login with the AFIF-PBX render-in -->
+<section id="login" class="login hidden">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="login-stage">
+    <div class="emblem">
+      <div class="halo"></div>
+      <div class="orbit o1"></div><div class="orbit o2"></div>
+      <img class="render" src="logo.svg" alt="AFIF-PBX">
+      <div class="sweep"></div>
+    </div>
+    <p class="tagline">Business phone system · GSM gateway · AFIF-TECH</p>
+    <form id="loginForm" class="login-card" autocomplete="on">
+      <label>User name<input name="user" value="admin" autocomplete="username" required></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required autofocus></label>
+      <button class="btn primary" type="submit">Sign in</button>
+      <p class="error" id="loginError"></p>
+    </form>
+  </div>
+</section>
+
+<!-- Application -->
+<div id="app" class="app hidden">
+  <aside class="side">
+    <a class="brand" href="#/dashboard"><span class="brand-logo"><img src="logo.svg" alt="AFIF-PBX"></span></a>
+    <nav id="nav">
+      <a href="#/dashboard" data-icon="◉">Dashboard</a>
+      <a href="#/extensions" data-icon="☎">Extensions</a>
+      <a href="#/ringgroups" data-icon="◎">Ring groups</a>
+      <a href="#/ivrs" data-icon="☰">IVR menus</a>
+      <a href="#/gsm" data-icon="📶">GSM line</a>
+      <a href="#/sms" data-icon="✉">SMS <span class="badge" id="smsBadge"></span></a>
+      <a href="#/voicemail" data-icon="✆">Voicemail <span class="badge" id="vmBadge"></span></a>
+      <a href="#/recordings" data-icon="⏺">Recordings</a>
+      <a href="#/calls" data-icon="≡">Call log</a>
+      <a href="#/prompts" data-icon="♪">Prompts</a>
+      <a href="#/settings" data-icon="⚙">Settings</a>
+      <a href="#/logs" data-icon="▤">Logs</a>
+    </nav>
+    <div class="side-foot">
+      <span id="version"></span>
+      <button class="link" id="logout">Sign out</button>
+    </div>
+  </aside>
+  <main>
+    <header class="top">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+      <h1 id="title">Dashboard</h1>
+      <div class="top-status" id="topStatus"></div>
+    </header>
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <header><h2 id="modalTitle"></h2><button class="link close" id="modalClose" aria-label="Close">✕</button></header>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>

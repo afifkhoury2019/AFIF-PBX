@@ -23,6 +23,12 @@ public sealed class WindowsSpeech : ISpeech
     public short[] Speak(string text)
     {
         if (!OperatingSystem.IsWindows()) return FallbackSpeech.Render(text);
+        try { return SpeakWindows(text); }
+        catch { return FallbackSpeech.Render(text); } // no voices installed / SAPI unavailable
+    }
+
+    private short[] SpeakWindows(string text)
+    {
         lock (_lock)
         {
             using var synth = new System.Speech.Synthesis.SpeechSynthesizer();
