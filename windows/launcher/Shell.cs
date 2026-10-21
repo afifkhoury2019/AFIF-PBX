@@ -4,7 +4,7 @@ using System.Text;
 namespace AfifPbx;
 
 /// <summary>Runs console tools (wsl.exe, usbipd.exe) without showing a window.</summary>
-internal static class Shell
+public static class Shell
 {
     public record Result(int ExitCode, string Output, string Error)
     {
