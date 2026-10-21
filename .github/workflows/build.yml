@@ -1,0 +1,210 @@
+name: Build AFIF-PBX
+
+on:
+  workflow_dispatch:
+    inputs:
+      drive_file_id:
+        description: "Google Drive file id of the Raspberry Pi image to clone (empty = clean install, no restore)"
+        default: ""
+        required: false
+      publish_release:
+        description: "Publish the installer as a GitHub release"
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths-ignore: ["**.md"]
+
+permissions:
+  contents: write
+
+env:
+  VERSION: 1.0.${{ github.run_number }}
+  # pushes build a clean (no restore) system so code changes are tested without touching the image
+  DRIVE_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.drive_file_id || '' }}
+
+jobs:
+  # ------------------------------------------------------------------ 1
+  extract:
+    name: Read the Raspberry Pi image
+    runs-on: ubuntu-latest
+    env:
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    outputs:
+      has_bundle: ${{ steps.done.outputs.has_bundle }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse to read the image in a public repository
+        if: env.DRIVE_ID != '' && env.REPO_PRIVATE != 'true'
+        run: |
+          echo "::error::This repository is public. The image contains your PBX passwords — make the repository private first (Settings > General > Danger Zone > Change visibility)."
+          exit 1
+      - name: Free disk space
+        if: env.DRIVE_ID != ''
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -af >/dev/null
+          df -h / /mnt
+      - name: Download image from Google Drive
+        if: env.DRIVE_ID != ''
+        run: |
+          sudo mkdir -p /mnt/work && sudo chown $USER /mnt/work && cd /mnt/work
+          url="https://drive.usercontent.google.com/download?id=${DRIVE_ID}&export=download&confirm=t"
+          curl -fL --retry 5 --retry-delay 10 -o image.img "$url" || true
+          size=$(stat -c %s image.img 2>/dev/null || echo 0)
+          if [ "$size" -lt 100000000 ] || head -c 200 image.img | grep -qi '<html'; then
+            echo "Direct download did not return the image (got $size bytes); trying gdown"
+            pip install -q gdown && rm -f image.img && gdown --fuzzy "https://drive.google.com/file/d/${DRIVE_ID}/view" -O image.img
+          fi
+          ls -l image.img
+          file image.img
+      - name: Extract configuration
+        if: env.DRIVE_ID != ''
+        run: |
+          sudo apt-get install -y -qq binutils file >/dev/null
+          sudo bash image-extract/extract.sh /mnt/work/image.img /mnt/work/out
+          sudo chown -R $USER /mnt/work/out
+          cat /mnt/work/out/INVENTORY.md >> "$GITHUB_STEP_SUMMARY"
+          rm -f /mnt/work/image.img
+          tar czf /mnt/work/restore-bundle.tgz -C /mnt/work/out bundle
+      - name: Upload restore bundle (private — contains credentials)
+        if: env.DRIVE_ID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-bundle
+          path: /mnt/work/restore-bundle.tgz
+          retention-days: 14
+      - name: Upload inventory
+        if: env.DRIVE_ID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: inventory
+          path: /mnt/work/out/INVENTORY.md
+      - name: Upload credentials report (private)
+        if: env.DRIVE_ID != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: credentials
+          path: /mnt/work/out/bundle/CREDENTIALS.md
+          retention-days: 14
+      - id: done
+        run: echo "has_bundle=$([ -n "$DRIVE_ID" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  # ------------------------------------------------------------------ 2
+  branding:
+    name: Branding assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y -qq librsvg2-bin imagemagick >/dev/null
+      - name: Render logo, icon and installer images
+        run: |
+          mkdir -p out
+          if [ -f branding/logo.png ]; then cp branding/logo.png out/logo.png; else rsvg-convert -w 1280 branding/logo.svg -o out/logo.png; fi
+          # square emblem for the icon: left part of the wide logo if it is wide, else the whole logo
+          w=$(identify -format %w out/logo.png); h=$(identify -format %h out/logo.png)
+          if [ -f branding/icon.png ]; then cp branding/icon.png out/emblem.png
+          elif [ "$w" -gt $((h*2)) ]; then convert out/logo.png -crop ${h}x${h}+0+0 +repage out/emblem.png
+          else cp out/logo.png out/emblem.png; fi
+          convert out/emblem.png -resize 256x256 -background none -gravity center -extent 256x256 \
+                  -define icon:auto-resize=256,128,64,48,32,24,16 out/afif-pbx.ico
+          # Inno Setup wizard images (BMP, no alpha)
+          convert -size 164x314 gradient:'#13234a'-'#070d1d' \( out/emblem.png -resize 120x120 \) -gravity center -composite \
+                  -type TrueColor BMP3:out/wizard-large.bmp
+          convert -size 55x55 xc:'#0b1630' \( out/emblem.png -resize 47x47 \) -gravity center -composite \
+                  -type TrueColor BMP3:out/wizard-small.bmp
+          ls -l out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: branding-assets
+          path: out/
+
+  # ------------------------------------------------------------------ 3
+  rootfs:
+    name: Build AFIF-PBX system (Debian 12, Asterisk, FreePBX engine, chan_dongle)
+    needs: [extract]
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+      - name: Get restore bundle
+        if: needs.extract.outputs.has_bundle == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: restore-bundle
+          path: /tmp/restore
+      - name: Build root filesystem
+        run: |
+          B=""
+          if [ -f /tmp/restore/restore-bundle.tgz ]; then
+            mkdir -p /tmp/restore/x && tar xzf /tmp/restore/restore-bundle.tgz -C /tmp/restore/x
+            B=/tmp/restore/x/bundle
+          fi
+          sudo bash rootfs/build-rootfs.sh "$PWD/afif-pbx-rootfs.tar.gz" "$B"
+          sudo chown $USER afif-pbx-rootfs.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rootfs
+          path: afif-pbx-rootfs.tar.gz
+          compression-level: 0
+          retention-days: 14
+
+  # ------------------------------------------------------------------ 4
+  windows:
+    name: Windows launcher + installer
+    needs: [rootfs, branding]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: branding-assets, path: dist/branding }
+      - uses: actions/download-artifact@v4
+        with: { name: rootfs, path: dist/system }
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "8.0.x" }
+      - name: Build launcher
+        shell: pwsh
+        run: |
+          Copy-Item dist/branding/logo.png windows/launcher/assets/logo.png
+          Copy-Item dist/branding/afif-pbx.ico windows/launcher/assets/afif-pbx.ico
+          dotnet publish windows/launcher/AfifPbxLauncher.csproj -c Release -o dist/app -p:Version=$env:VERSION
+          Copy-Item dist/branding/logo.png dist/app/logo.png
+          Get-ChildItem dist/app
+      - name: Fetch usbipd-win
+        shell: pwsh
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          New-Item -ItemType Directory -Force dist/deps | Out-Null
+          gh release download --repo dorssel/usbipd-win --pattern '*x64.msi' --dir dist/deps
+          if (-not (Get-ChildItem dist/deps -Filter *.msi)) { gh release download --repo dorssel/usbipd-win --pattern '*.msi' --dir dist/deps }
+          Get-ChildItem dist/deps
+      - name: Stage scripts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist/scripts | Out-Null
+          Copy-Item windows/scripts/*.ps1 dist/scripts/
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc /DAppVersion=$env:VERSION windows/installer/afif-pbx.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem dist/out | Format-Table Name, Length
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AFIF-PBX-Setup
+          path: dist/out/*.exe
+          compression-level: 0
+      - name: Publish release
+        if: github.event_name == 'workflow_dispatch' && inputs.publish_release
+        shell: pwsh
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          $exe = Get-ChildItem dist/out/*.exe | Select-Object -First 1
+          $notes = "AFIF-PBX $env:VERSION for Windows 11.`n`nRun the installer as administrator. Plug in the Huawei E303 after AFIF-PBX has started."
+          gh release create "v$env:VERSION" $exe.FullName --title "AFIF-PBX $env:VERSION" --notes $notes

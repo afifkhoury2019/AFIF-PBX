@@ -1,0 +1,9 @@
+dist/
+bin/
+obj/
+*.img
+*.tar.gz
+restore-bundle*
+CREDENTIALS.md
+windows/launcher/assets/*.png
+windows/launcher/assets/*.ico

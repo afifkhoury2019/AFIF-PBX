@@ -1,0 +1,15 @@
+#!/bin/bash
+# One-line machine-readable status for the AFIF-PBX Windows launcher.
+# Output: key=value pairs separated by ';'
+ast=down; up=""; dongles=""; web=down
+if asterisk -rx "core show uptime seconds" >/dev/null 2>&1; then
+  ast=up
+  up=$(asterisk -rx "core show uptime seconds" 2>/dev/null | awk '/System uptime/ {print $3}')
+  dongles=$(asterisk -rx "dongle show devices" 2>/dev/null | awk 'NR>1 && NF {
+      st=$3; if ($3=="Not") st=$3" "$4;
+      printf "%s|%s,", $1, st }' | sed 's/,$//')
+fi
+curl -s -o /dev/null -m 2 http://127.0.0.1/admin/ && web=up
+usb=$(ls /sys/bus/usb/devices/*/idVendor 2>/dev/null | xargs -r grep -l 12d1 2>/dev/null | wc -l)
+tty=$(ls /dev/ttyUSB* 2>/dev/null | wc -l)
+echo "asterisk=$ast;uptime=$up;web=$web;usb=$usb;tty=$tty;dongles=$dongles"

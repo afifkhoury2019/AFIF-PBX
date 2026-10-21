@@ -1,0 +1,3 @@
+#!/bin/sh
+# Held open by the AFIF-PBX Windows launcher so WSL never idles the PBX away.
+exec sleep infinity

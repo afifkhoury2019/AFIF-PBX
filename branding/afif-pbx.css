@@ -1,0 +1,82 @@
+/* ===== AFIF-PBX theme for the FreePBX 17 web interface ===== */
+:root{
+  --afif-navy:#0b1630;
+  --afif-navy-2:#13234a;
+  --afif-cyan:#38e1ff;
+  --afif-blue:#2563eb;
+  --afif-glow:rgba(56,225,255,.55);
+}
+
+/* Header logo: soft glow + recurring light sweep */
+#MENU_BRAND_IMAGE_TANGO_LEFT{
+  max-height:44px; width:auto;
+  filter:drop-shadow(0 0 6px var(--afif-glow));
+  animation:afif-breathe 4s ease-in-out infinite;
+}
+.afif-logo-wrap{position:relative; display:inline-block; overflow:hidden; vertical-align:middle; border-radius:6px}
+.afif-logo-wrap::after{
+  content:""; position:absolute; top:-20%; bottom:-20%; width:40%; left:-60%;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.65) 50%,transparent 100%);
+  transform:skewX(-20deg); animation:afif-sweep 6s ease-in-out 1.2s infinite; pointer-events:none;
+}
+@keyframes afif-sweep{0%{left:-60%}22%{left:130%}100%{left:130%}}
+@keyframes afif-breathe{0%,100%{filter:drop-shadow(0 0 4px var(--afif-glow))}50%{filter:drop-shadow(0 0 12px var(--afif-glow))}}
+
+/* Top bar in AFIF navy */
+.navbar, #floating-nav-bar, nav.navbar-default, .navbar-default{
+  background:linear-gradient(90deg,var(--afif-navy),var(--afif-navy-2)) !important;
+  border-color:transparent !important;
+}
+.navbar a, .navbar .navbar-brand, .navbar-default .navbar-nav>li>a{color:#e6efff !important}
+.navbar-default .navbar-nav>li>a:hover{color:var(--afif-cyan) !important}
+
+/* Accent colour for primary actions */
+.btn-primary, .btn-primary:focus{background:var(--afif-blue); border-color:var(--afif-blue)}
+.btn-primary:hover{background:#1d4fd0; border-color:#1d4fd0; box-shadow:0 0 0 3px rgba(37,99,235,.25)}
+
+/* Hide third-party sponsor promos that do not apply to AFIF-PBX */
+#footer_sponsor, .sangoma-logo, #login_support, a[href*="sangoma.com/store"], .promo-banner{display:none !important}
+
+/* ===== Intro rendering overlay (shown once per browser session) ===== */
+#afif-intro{
+  position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at center,#13234a 0%,#070d1d 70%);
+  animation:afif-intro-out .6s ease 2.6s forwards;
+}
+#afif-intro .ring{
+  position:absolute; width:340px; height:340px; border-radius:50%;
+  border:2px solid transparent; border-top-color:var(--afif-cyan); border-right-color:rgba(56,225,255,.35);
+  animation:afif-spin 1.4s linear infinite, afif-ring-in .8s ease-out both;
+  box-shadow:0 0 40px rgba(56,225,255,.15) inset;
+}
+#afif-intro .ring.r2{width:400px; height:400px; animation-duration:2.2s,.9s; animation-direction:reverse,normal; opacity:.5}
+#afif-intro img{
+  position:relative; width:min(520px,80vw); height:auto;
+  animation:afif-logo-in 1.3s cubic-bezier(.2,.9,.2,1) both;
+}
+#afif-intro .shine{
+  position:absolute; width:min(520px,80vw); height:170px; overflow:hidden; pointer-events:none;
+}
+#afif-intro .shine::after{
+  content:""; position:absolute; top:-30%; bottom:-30%; width:30%; left:-40%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);
+  transform:skewX(-20deg); animation:afif-sweep2 1s ease-in-out 1.3s both;
+}
+#afif-intro .tag{
+  position:absolute; bottom:18%; color:#7fa6d9; letter-spacing:.5em; font:600 13px/1 "Segoe UI",Arial,sans-serif;
+  animation:afif-fade-up .8s ease 1.5s both;
+}
+@keyframes afif-spin{to{transform:rotate(360deg)}}
+@keyframes afif-ring-in{from{transform:scale(.4); opacity:0}to{opacity:1}}
+@keyframes afif-logo-in{
+  0%{opacity:0; transform:perspective(800px) rotateX(35deg) scale(.6); filter:blur(14px) brightness(2)}
+  60%{opacity:1; filter:blur(0) brightness(1.4)}
+  100%{opacity:1; transform:none; filter:drop-shadow(0 0 22px var(--afif-glow))}
+}
+@keyframes afif-sweep2{from{left:-40%}to{left:140%}}
+@keyframes afif-fade-up{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:none}}
+@keyframes afif-intro-out{to{opacity:0; visibility:hidden}}
+@media (prefers-reduced-motion: reduce){
+  #afif-intro, #afif-intro *, .afif-logo-wrap::after, #MENU_BRAND_IMAGE_TANGO_LEFT{animation:none !important}
+  #afif-intro{display:none}
+}

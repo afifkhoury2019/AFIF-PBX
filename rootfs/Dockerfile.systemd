@@ -1,0 +1,12 @@
+# Debian 12 with systemd as PID 1 — the build environment for the AFIF-PBX WSL distro.
+FROM debian:12
+ENV DEBIAN_FRONTEND=noninteractive container=docker
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends systemd systemd-sysv dbus ca-certificates wget curl \
+      gnupg locales sudo procps iproute2 iputils-ping nano less cron \
+ && sed -i 's/^# *en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && locale-gen \
+ && rm -f /lib/systemd/system/multi-user.target.wants/getty* \
+          /lib/systemd/system/getty.target.wants/* \
+ && apt-get clean && rm -rf /var/lib/apt/lists/*
+STOPSIGNAL SIGRTMIN+3
+CMD ["/sbin/init"]

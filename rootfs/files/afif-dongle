@@ -1,0 +1,67 @@
+#!/bin/bash
+# AFIF-PBX Huawei dongle helper (E303 and similar).
+#   afif-dongle boot     load USB serial drivers, then scan
+#   afif-dongle hotplug  called from udev: queue a scan without blocking udev
+#   afif-dongle scan     switch storage-mode dongles to modem mode, bind the serial driver
+#   afif-dongle status   show what is attached and what Asterisk sees
+LOG=/var/log/afif-dongle.log
+log(){ echo "$(date '+%F %T') $*" >> "$LOG"; [ -t 1 ] && echo "$*"; }
+
+# PIDs a Huawei stick reports while it pretends to be a CD-ROM
+STORAGE_PIDS="1446 14fe 1f01 1c0b 1da1 1f1c 1f1d 155b 1557 1505 1520 1521 14d1 1414"
+
+load_drivers(){
+  for m in usbserial usb_wwan option; do modprobe "$m" 2>/dev/null || true; done
+}
+
+modem_ports(){ # $1 = sysfs device dir
+  ls -d "$1"/*/ttyUSB* 2>/dev/null | xargs -r -n1 basename
+}
+
+scan(){
+  load_drivers
+  for dev in /sys/bus/usb/devices/*; do
+    [ -f "$dev/idVendor" ] || continue
+    [ "$(cat "$dev/idVendor")" = "12d1" ] || continue
+    pid=$(cat "$dev/idProduct")
+    if echo " $STORAGE_PIDS " | grep -q " $pid "; then
+      log "12d1:$pid is in storage mode — switching to modem mode"
+      if [ -f "/etc/usb_modeswitch.d/12d1:$pid" ]; then
+        usb_modeswitch -v 0x12d1 -p 0x$pid -c "/etc/usb_modeswitch.d/12d1:$pid" >> "$LOG" 2>&1
+      else
+        # Huawei "new mode" switch; E303 stick firmware comes back as a 3-port modem
+        usb_modeswitch -v 0x12d1 -p 0x$pid -J >> "$LOG" 2>&1 \
+          || usb_modeswitch -v 0x12d1 -p 0x$pid -M '55534243123456780000000000000011062000000100000000000000000000' >> "$LOG" 2>&1
+      fi
+      continue   # the device re-enumerates; udev calls us again
+    fi
+    if [ -z "$(modem_ports "$dev")" ]; then
+      # Make sure the option driver claims the vendor-specific interfaces
+      echo "12d1 $pid ff" > /sys/bus/usb-serial/drivers/option1/new_id 2>/dev/null || true
+      sleep 2
+    fi
+    ports=$(modem_ports "$dev" | tr '\n' ' ')
+    log "12d1:$pid modem ports: ${ports:-none}"
+    for p in $ports; do chgrp dialout /dev/$p 2>/dev/null; chmod 660 /dev/$p 2>/dev/null; done
+  done
+  # Let chan_dongle pick the ports up straight away
+  if [ -n "$(ls /dev/ttyUSB* 2>/dev/null)" ] && asterisk -rx "core show version" >/dev/null 2>&1; then
+    for d in $(asterisk -rx "dongle show devices" 2>/dev/null | awk 'NR>1 && $3 ~ /Not|Disconnected/ {print $1}'); do
+      asterisk -rx "dongle restart now $d" >/dev/null 2>&1
+    done
+  fi
+}
+
+status(){
+  echo "== USB devices =="; lsusb 2>/dev/null | grep -i '12d1' || echo "no Huawei device attached"
+  echo "== Serial ports =="; ls -l /dev/ttyUSB* 2>/dev/null || echo "none"
+  echo "== Asterisk =="; asterisk -rx "dongle show devices" 2>/dev/null || echo "Asterisk not running"
+}
+
+case "${1:-scan}" in
+  boot)    load_drivers; scan ;;
+  hotplug) systemd-run --no-block --quiet --collect /usr/local/bin/afif-dongle scan 2>/dev/null || (sleep 3; scan) & ;;
+  scan)    sleep 1; scan ;;
+  status)  status ;;
+  *) echo "usage: afif-dongle boot|scan|status"; exit 1 ;;
+esac

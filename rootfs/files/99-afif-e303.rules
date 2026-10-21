@@ -1,0 +1,5 @@
+# AFIF-PBX: Huawei dongles (vendor 12d1)
+# Modem-mode serial ports are usable by Asterisk (dialout group)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="12d1", GROUP="dialout", MODE="0660"
+# When the dongle shows up as a CD-ROM/storage device, hand it to our helper to switch it
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="12d1", RUN+="/usr/local/bin/afif-dongle hotplug"

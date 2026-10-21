@@ -1,0 +1,12 @@
+[Unit]
+Description=AFIF-PBX GSM dongle preparation (Huawei E303)
+After=systemd-udevd.service
+Before=freepbx.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/afif-dongle boot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
