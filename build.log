@@ -1,0 +1,11 @@
+  Determining projects to restore...
+  Restored /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj (in 4.28 sec).
+  Restored /home/runner/work/AFIF-PBX/AFIF-PBX/native/src/AfifPbx.Core/AfifPbx.Core.csproj (in 4.28 sec).
+  AfifPbx.Core -> /home/runner/work/AFIF-PBX/AFIF-PBX/native/src/AfifPbx.Core/bin/Release/net8.0/AfifPbx.Core.dll
+  AfifPbx.Tests -> /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:13.23

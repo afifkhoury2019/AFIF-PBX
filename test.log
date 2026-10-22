@@ -1,0 +1,42 @@
+Test run for /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.32)
+[xUnit.net 00:00:00.08]   Discovering: AfifPbx.Tests
+[xUnit.net 00:00:00.13]   Discovered:  AfifPbx.Tests
+[xUnit.net 00:00:00.13]   Starting:    AfifPbx.Tests
+  Passed AfifPbx.Tests.WinUsbChooseTests.Network_interface_is_never_taken_for_voice [11 ms]
+  Passed AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: "10.0.0.0/8", ip: "10.1.2.3", blocks: 24) [16 ms]
+  Passed AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: "192.168.0.0/16", ip: "192.168.0.103", blocks: 16) [< 1 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Nothing_answering_means_no_choice [< 1 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Classic_three_port_stick_picks_pcui_and_voice [< 1 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Settings_override_detection [< 1 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_ucs2_arabic [2 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_multipart_headers [4 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_gsm7_reference_pdu [< 1 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Splits_long_arabic_into_parts [6 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Encodes_reference_submit [5 ms]
+  Passed AfifPbx.Tests.MediaTests.Dtmf_survives_g711 [52 ms]
+  Passed AfifPbx.Tests.MediaTests.Dtmf_detects_every_key_and_ignores_noise [47 ms]
+  Passed AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: True) [13 ms]
+  Passed AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: False) [< 1 ms]
+  Passed AfifPbx.Tests.MediaTests.Wav_round_trip_and_resample [15 ms]
+  Passed AfifPbx.Tests.BridgeTests.Bad_token_reports_a_clear_error [115 ms]
+  Passed AfifPbx.Tests.BridgeTests.Full_setup_creates_tunnel_dns_route_and_split_tunnel [43 ms]
+  Passed AfifPbx.Tests.BridgeTests.Second_setup_reuses_the_tunnel_and_never_touches_foreign_dns [9 ms]
+  Passed AfifPbx.Tests.CallTests.Extensions_register_and_call_each_other_with_audio_both_ways [995 ms]
+  Passed AfifPbx.Tests.CallTests.Sms_are_received_and_sent [256 ms]
+  Passed AfifPbx.Tests.CallTests.Unavailable_extension_goes_to_voicemail [6 s]
+  Passed AfifPbx.Tests.CallTests.Ivr_sends_the_caller_where_they_press [4 s]
+  Passed AfifPbx.Tests.CallTests.Wrong_password_cannot_register [49 ms]
+  Passed AfifPbx.Tests.CallTests.Incoming_gsm_call_rings_the_inbound_destination [648 ms]
+  Passed AfifPbx.Tests.CallTests.Calls_are_recorded_when_enabled [2 s]
+  Passed AfifPbx.Tests.CallTests.Ring_group_rings_every_member_and_connects_the_one_who_answers [454 ms]
+[xUnit.net 00:00:17.15]   Finished:    AfifPbx.Tests
+Data collector 'Blame' message: All tests finished running, Sequence file will not be generated.
+  Passed AfifPbx.Tests.CallTests.Calling_an_outside_number_uses_the_gsm_line [1 s]
+
+Test Run Successful.
+Total tests: 28
+     Passed: 28
+ Total time: 17.9117 Seconds
+Results File: /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/TestResults/results.trx
