@@ -35,6 +35,9 @@ RestartApplications=no
 WelcomeLabel1=Welcome to AFIF-PBX
 WelcomeLabel2=This installs AFIF-PBX {#AppVersion}, the AFIF-TECH phone system for Windows: extensions, the GSM line through your Huawei dongle, ring groups, IVR, voicemail, SMS and call recording.%n%nIt runs as a normal Windows service — no Linux, WSL or virtual machine.%n%nIf the previous AFIF-PBX (WSL edition) is installed, it is removed and the dongle is given back to Windows.
 
+[Tasks]
+Name: "dongledriver"; Description: "Install the AFIF-PBX dongle driver (Huawei E303 and similar — no Huawei software needed)"
+
 [InstallDelete]
 ; leftovers of the WSL edition
 Type: filesandordirs; Name: "{app}\system"
@@ -44,17 +47,22 @@ Type: filesandordirs; Name: "{app}\scripts"
 [Files]
 Source: "{#Dist}\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 Source: "{#Dist}\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion
+Source: "{#Dist}\driver\*"; DestDir: "{app}\driver"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\AFIF-PBX"; Filename: "{app}\AFIF-PBX.exe"
 Name: "{autodesktop}\AFIF-PBX"; Filename: "{app}\AFIF-PBX.exe"
 Name: "{group}\AFIF-PBX web panel"; Filename: "http://localhost/"
+Name: "{group}\Install dongle driver"; Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\scripts\install-driver.ps1"""; IconFilename: "{app}\AFIF-PBX.exe"
 Name: "{group}\Uninstall AFIF-PBX"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "powershell.exe"; \
   Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\scripts\install.ps1"" -AppDir ""{app}"""; \
   StatusMsg: "Setting up the AFIF-PBX service…"; Flags: runhidden waituntilterminated
+Filename: "powershell.exe"; \
+  Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\scripts\install-driver.ps1"" -DriverDir ""{app}\driver"""; \
+  StatusMsg: "Installing the AFIF-PBX dongle driver…"; Flags: runhidden waituntilterminated; Tasks: dongledriver
 Filename: "{app}\AFIF-PBX.exe"; Description: "Start AFIF-PBX now"; Flags: postinstall nowait skipifsilent runasoriginaluser
 
 [Code]

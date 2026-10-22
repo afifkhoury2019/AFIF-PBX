@@ -47,43 +47,75 @@ public static class PortDiscovery
         return list;
     }
 
+    /// <summary>COM ports plus dongle interfaces bound to the AFIF-PBX WinUSB driver.</summary>
+    public static IReadOnlyList<DiscoveredPort> ListAllPorts()
+    {
+        var list = ListComPorts().ToList();
+        try { list.AddRange(WinUsb.Interfaces().Select(i => new DiscoveredPort(i.Key, i.Name))); } catch { }
+        return list;
+    }
+
+    private static bool IsUsbKey(string s) => s.StartsWith("USB:", StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
-    /// Opens the dongle: explicit ports from settings win, otherwise the "PC UI Interface" and
-    /// "Application Interface" ports are picked automatically.
+    /// Opens the dongle. Order: COM ports from a Huawei driver (or the ones chosen in settings), then the
+    /// AFIF-PBX WinUSB driver, then — if the stick is still a virtual CD — switch it to modem mode.
     /// </summary>
     public static Func<(IModemPorts?, string, string)> Opener(Func<(string at, string audio)> configured) => () =>
     {
         var (cfgAt, cfgAudio) = configured();
-        string at = cfgAt, audio = cfgAudio;
-        if (string.IsNullOrWhiteSpace(at) || string.IsNullOrWhiteSpace(audio))
+
+        // 1) COM ports
+        if (!IsUsbKey(cfgAt))
         {
-            var ports = ListComPorts();
-            var pcui = ports.FirstOrDefault(p => p.Name.Contains("PC UI", StringComparison.OrdinalIgnoreCase));
-            var app = ports.FirstOrDefault(p => p.Name.Contains("Application Interface", StringComparison.OrdinalIgnoreCase));
-            if (string.IsNullOrWhiteSpace(at)) at = pcui?.Port ?? "";
-            if (string.IsNullOrWhiteSpace(audio)) audio = app?.Port ?? "";
+            string at = cfgAt, audio = IsUsbKey(cfgAudio) ? "" : cfgAudio;
+            if (string.IsNullOrWhiteSpace(at) || string.IsNullOrWhiteSpace(audio))
+            {
+                var ports = ListComPorts();
+                var pcui = ports.FirstOrDefault(p => p.Name.Contains("PC UI", StringComparison.OrdinalIgnoreCase));
+                var app = ports.FirstOrDefault(p => p.Name.Contains("Application Interface", StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrWhiteSpace(at)) at = pcui?.Port ?? "";
+                if (string.IsNullOrWhiteSpace(audio)) audio = app?.Port ?? "";
+            }
+            if (!string.IsNullOrWhiteSpace(at))
+            {
+                try { return (new SerialModemPorts(at, audio), "starting", ""); }
+                catch (UnauthorizedAccessException)
+                {
+                    return (null, "port-busy",
+                        $"{at} is in use by another program. Close HUAWEI Mobile Partner (and remove it from start-up), or any other dialler.");
+                }
+                catch (Exception ex) { return (null, "error", $"Could not open {at}/{audio}: {ex.Message}"); }
+            }
         }
-        if (string.IsNullOrWhiteSpace(at))
+
+        // 2) AFIF-PBX WinUSB driver
+        var itfs = new List<WinUsbInterface>();
+        try { itfs = WinUsb.Interfaces(); } catch { }
+        if (itfs.Count > 0)
         {
-            var huawei = HuaweiDevices();
-            if (huawei.Count == 0)
-                return (null, "no-device", "No GSM dongle found. Plug in the Huawei dongle.");
-            return (null, "no-driver",
-                "The Huawei dongle is plugged in but its COM ports are missing. Install the HUAWEI Mobile Connect driver " +
-                "(run the setup on the dongle's virtual CD drive), then unplug and re-plug the dongle.");
+            var (atItf, audioItf) = WinUsb.Choose(itfs, WinUsb.AnswersAt,
+                IsUsbKey(cfgAt) ? cfgAt.ToUpperInvariant() : "", IsUsbKey(cfgAudio) ? cfgAudio.ToUpperInvariant() : "");
+            if (atItf is null)
+                return (null, "starting", "The dongle is connected but not answering yet — waiting for it to start.");
+            try { return (new WinUsbModemPorts(atItf, audioItf), "starting", ""); }
+            catch (Exception ex) { return (null, "port-busy", $"Could not open the dongle over USB: {ex.Message}"); }
         }
-        try
+
+        // 3) still a virtual CD? switch it
+        if (ModeSwitch.HuaweiCdDrives().Count > 0)
         {
-            return (new SerialModemPorts(at, audio), "starting", "");
+            int n = ModeSwitch.SwitchAll();
+            return (null, "starting", n > 0
+                ? "Switching the dongle from CD mode to modem mode…"
+                : "The dongle is in CD mode and did not accept the switch command. Unplug it and plug it in again.");
         }
-        catch (UnauthorizedAccessException)
-        {
-            return (null, "port-busy",
-                $"{at} is in use by another program. Close HUAWEI Mobile Partner (and remove it from start-up), or any other dialler.");
-        }
-        catch (Exception ex)
-        {
-            return (null, "error", $"Could not open {at}/{audio}: {ex.Message}");
-        }
+
+        var huawei = HuaweiDevices();
+        if (huawei.Count == 0)
+            return (null, "no-device", "No GSM dongle found. Plug in the Huawei dongle.");
+        return (null, "no-driver",
+            "The Huawei dongle is plugged in but has no driver. Install the AFIF-PBX dongle driver: Start menu → AFIF-PBX → " +
+            "\"Install dongle driver\", then unplug and re-plug the dongle.");
     };
 }

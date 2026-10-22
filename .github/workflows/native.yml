@@ -97,6 +97,29 @@ jobs:
           dotnet publish native/src/AfifPbx.Server/AfifPbx.Server.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           dotnet publish native/src/AfifPbx.Tray/AfifPbx.Tray.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           Get-ChildItem native/dist/app -Filter *.exe
+      - name: Build dongle driver catalog
+        shell: pwsh
+        run: |
+          $mk = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\makecat.exe" | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $mk) { throw "makecat.exe not found" }
+          Push-Location native/driver
+          & $mk.FullName -v afif-dongle.cdf
+          if ($LASTEXITCODE -ne 0) { throw "makecat failed" }
+          Pop-Location
+          New-Item -ItemType Directory -Force native/dist/driver | Out-Null
+          Copy-Item native/driver/afif-dongle.inf, native/driver/afif-dongle.cat native/dist/driver/
+          Get-ChildItem native/dist/driver
+      - name: Test the dongle driver installs on Windows
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File native/installer/install-driver.ps1 -DriverDir native/dist/driver
+          Get-Content "$env:ProgramData\AFIF-PBX\driver-install.log" | Select-Object -Last 25
+          $drv = pnputil /enum-drivers | Out-String
+          if ($drv -notmatch "afif-dongle.inf") { throw "driver package was not added to the driver store" }
+          "Driver store entry found."
+          # the signing key must be gone
+          $left = Get-ChildItem Cert:\LocalMachine\My | Where-Object Subject -like "*AFIF-PBX dongle driver*"
+          if ($left) { throw "private signing certificate was not removed" }
       - name: Smoke test the service
         shell: pwsh
         run: |

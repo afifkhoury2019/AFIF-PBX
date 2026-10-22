@@ -301,7 +301,7 @@ api.MapGet("/gsm", () => new
 {
     enabled = engine.Config.Current.Settings.GsmEnabled,
     status = engine.Modem?.Status,
-    ports = PortDiscovery.ListComPorts(),
+    ports = PortDiscovery.ListAllPorts(),
     huaweiDevices = PortDiscovery.HuaweiDevices(),
 });
 api.MapPost("/gsm/reconnect", () => { engine.Modem?.Reconnect(); return Results.Ok(); });

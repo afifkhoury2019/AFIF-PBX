@@ -352,7 +352,7 @@ pages.gsm = {
     const [g, settings, cfg] = await Promise.all([api("/gsm"), api("/settings"), cfgCache ? Promise.resolve(cfgCache) : loadCfg()]);
     const m = g.status;
     const help = {
-      "no-driver": "Windows sees the dongle but not its COM ports. Open the dongle's virtual CD in File Explorer and run its setup (HUAWEI Mobile Partner / Mobile Connect driver), then unplug and re-plug the dongle.",
+      "no-driver": "Windows sees the dongle but it has no driver. Open the Start menu → AFIF-PBX → \"Install dongle driver\" (answer Yes to the administrator prompt), then unplug and re-plug the dongle. No Huawei software is needed.",
       "port-busy": "Another program holds the dongle. Exit HUAWEI Mobile Partner from the system tray and stop it starting with Windows.",
       "no-sim": "Check the SIM is inserted and its PIN is turned off.",
       "no-voice": "This dongle's firmware does not allow voice calls. SMS still works.",
