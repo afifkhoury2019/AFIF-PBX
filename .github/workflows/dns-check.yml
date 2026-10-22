@@ -1,0 +1,22 @@
+name: Check domain from the internet
+on: { workflow_dispatch: { inputs: { domain: { default: "powerchain.uk" } } } }
+permissions: { contents: write }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          D=${{ inputs.domain }}
+          {
+          echo "== NS / SOA"; dig +short NS $D @1.1.1.1; dig +short SOA $D @1.1.1.1
+          for h in $D www.$D iot.$D ssh.$D pbx.$D sip.$D; do
+            echo "== $h"; echo "A: $(dig +short A $h @1.1.1.1 | tr '\n' ' ')  CNAME: $(dig +short CNAME $h @1.1.1.1)"
+            curl -s -o /dev/null -m 15 -w "https: %{http_code} (%{remote_ip})\n" https://$h/ || echo "https: failed"
+          done
+          echo "== whois status"; whois $D 2>/dev/null | grep -iE "status|expir|registrar:|name server|renewal" | head -20
+          } | tee report.txt
+      - name: publish
+        if: always()
+        run: |
+          mkdir -p /tmp/ci/dns && cp report.txt /tmp/ci/dns/ && cd /tmp/ci && git init -q -b ci-logs && git add -A
+          git -c user.name=ci -c user.email=ci@localhost commit -q -m dns && git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-logs
