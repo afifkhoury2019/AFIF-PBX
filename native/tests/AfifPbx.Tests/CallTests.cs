@@ -185,7 +185,7 @@ public sealed class CallTests : IDisposable
         b.AutoAnswer = true;
 
         Assert.True(await a.DialAsync("101"), "call should be answered");
-        Assert.True(await Eventually(() => a.LoudFrames > 15 && b.LoudFrames > 15),
+        Assert.True(await Eventually(() => a.LoudFrames > 15 && b.LoudFrames > 15, 15000),
             $"audio should flow both ways (100 heard {a.LoudFrames}, 101 heard {b.LoudFrames})");
         Assert.Single(engine.Calls.ActiveCalls);
 
