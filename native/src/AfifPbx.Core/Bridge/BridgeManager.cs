@@ -120,6 +120,7 @@ public sealed class BridgeManager : IDisposable
     {
         var log = new List<string>();
         void Step(string s) { log.Add(s); _log.LogInformation("Bridge: {Step}", s); }
+        string need = "";
         try
         {
             string zone = req.Zone.Trim().TrimEnd('.').ToLowerInvariant();
@@ -129,9 +130,11 @@ public sealed class BridgeManager : IDisposable
             if (lanIp.Length == 0) throw new CloudflareException("Could not find this PC's LAN address");
 
             var api = new CloudflareApi(req.ApiToken, _handler());
+            need = "Zone · Zone · Read (for " + zone + ")";
             var z = await api.FindZoneAsync(zone);
             Step($"✓ Found {z.Name} in Cloudflare account {z.AccountName}".TrimEnd());
 
+            need = "Account · Cloudflare Tunnel · Edit";
             var (tunnelId, created) = await api.EnsureTunnelAsync(z.AccountId, "afif-pbx");
             Step(created ? $"✓ Created tunnel \"afif-pbx\" ({tunnelId[..8]}…)" : $"✓ Using existing tunnel \"afif-pbx\" ({tunnelId[..8]}…)");
 
@@ -139,11 +142,13 @@ public sealed class BridgeManager : IDisposable
             await api.PutTunnelConfigAsync(z.AccountId, tunnelId, new[] { (panel, $"http://localhost:{port}") });
             Step($"✓ Tunnel serves https://{panel} → this PC's web panel, with private-network routing on");
 
+            need = "Zone · DNS · Edit (for " + zone + ")";
             var r1 = await api.UpsertDnsAsync(z.Id, "CNAME", panel, $"{tunnelId}.cfargotunnel.com", true, "AFIF-PBX web panel (tunnel)");
             Step($"✓ DNS {panel} {r1}");
             var r2 = await api.UpsertDnsAsync(z.Id, "A", sip, lanIp, false, "AFIF-PBX SIP via Cloudflare One");
             Step($"✓ DNS {sip} → {lanIp} {r2} (reachable when the Cloudflare One app is on)");
 
+            need = "Account · Cloudflare Tunnel · Edit (private network routes)";
             var r3 = await api.EnsureRouteAsync(z.AccountId, tunnelId, lanIp + "/32");
             Step($"✓ Private route {lanIp}/32 through the tunnel {r3}");
 
@@ -175,6 +180,7 @@ public sealed class BridgeManager : IDisposable
             if (team is null) Step("! Zero Trust is not set up yet: open one.dash.cloudflare.com once and pick a team name (free plan), then run setup again for the phone app.");
             else Step($"✓ Cloudflare One team: {team.Split('.')[0]}");
 
+            need = "Account · Cloudflare Tunnel · Edit";
             var token = await api.TunnelTokenAsync(z.AccountId, tunnelId);
             Step("✓ Got the tunnel connector token");
 
@@ -198,6 +204,8 @@ public sealed class BridgeManager : IDisposable
         catch (Exception ex) when (ex is CloudflareException or HttpRequestException or TaskCanceledException)
         {
             Step("✗ " + ex.Message);
+            if (need.Length > 0 && (ex.Message.Contains("10000") || ex.Message.Contains("permission") || ex.Message.Contains("Authentication")))
+                Step($"→ The API token is missing this permission: {need}. Edit the token in Cloudflare (My Profile → API Tokens → Edit), add it, and run setup again — the steps already done are kept.");
             lock (_lock) { _cfg.LastSetupLog = log; _cfg.LastSetupUtc = DateTime.UtcNow; }
             Save();
             return (false, log);

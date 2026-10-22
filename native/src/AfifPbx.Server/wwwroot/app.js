@@ -559,7 +559,12 @@ pages.bridge = {
         const r = await fetch("/api/bridge/setup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
         const j = await r.json();
         toast(j.ok ? "Bridge is set up" : "Setup stopped — see the log", !j.ok);
-      } finally { btn.removeAttribute("id"); pages.bridge.render(); }
+      } finally {
+        btn.removeAttribute("id");
+        const t = $("#bridgeForm [name=apiToken]"); if (t) t.value = "";
+        document.activeElement?.blur();
+        pages.bridge.render();
+      }
     }));
     $("#manual").addEventListener("click", () => openModal("Use an existing tunnel token", `<form id="f">
       <p class="sub">Create a tunnel in Cloudflare Zero Trust → Networks → Tunnels, copy its token, and add a public hostname pointing to <b class="mono">http://localhost:${st.httpPort}</b>.</p>
