@@ -175,7 +175,8 @@ public sealed class SipServer : IDisposable
         if (ext is null) return;
 
         var s = _config.Current.Settings;
-        var leg = SipLeg.FromInvite(Transport, req, s.RtpPortStart, s.RtpPortEnd);
+        IPAddress? bind = IPAddress.TryParse(HostFor(remote), out var b) ? b : null;
+        var leg = SipLeg.FromInvite(Transport, req, s.RtpPortStart, s.RtpPortEnd, bind);
         leg.Extension = ext.Number;
         leg.Number = ext.Number;
         leg.Name = string.IsNullOrWhiteSpace(ext.Name) ? ext.Number : ext.Name;

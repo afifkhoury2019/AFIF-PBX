@@ -37,9 +37,12 @@ public sealed class SipLeg : CallLeg
         _rtp.OnTimeout += _ => { if (State == LegState.Answered) Hangup("media timeout"); };
     }
 
-    internal static RTPSession CreateRtp(int portStart, int portEnd)
+    /// <param name="bind">The local address that routes to the phone. Binding to it makes the address in the
+    /// SDP and the source address of our RTP the same, which strict phones require (no one-way audio
+    /// on PCs with several network adapters, e.g. Hyper-V/WSL/VPN).</param>
+    internal static RTPSession CreateRtp(int portStart, int portEnd, IPAddress? bind)
     {
-        var rtp = new RTPSession(false, false, false, null, 0, new PortRange(portStart, portEnd));
+        var rtp = new RTPSession(false, false, false, bind, 0, new PortRange(portStart, portEnd));
         var formats = new List<SDPAudioVideoMediaFormat>
         {
             new(SDPWellKnownMediaFormatsEnum.PCMU),
@@ -51,11 +54,11 @@ public sealed class SipLeg : CallLeg
     }
 
     /// <summary>Wrap an incoming INVITE. The caller is not answered until <see cref="AnswerAsync"/>.</summary>
-    public static SipLeg FromInvite(SIPTransport transport, SIPRequest invite, int rtpStart, int rtpEnd)
+    public static SipLeg FromInvite(SIPTransport transport, SIPRequest invite, int rtpStart, int rtpEnd, IPAddress? bind = null)
     {
         var ua = new SIPUserAgent(transport, null);
         var uas = ua.AcceptCall(invite);
-        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd), uas)
+        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind), uas)
         {
             Number = invite.Header.From.FromURI.User ?? "",
             Name = invite.Header.From.FromName ?? "",
@@ -70,7 +73,8 @@ public sealed class SipLeg : CallLeg
         string callerNumber, string callerName, string pbxHost, int ringSeconds, int rtpStart, int rtpEnd)
     {
         var ua = new SIPUserAgent(transport, sendTo);
-        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd), null) { Number = contactUri };
+        IPAddress? bind = IPAddress.TryParse(pbxHost, out var b) ? b : null;
+        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind), null) { Number = contactUri };
         ua.ClientCallAnswered += (_, _) => { leg._rtpReady = true; leg.MarkAnsweredPublic(); };
         ua.ClientCallFailed += (_, err, resp) => leg.Close(resp is null ? err : $"{(int)resp.Status} {resp.ReasonPhrase}");
 
