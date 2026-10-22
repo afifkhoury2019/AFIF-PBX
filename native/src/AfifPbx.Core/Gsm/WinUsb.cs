@@ -30,7 +30,7 @@ public static class WinUsb
     private struct SP_DEVICE_INTERFACE_DATA { public int cbSize; public Guid InterfaceClassGuid; public int Flags; public IntPtr Reserved; }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    internal struct USB_INTERFACE_DESCRIPTOR
+    public struct USB_INTERFACE_DESCRIPTOR
     {
         public byte bLength, bDescriptorType, bInterfaceNumber, bAlternateSetting, bNumEndpoints,
             bInterfaceClass, bInterfaceSubClass, bInterfaceProtocol, iInterface;
