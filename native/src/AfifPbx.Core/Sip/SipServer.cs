@@ -144,7 +144,7 @@ public sealed class SipServer : IDisposable
             {
                 if (c.ContactURI is null) continue;
                 long exp = c.Expires >= 0 ? c.Expires : req.Header.Expires >= 0 ? req.Header.Expires : 3600;
-                if (exp > 0) exp = Math.Clamp(exp, 60, 3600);
+                if (exp > 0) exp = Math.Clamp(exp, 60, 600); // short re-registration keeps bridged (Cloudflare One) phones reachable
                 string uri = c.ContactURI.ToString();
                 list.RemoveAll(b => string.Equals(b.ContactUri, uri, StringComparison.OrdinalIgnoreCase));
                 if (exp > 0)

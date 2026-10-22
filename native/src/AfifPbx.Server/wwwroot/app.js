@@ -493,6 +493,88 @@ pages.prompts = {
   }
 };
 
+
+// ------------------------------------------------------------ remote access (AFIF Bridge)
+pages.bridge = {
+  title: "Remote access", refresh: 5000,
+  async render() {
+    if (document.activeElement && $("#bridgeForm")?.contains(document.activeElement)) return;
+    if ($("#bridgeBusy") || $("#bridgeForm [name=apiToken]")?.value) return;
+    const [b, st] = await Promise.all([api("/bridge"), api("/status")]);
+    const lan = st.addresses[0] || "";
+    const pill = b.connected ? '<span class="pill good">Connected</span>' : b.configured && b.enabled ? '<span class="pill warn">' + esc(b.message) + "</span>" : '<span class="pill">' + esc(b.message) + "</span>";
+    const team = b.teamDomain ? b.teamDomain.split(".")[0] : "";
+    const exts = st.extensions.map(e => e.number);
+    $("#view").innerHTML = `
+      <div class="notice info">The AFIF Bridge puts AFIF-PBX on your own domain through <b>Cloudflare</b>, with <b>no router ports opened</b>.
+        It uses its own tunnel named <b>afif-pbx</b>, so your other tunnels and hostnames (for example Node-RED) are not changed.</div>
+      <div class="grid">
+        <div class="card"><h3>Bridge</h3><div class="row">${pill}</div>
+          ${b.panelUrl ? `<div class="stat" style="font-size:18px;margin-top:10px"><a href="${esc(b.panelUrl)}" target="_blank">${esc(b.panelUrl.replace("https://", ""))}</a></div><div class="sub">Web panel from anywhere</div>` : '<div class="sub" style="margin-top:8px">Not set up yet</div>'}
+          ${b.configured ? `<div class="row" style="margin-top:12px"><button class="btn small" id="toggle">${b.enabled ? "Switch off" : "Switch on"}</button>
+            <button class="btn small danger" id="remove">Remove</button></div>` : ""}</div>
+        <div class="card"><h3>Phones outside your network</h3>
+          ${b.sipHostname ? `<dl class="kv"><dt>SIP server</dt><dd class="mono">${esc(b.sipHostname)}</dd><dt>Transport</dt><dd>UDP</dd>
+            <dt>PBX address</dt><dd class="mono">${esc(b.lanIp)}</dd><dt>Cloudflare One team</dt><dd class="mono">${esc(team || "—")}</dd>
+            <dt>Split tunnel</dt><dd>${b.splitTunnelAdjusted ? "Ready" : "Check Zero Trust settings"}</dd></dl>` : '<div class="sub">Set up the bridge first.</div>'}</div>
+        <div class="card wide"><h3>${b.configured ? "Run setup again" : "Set up"}</h3>
+          <form id="bridgeForm"><div class="form-grid">
+            <label>Your domain<input name="zone" value="${esc(b.zone || "powerchain.uk")}" required></label>
+            <label>Web panel name<input name="panelHostname" value="${esc((b.panelUrl || "").replace("https://", "").split(".")[0] || "pbx")}"></label>
+            <label>SIP name (for Linphone)<input name="sipHostname" value="${esc((b.sipHostname || "").split(".")[0] || "sip")}"></label>
+            <label>This PC's address<input name="lanIp" value="${esc(b.lanIp || lan)}"></label>
+          </div>
+          <label>Cloudflare API token<input name="apiToken" type="password" autocomplete="off" placeholder="paste the token here" required></label>
+          <label class="check"><input type="checkbox" name="adjustSplitTunnel" checked> Let the Cloudflare One app send this PC's address through the bridge (adjusts the split tunnel)</label>
+          <details style="margin:6px 0 14px"><summary class="sub" style="cursor:pointer">How to create the API token</summary>
+            <ol class="sub">
+              <li>Cloudflare dashboard → <b>My Profile → API Tokens → Create Token → Create Custom Token</b>.</li>
+              <li>Permissions: <b>Account · Cloudflare Tunnel · Edit</b>, <b>Account · Zero Trust · Edit</b>, <b>Account · Access: Organizations, Identity Providers, and Groups · Read</b>, <b>Zone · DNS · Edit</b>, <b>Zone · Zone · Read</b>.</li>
+              <li>Account resources: your account. Zone resources: <b>${esc(b.zone || "powerchain.uk")}</b>. Create, then copy the token here.</li>
+              <li>The token is stored encrypted on this PC only.</li>
+            </ol></details>
+          <div class="row"><button class="btn primary">Set up the bridge</button><span class="spacer"></span>
+            <button type="button" class="link" id="manual">I already have a tunnel token</button></div></form>
+          ${b.lastSetupLog?.length ? `<h3 style="margin-top:18px">Last setup</h3><div class="mono sub" style="white-space:pre-wrap">${b.lastSetupLog.map(esc).join("\n")}</div>` : ""}
+        </div>
+        <div class="card wide"><h3>Linphone on your mobile — step by step</h3>
+          <ol>
+            <li>Install <b>Cloudflare One</b> (by Cloudflare) from the App Store or Google Play.</li>
+            <li>Open it → <b>Log in with Zero Trust</b> → team name <b class="mono">${esc(team || "your team name")}</b> → sign in with your email (Cloudflare sends a code). Then switch it <b>on</b>.
+              <div class="sub">First time only: in one.dash.cloudflare.com → Settings → WARP Client → <b>Device enrollment permissions</b>, add a rule that allows your email address.</div></li>
+            <li>Install <b>Linphone</b> → <b>Use SIP account</b>:
+              <dl class="kv" style="margin:8px 0"><dt>Username</dt><dd>your extension (${exts.map(esc).join(", ")})</dd><dt>Password</dt><dd>the extension's secret (Extensions → Edit)</dd>
+              <dt>Domain</dt><dd class="mono">${esc(b.sipHostname || "sip." + (b.zone || "powerchain.uk"))}</dd><dt>Transport</dt><dd>UDP</dd></dl></li>
+            <li>Make a test call to <b>*43</b> (echo test): you should hear yourself.</li>
+          </ol>
+          <p class="sub">Calls and voice go phone → Cloudflare → this PC through the encrypted Cloudflare One connection. Nothing is opened on your router.</p></div>
+        ${b.recentConnectorLog?.length ? `<div class="card wide"><h3>Connector log</h3><div class="mono sub" style="white-space:pre-wrap;max-height:240px;overflow:auto">${b.recentConnectorLog.map(esc).join("\n")}</div></div>` : ""}
+      </div>`;
+    $("#bridgeForm").addEventListener("submit", run(async e => {
+      e.preventDefault();
+      const d = formData(e.target);
+      const btn = e.target.querySelector(".btn.primary");
+      btn.disabled = true; btn.textContent = "Setting up…"; btn.id = "bridgeBusy";
+      try {
+        const r = await fetch("/api/bridge/setup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+        const j = await r.json();
+        toast(j.ok ? "Bridge is set up" : "Setup stopped — see the log", !j.ok);
+      } finally { btn.removeAttribute("id"); pages.bridge.render(); }
+    }));
+    $("#manual").addEventListener("click", () => openModal("Use an existing tunnel token", `<form id="f">
+      <p class="sub">Create a tunnel in Cloudflare Zero Trust → Networks → Tunnels, copy its token, and add a public hostname pointing to <b class="mono">http://localhost:${st.httpPort}</b>.</p>
+      <label>Tunnel token<input name="token" required></label><label>Public hostname of the panel<input name="panelHostname" placeholder="pbx.powerchain.uk"></label>
+      <div class="modal-actions"><button class="btn primary">Save and connect</button></div></form>`, body => {
+        $("#f", body).addEventListener("submit", run(async ev => { ev.preventDefault(); await api("/bridge/token", { method: "POST", body: formData(ev.target) }); closeModal(); toast("Saved"); pages.bridge.render(); }));
+      }));
+    $("#toggle")?.addEventListener("click", run(async () => { await api("/bridge/enabled", { method: "POST", body: { on: !b.enabled } }); pages.bridge.render(); }));
+    $("#remove")?.addEventListener("click", run(async () => {
+      if (!confirm("Remove the bridge from this PC (and AFIF-PBX's DNS records)?")) return;
+      const r = await api("/bridge", { method: "DELETE" }); toast(r.log.join(" ")); pages.bridge.render();
+    }));
+  }
+};
+
 // ------------------------------------------------------------ settings
 pages.settings = {
   title: "Settings",

@@ -97,6 +97,13 @@ jobs:
           dotnet publish native/src/AfifPbx.Server/AfifPbx.Server.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           dotnet publish native/src/AfifPbx.Tray/AfifPbx.Tray.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           Get-ChildItem native/dist/app -Filter *.exe
+      - name: Bundle Cloudflare connector (cloudflared)
+        shell: pwsh
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release download --repo cloudflare/cloudflared --pattern 'cloudflared-windows-amd64.exe' --dir native/dist
+          Move-Item native/dist/cloudflared-windows-amd64.exe native/dist/app/cloudflared.exe -Force
+          & native/dist/app/cloudflared.exe --version
       - name: Build dongle driver catalog
         shell: pwsh
         run: |
@@ -135,6 +142,9 @@ jobs:
           $s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
           $login = Invoke-RestMethod "http://127.0.0.1:$port/api/login" -Method Post -ContentType "application/json" -Body '{"user":"admin","password":"admin"}' -WebSession $s
           $ext = Invoke-RestMethod "http://127.0.0.1:$port/api/extensions" -WebSession $s
+          $br = Invoke-RestMethod "http://127.0.0.1:$port/api/bridge" -WebSession $s
+          "Bridge: $($br.message) — connector installed: $($br.connectorInstalled)"
+          if (-not $br.connectorInstalled) { throw "cloudflared not bundled" }
           if ($ext.Count -lt 1) { throw "no extensions" }
           $wav = Invoke-WebRequest "http://127.0.0.1:$port/api/speech/preview" -Method Post -ContentType "application/json" -Body '{"text":"Welcome to AFIF PBX"}' -WebSession $s -UseBasicParsing
           "Speech preview bytes: $($wav.RawContentLength)"

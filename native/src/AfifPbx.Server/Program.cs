@@ -39,6 +39,9 @@ if (!PortFree(httpPort))
 }
 File.WriteAllText(Path.Combine(dataDir, "http-port.txt"), httpPort.ToString());
 
+var bridge = new AfifPbx.Bridge.BridgeManager(dataDir, () => httpPort, loggerFactory.CreateLogger("Bridge"));
+bridge.Start();
+
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
@@ -67,6 +70,7 @@ const string Cookie = "afif_session";
 app.Lifetime.ApplicationStopping.Register(() =>
 {
     startLog.LogInformation("AFIF-PBX stopping");
+    bridge.Dispose();
     engine.Dispose();
 });
 
@@ -96,17 +100,27 @@ app.UseStaticFiles(new StaticFileOptions
 
 var api = app.MapGroup("/api");
 
+var loginFailures = new ConcurrentDictionary<string, (int Count, DateTime Until)>();
 api.MapPost("/login", (LoginRequest req, HttpContext ctx) =>
 {
+    // behind the Cloudflare tunnel the real visitor address is in CF-Connecting-IP
+    string ip = ctx.Request.Headers["CF-Connecting-IP"].FirstOrDefault() ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "?";
+    if (loginFailures.TryGetValue(ip, out var f) && f.Count >= 5 && f.Until > DateTime.UtcNow)
+        return Results.Json(new { error = $"Too many wrong passwords. Try again in {(int)Math.Ceiling((f.Until - DateTime.UtcNow).TotalMinutes)} minutes." }, statusCode: 429);
     var s = engine.Config.Current.Settings;
     if (!string.Equals(req.User?.Trim(), s.AdminUser, StringComparison.OrdinalIgnoreCase) || !Passwords.Verify(req.Password ?? "", s.AdminPasswordHash))
     {
         Thread.Sleep(600);
+        var cur = loginFailures.GetValueOrDefault(ip);
+        loginFailures[ip] = (cur.Until < DateTime.UtcNow ? 1 : cur.Count + 1, DateTime.UtcNow.AddMinutes(15));
+        startLog.LogWarning("Failed panel login from {Ip}", ip);
         return Results.Json(new { error = "Wrong user name or password" }, statusCode: 401);
     }
+    loginFailures.TryRemove(ip, out _);
     var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(24));
     sessions[token] = DateTime.UtcNow.AddHours(12);
-    ctx.Response.Cookies.Append(Cookie, token, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict });
+    bool https = ctx.Request.IsHttps || ctx.Request.Headers["X-Forwarded-Proto"].FirstOrDefault() == "https";
+    ctx.Response.Cookies.Append(Cookie, token, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Strict, Secure = https });
     return Results.Ok(new { user = s.AdminUser, mustChangePassword = s.AdminMustChangePassword });
 });
 
@@ -429,6 +443,26 @@ api.MapPost("/restore", async (HttpRequest req) =>
     return Results.Ok();
 });
 
+// ---------------------------------------------------------------- AFIF Bridge (Cloudflare)
+api.MapGet("/bridge", async () => await bridge.StatusAsync());
+api.MapPost("/bridge/setup", async (BridgeSetupRequest req) =>
+{
+    if (string.IsNullOrWhiteSpace(req.ApiToken) || string.IsNullOrWhiteSpace(req.Zone))
+        return Results.Json(new { error = "Enter the Cloudflare API token and your domain" }, statusCode: 400);
+    var (ok, log) = await bridge.SetupAsync(new AfifPbx.Bridge.BridgeManager.SetupRequest(
+        req.ApiToken, req.Zone, string.IsNullOrWhiteSpace(req.PanelHostname) ? "pbx" : req.PanelHostname,
+        string.IsNullOrWhiteSpace(req.SipHostname) ? "sip" : req.SipHostname, req.LanIp, req.AdjustSplitTunnel ?? true));
+    return Results.Json(new { ok, log }, statusCode: ok ? 200 : 400);
+});
+api.MapPost("/bridge/token", (BridgeTokenRequest req) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Token)) return Results.Json(new { error = "Paste the tunnel token" }, statusCode: 400);
+    bridge.UseTunnelToken(req.Token, req.PanelHostname ?? "");
+    return Results.Ok();
+});
+api.MapPost("/bridge/enabled", (BridgeEnableRequest req) => { bridge.SetEnabled(req.On); return Results.Ok(); });
+api.MapDelete("/bridge", async () => Results.Ok(new { log = await bridge.RemoveAsync() }));
+
 // SPA fallback
 app.MapFallbackToFile("index.html");
 
@@ -501,6 +535,9 @@ record PasswordRequest(string? Current, string? New, string? User);
 record SmsRequest(string? Number, string? Text);
 record UssdRequest(string? Code);
 record SpeechRequest(string? Text);
+record BridgeSetupRequest(string? ApiToken, string? Zone, string? PanelHostname, string? SipHostname, string? LanIp, bool? AdjustSplitTunnel);
+record BridgeTokenRequest(string? Token, string? PanelHostname);
+record BridgeEnableRequest(bool On);
 
 sealed class NumberOrder : IComparer<string>
 {
