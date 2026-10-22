@@ -19,12 +19,18 @@ $wsl = Join-Path $env:SystemRoot 'System32\wsl.exe'
 if (Test-Path $wsl) {
   $distros = (& $wsl --list --quiet 2>$null) -replace "`0", '' | ForEach-Object { $_.Trim() }
   if ($distros -contains 'AFIF-PBX') {
-    & $wsl --terminate AFIF-PBX 2>$null
-    & $wsl --unregister AFIF-PBX
+    & $wsl --terminate AFIF-PBX 2>&1 | Write-Host
+    & $wsl --unregister AFIF-PBX 2>&1 | Write-Host
+    & $wsl --shutdown 2>&1 | Write-Host
     Write-Host 'Old AFIF-PBX Linux system removed.'
   }
 }
 Unregister-ScheduledTask -TaskName 'AFIF-PBX' -Confirm:$false -ErrorAction SilentlyContinue
+# the old edition switched WSL to mirrored networking (it shared the PC's ports); put it back
+$cfg = Join-Path $env:USERPROFILE '.wslconfig'
+if (Test-Path $cfg) {
+  (Get-Content $cfg) | Where-Object { $_ -notmatch '^\s*networkingMode\s*=\s*mirrored' } | Set-Content $cfg -Encoding ASCII
+}
 if (Get-Command Get-NetFirewallHyperVRule -ErrorAction SilentlyContinue) {
   Get-NetFirewallHyperVRule -Name 'AFIFPBX-*' -ErrorAction SilentlyContinue | Remove-NetFirewallHyperVRule
 }

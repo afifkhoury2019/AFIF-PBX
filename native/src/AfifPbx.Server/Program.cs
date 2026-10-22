@@ -51,7 +51,7 @@ builder.Logging.AddProvider(logProvider);
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 builder.WebHost.ConfigureKestrel(k =>
 {
-    k.Listen(IPAddress.Any, httpPort);
+    k.ListenAnyIP(httpPort); // IPv4 and IPv6 — browsers often try [::1] for "localhost" first
     k.Limits.MaxRequestBodySize = 50 * 1024 * 1024;
 });
 builder.Services.Configure<JsonOptions>(o =>
@@ -474,14 +474,26 @@ static string? SafePath(string root, string relative)
 
 static bool PortFree(int port)
 {
+    foreach (var addr in new[] { IPAddress.Any, IPAddress.IPv6Any })
+    {
+        try
+        {
+            var l = new TcpListener(addr, port);
+            if (addr.Equals(IPAddress.IPv6Any)) l.Server.DualMode = false;
+            l.Start();
+            l.Stop();
+        }
+        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressFamilyNotSupported) { }
+        catch { return false; }
+    }
+    // something answering on localhost (e.g. a WSL Apache) also counts as taken
     try
     {
-        var l = new TcpListener(IPAddress.Any, port);
-        l.Start();
-        l.Stop();
-        return true;
+        using var c = new TcpClient(AddressFamily.InterNetworkV6);
+        if (c.ConnectAsync(IPAddress.IPv6Loopback, port).Wait(300) && c.Connected) return false;
     }
-    catch { return false; }
+    catch { }
+    return true;
 }
 
 record LoginRequest(string? User, string? Password);
