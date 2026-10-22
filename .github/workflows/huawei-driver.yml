@@ -1,0 +1,81 @@
+name: Find Huawei dongle driver (Microsoft Update Catalog)
+
+# Looks up Huawei's Microsoft-signed modem/port drivers for the E303 and similar dongles in the
+# Microsoft Update Catalog, downloads them, and lists which devices each one supports.
+# Results go to the ci-logs branch (driver-probe/).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Search and inspect
+        run: |
+          sudo apt-get install -y -qq cabextract >/dev/null
+          mkdir -p out cabs
+          python3 - <<'EOF'
+          import re, json, urllib.request, urllib.parse, os, subprocess, glob
+          UA = {"User-Agent": "Mozilla/5.0"}
+          def get(url, data=None):
+              req = urllib.request.Request(url, data=data, headers=UA)
+              return urllib.request.urlopen(req, timeout=60).read().decode("utf-8", "replace")
+          queries = ["VID_12D1&PID_1506", "VID_12D1&PID_1001", "VID_12D1&PID_1436", "VID_12D1&PID_140C",
+                     "HUAWEI Mobile Connect", "Huawei Incorporated Modem", "Huawei Incorporated Ports"]
+          found = {}
+          for q in queries:
+              html = get("https://www.catalog.update.microsoft.com/Search.aspx?q=" + urllib.parse.quote(q))
+              rows = re.findall(r'<tr id="([0-9a-f-]{36})_R\d+".*?</tr>', html, re.S)
+              for m in re.finditer(r'<tr id="([0-9a-f-]{36})_R\d+"(.*?)</tr>', html, re.S):
+                  uid, row = m.group(1), m.group(2)
+                  cells = [re.sub(r"<[^>]+>", " ", c).strip() for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+                  cells = [re.sub(r"\s+", " ", c) for c in cells]
+                  found.setdefault(uid, {"id": uid, "query": q, "cells": cells})
+          print(f"{len(found)} catalog entries")
+          results = []
+          for uid, info in list(found.items())[:40]:
+              body = "updateIDs=" + urllib.parse.quote(json.dumps([{"size": 0, "languages": "", "uidInfo": uid, "updateID": uid}]))
+              dl = get("https://www.catalog.update.microsoft.com/DownloadDialog.aspx", body.encode())
+              urls = re.findall(r"url\s*=\s*'([^']+)'", dl)
+              info["urls"] = urls
+              for u in urls[:1]:
+                  name = "cabs/" + uid + "_" + os.path.basename(urllib.parse.urlparse(u).path)
+                  try:
+                      urllib.request.urlretrieve(u, name)
+                      d = name + "_x"
+                      os.makedirs(d, exist_ok=True)
+                      subprocess.run(["cabextract", "-q", "-d", d, name], check=False)
+                      infs = []
+                      for inf in glob.glob(d + "/**/*.inf", recursive=True):
+                          raw = open(inf, "rb").read()
+                          txt = raw.decode("utf-16") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else raw.decode("latin-1")
+                          ids = sorted(set(re.findall(r"USB\\VID_12D1&PID_[0-9A-F]{4}(?:&MI_[0-9A-F]{2})?", txt, re.I)))
+                          names = sorted(set(re.findall(r'"(HUAWEI[^"]*(?:PC UI|Application|Voice|Modem|Diagnostics)[^"]*)"', txt, re.I)))
+                          ver = re.search(r"DriverVer\s*=\s*([^\r\n]+)", txt)
+                          infs.append({"inf": os.path.relpath(inf, d), "ver": ver.group(1).strip() if ver else "", "ids": ids, "names": names[:20]})
+                      info["infs"] = infs
+                      info["size"] = os.path.getsize(name)
+                  except Exception as e:
+                      info["error"] = str(e)
+              results.append(info)
+          json.dump(results, open("out/catalog.json", "w"), indent=1, ensure_ascii=False)
+          # short summary
+          with open("out/summary.txt", "w") as f:
+              for r in results:
+                  f.write(f"\n=== {r['id']} ({r['query']})\n{' | '.join(r['cells'][1:6])}\n{r.get('urls')}\n")
+                  for i in r.get("infs", []):
+                      has1506 = any("PID_1506" in x.upper() for x in i["ids"])
+                      f.write(f"  {i['inf']} ver={i['ver']} ids={len(i['ids'])} 1506={'YES' if has1506 else 'no'}\n")
+                      for n in i["names"][:8]: f.write(f"     {n}\n")
+          print(open("out/summary.txt").read())
+          EOF
+      - name: Publish results to ci-logs branch
+        if: always()
+        run: |
+          mkdir -p /tmp/ci/driver-probe && cp out/* /tmp/ci/driver-probe/ 2>/dev/null || true
+          cd /tmp/ci && git init -q -b ci-logs && git add -A
+          git -c user.name=ci -c user.email=ci@localhost commit -q -m "driver probe ${{ github.run_id }}"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-logs
