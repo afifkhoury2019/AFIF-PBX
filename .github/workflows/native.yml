@@ -143,6 +143,8 @@ jobs:
       - name: Smoke test the service
         shell: pwsh
         run: |
+          Start-Transcript -Path "$env:RUNNER_TEMP\smoke.txt" | Out-Null
+          trap { Write-Host "ERROR: $_"; Stop-Transcript | Out-Null; exit 1 }
           $data = "$env:RUNNER_TEMP\afif-data"
           $p = Start-Process native/dist/app/AFIF-PBX-Service.exe -ArgumentList "--data `"$data`"" -PassThru -NoNewWindow
           $port = $null
@@ -181,6 +183,16 @@ jobs:
           if ($wav.RawContentLength -lt 8000) { Write-Warning "Text-to-speech gave little audio on this build machine (no SAPI voices?)" }
           Stop-Process $p.Id -Force
           Get-Content "$data\Logs\*.log" | Select-Object -Last 30
+          Stop-Transcript | Out-Null
+      - name: Publish Windows smoke log
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p /tmp/ci && cp "$RUNNER_TEMP/smoke.txt" /tmp/ci/ 2>/dev/null || true
+          cp "$RUNNER_TEMP"/afif-data/Logs/*.log /tmp/ci/ 2>/dev/null || true
+          cd /tmp/ci && git init -q -b ci-win && git add -A
+          git -c user.name=ci -c user.email=ci@localhost commit -q -m "win ${{ github.run_id }}"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-win
       - name: Build installer
         shell: pwsh
         run: |
