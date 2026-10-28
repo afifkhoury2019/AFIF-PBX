@@ -41,6 +41,10 @@ File.WriteAllText(Path.Combine(dataDir, "http-port.txt"), httpPort.ToString());
 
 var bridge = new AfifPbx.Bridge.BridgeManager(dataDir, () => httpPort, loggerFactory.CreateLogger("Bridge"));
 bridge.Start();
+var tailscale = new AfifPbx.Remote.TailscaleManager(dataDir, loggerFactory.CreateLogger("Tailscale"),
+    bridgeToken: () => AfifPbx.Bridge.BridgeManager.Unprotect(bridge.Config.ProtectedApiToken));
+tailscale.Start();
+Firewall.Ensure(startLog);
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -71,6 +75,7 @@ app.Lifetime.ApplicationStopping.Register(() =>
 {
     startLog.LogInformation("AFIF-PBX stopping");
     bridge.Dispose();
+    tailscale.Dispose();
     engine.Dispose();
 });
 
@@ -297,7 +302,8 @@ api.MapPut("/settings", (PbxSettings incoming) =>
     engine.Config.Update(c =>
     {
         var cur = c.Settings;
-        restartNeeded = cur.SipPort != incoming.SipPort || cur.HttpPort != incoming.HttpPort || cur.GsmEnabled != incoming.GsmEnabled
+        incoming.ExtraSipPorts ??= new();
+        restartNeeded = cur.SipPort != incoming.SipPort || !cur.ExtraSipPorts.SequenceEqual(incoming.ExtraSipPorts) || cur.HttpPort != incoming.HttpPort || cur.GsmEnabled != incoming.GsmEnabled
                         || cur.RtpPortStart != incoming.RtpPortStart || cur.RtpPortEnd != incoming.RtpPortEnd;
         incoming.AdminPasswordHash = cur.AdminPasswordHash;
         incoming.AdminUser = cur.AdminUser;
@@ -463,6 +469,35 @@ api.MapPost("/bridge/token", (BridgeTokenRequest req) =>
 api.MapPost("/bridge/enabled", (BridgeEnableRequest req) => { bridge.SetEnabled(req.On); return Results.Ok(); });
 api.MapDelete("/bridge", async () => Results.Ok(new { log = await bridge.RemoveAsync() }));
 
+// ---------------------------------------------------------------- Tailscale
+api.MapGet("/tailscale", async () =>
+{
+    var st = await tailscale.StatusAsync();
+    var s = engine.Config.Current.Settings;
+    return Results.Ok(new { status = st, sipPorts = engine.Sip.Ports, mainSipPort = s.SipPort });
+});
+api.MapPost("/tailscale/install", async () =>
+{
+    var (ok, msg) = await tailscale.InstallAsync();
+    return Results.Json(new { ok, message = msg }, statusCode: ok ? 200 : 400);
+});
+api.MapPost("/tailscale/connect", async (TailscaleConnectRequest req) =>
+{
+    var (ok, msg, url) = await tailscale.ConnectAsync(req.AuthKey, req.Hostname);
+    return Results.Json(new { ok, message = msg, authUrl = url }, statusCode: ok ? 200 : 400);
+});
+api.MapPost("/tailscale/logout", async () =>
+{
+    var (ok, msg) = await tailscale.LogoutAsync();
+    return Results.Json(new { ok, message = msg }, statusCode: ok ? 200 : 400);
+});
+api.MapPost("/tailscale/domain", async (TailscaleDomainRequest req) =>
+{
+    var (ok, log) = await tailscale.SetDomainAsync(req.Domain ?? "", req.ApiToken);
+    return Results.Json(new { ok, log }, statusCode: ok ? 200 : 400);
+});
+api.MapDelete("/tailscale/domain", () => { tailscale.ClearDomain(); return Results.Ok(); });
+
 // SPA fallback
 app.MapFallbackToFile("index.html");
 
@@ -538,6 +573,40 @@ record SpeechRequest(string? Text);
 record BridgeSetupRequest(string? ApiToken, string? Zone, string? PanelHostname, string? SipHostname, string? LanIp, bool? AdjustSplitTunnel);
 record BridgeTokenRequest(string? Token, string? PanelHostname);
 record BridgeEnableRequest(bool On);
+record TailscaleConnectRequest(string? AuthKey, string? Hostname);
+record TailscaleDomainRequest(string? Domain, string? ApiToken);
+
+/// <summary>
+/// Keeps the Windows Firewall rule for AFIF-PBX right: phones on the local network and on your Tailscale
+/// network (100.64.0.0/10) may reach SIP, RTP and the panel; nothing else is opened.
+/// </summary>
+static class Firewall
+{
+    public const string RuleName = "AFIF-PBX Phone System";
+    public const string Remote = "LocalSubnet,100.64.0.0/10,fd7a:115c:a1e0::/48";
+
+    public static void Ensure(ILogger log)
+    {
+        if (!OperatingSystem.IsWindows() || Environment.ProcessPath is not string exe) return;
+        try
+        {
+            int Run(string args)
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo("netsh.exe", args) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true };
+                using var p = System.Diagnostics.Process.Start(psi)!;
+                p.StandardOutput.ReadToEnd();
+                p.WaitForExit(15000);
+                return p.ExitCode;
+            }
+            // replace any older rule (the first versions allowed the local network only)
+            Run($"advfirewall firewall delete rule name=\"{RuleName}\"");
+            int code = Run($"advfirewall firewall add rule name=\"{RuleName}\" dir=in action=allow program=\"{exe}\" remoteip={Remote} profile=any enable=yes");
+            if (code == 0) log.LogInformation("Firewall: AFIF-PBX open to the local network and Tailscale");
+            else log.LogWarning("Firewall rule could not be updated (netsh exit {Code})", code);
+        }
+        catch (Exception ex) { log.LogWarning("Firewall rule could not be updated: {Message}", ex.Message); }
+    }
+}
 
 sealed class NumberOrder : IComparer<string>
 {

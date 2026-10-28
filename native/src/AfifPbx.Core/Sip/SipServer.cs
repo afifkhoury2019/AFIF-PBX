@@ -11,7 +11,8 @@ using SIPSorcery.SIP.App;
 namespace AfifPbx.Sip;
 
 /// <summary>Where a phone registered from.</summary>
-public sealed record SipBinding(string Extension, string ContactUri, SIPEndPoint RemoteEndPoint, DateTime ExpiresUtc, string UserAgent)
+public sealed record SipBinding(string Extension, string ContactUri, SIPEndPoint RemoteEndPoint, DateTime ExpiresUtc, string UserAgent,
+    SIPTransport Transport, int LocalPort)
 {
     public bool IsExpired => DateTime.UtcNow >= ExpiresUtc;
 }
@@ -40,8 +41,13 @@ public sealed class SipServer : IDisposable
     private readonly ILogger _log;
     private readonly ConcurrentDictionary<string, List<SipBinding>> _bindings = new(StringComparer.OrdinalIgnoreCase);
 
-    public SIPTransport Transport { get; } = new();
+    private readonly List<(SIPTransport Transport, int Port)> _transports = new();
+
+    /// <summary>The transport of the main SIP port.</summary>
+    public SIPTransport Transport => _transports.Count > 0 ? _transports[0].Transport : throw new InvalidOperationException("SIP server not started");
     public int Port { get; private set; }
+    /// <summary>Every port the PBX is listening on (main port first).</summary>
+    public IReadOnlyList<int> Ports => _transports.Select(t => t.Port).ToList();
     public IPAddress BindAddress { get; private set; } = IPAddress.Any;
 
     /// <summary>A phone placed a call: (leg from the phone, dialled number).</summary>
@@ -54,14 +60,32 @@ public sealed class SipServer : IDisposable
         _log = log ?? NullLogger.Instance;
     }
 
-    public void Start(IPAddress bind, int port)
+    /// <summary>
+    /// Listen on the main port and any extra ports (e.g. 5160, the port FreePBX's chan_sip used, so phones
+    /// configured for the old Raspberry Pi keep working). Each port gets its own transport, so a phone is always
+    /// called from the same port it registered on.
+    /// </summary>
+    public void Start(IPAddress bind, int port, IEnumerable<int>? extraPorts = null)
     {
         BindAddress = bind; Port = port;
-        Transport.AddSIPChannel(new SIPUDPChannel(new IPEndPoint(bind, port)));
-        try { Transport.AddSIPChannel(new SIPTCPChannel(new IPEndPoint(bind, port))); }
-        catch (Exception ex) { _log.LogWarning("SIP over TCP not available: {Message}", ex.Message); }
-        Transport.SIPTransportRequestReceived += OnRequest;
-        _log.LogInformation("SIP server listening on {Address}:{Port}", bind, port);
+        foreach (var p in new[] { port }.Concat(extraPorts ?? Array.Empty<int>()).Where(p => p is > 0 and < 65536).Distinct())
+        {
+            var t = new SIPTransport();
+            try { t.AddSIPChannel(new SIPUDPChannel(new IPEndPoint(bind, p))); }
+            catch (Exception ex)
+            {
+                t.Shutdown();
+                if (p == port) throw;
+                _log.LogWarning("Extra SIP port {Port} is not available: {Message}", p, ex.Message);
+                continue;
+            }
+            try { t.AddSIPChannel(new SIPTCPChannel(new IPEndPoint(bind, p))); }
+            catch (Exception ex) { _log.LogWarning("SIP over TCP on port {Port} not available: {Message}", p, ex.Message); }
+            var transport = t;
+            t.SIPTransportRequestReceived += (local, remote, req) => OnRequest(transport, local, remote, req);
+            _transports.Add((t, p));
+            _log.LogInformation("SIP server listening on {Address}:{Port}", bind, p);
+        }
     }
 
     private Extension? FindExtension(string? number) =>
@@ -69,7 +93,7 @@ public sealed class SipServer : IDisposable
 
     private string Realm => _config.Current.Settings.Realm;
 
-    private Task OnRequest(SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
+    private Task OnRequest(SIPTransport t, SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
     {
         try
         {
@@ -77,17 +101,17 @@ public sealed class SipServer : IDisposable
             switch (req.Method)
             {
                 case SIPMethodsEnum.REGISTER:
-                    return HandleRegister(local, remote, req);
+                    return HandleRegister(t, local, remote, req);
                 case SIPMethodsEnum.INVITE when !inDialog:
-                    return HandleInvite(local, remote, req);
+                    return HandleInvite(t, local, remote, req);
                 case SIPMethodsEnum.OPTIONS when !inDialog:
-                    return Respond(req, SIPResponseStatusCodesEnum.Ok);
+                    return Respond(t, req, SIPResponseStatusCodesEnum.Ok);
                 case SIPMethodsEnum.SUBSCRIBE when !inDialog:
                 case SIPMethodsEnum.PUBLISH:
                 case SIPMethodsEnum.MESSAGE when !inDialog:
-                    return Respond(req, SIPResponseStatusCodesEnum.MethodNotAllowed);
+                    return Respond(t, req, SIPResponseStatusCodesEnum.MethodNotAllowed);
                 case SIPMethodsEnum.NOTIFY when !inDialog:
-                    return Respond(req, SIPResponseStatusCodesEnum.Ok);
+                    return Respond(t, req, SIPResponseStatusCodesEnum.Ok);
                 default:
                     return Task.CompletedTask; // in-dialog requests belong to the call's user agent
             }
@@ -99,20 +123,20 @@ public sealed class SipServer : IDisposable
         }
     }
 
-    private Task Respond(SIPRequest req, SIPResponseStatusCodesEnum code, string? reason = null)
+    private static Task Respond(SIPTransport t, SIPRequest req, SIPResponseStatusCodesEnum code, string? reason = null)
     {
         var resp = SIPResponse.GetResponse(req, code, reason);
-        return Transport.SendResponseAsync(resp);
+        return t.SendResponseAsync(resp);
     }
 
     /// <summary>Returns true if the request carries valid credentials; otherwise sends the challenge/denial.</summary>
-    private async Task<Extension?> AuthenticateAsync(SIPEndPoint local, SIPEndPoint remote, SIPRequest req, string? user)
+    private async Task<Extension?> AuthenticateAsync(SIPTransport t, SIPEndPoint local, SIPEndPoint remote, SIPRequest req, string? user)
     {
         var ext = FindExtension(user);
         if (ext is null)
         {
             _log.LogWarning("{Method} from unknown extension {User} at {Remote}", req.Method, user, remote);
-            await Respond(req, SIPResponseStatusCodesEnum.Forbidden).ConfigureAwait(false);
+            await Respond(t, req, SIPResponseStatusCodesEnum.Forbidden).ConfigureAwait(false);
             return null;
         }
         var result = SIPRequestAuthenticator.AuthenticateSIPRequest(local, remote, req, new PbxSipAccount(ext, Realm));
@@ -120,13 +144,13 @@ public sealed class SipServer : IDisposable
 
         var resp = SIPResponse.GetResponse(req, result.ErrorResponse, null);
         if (result.AuthenticationRequiredHeader is not null) resp.Header.AuthenticationHeaders.Add(result.AuthenticationRequiredHeader);
-        await Transport.SendResponseAsync(resp).ConfigureAwait(false);
+        await t.SendResponseAsync(resp).ConfigureAwait(false);
         return null;
     }
 
-    private async Task HandleRegister(SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
+    private async Task HandleRegister(SIPTransport t, SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
     {
-        var ext = await AuthenticateAsync(local, remote, req, req.Header.To?.ToURI?.User).ConfigureAwait(false);
+        var ext = await AuthenticateAsync(t, local, remote, req, req.Header.To?.ToURI?.User).ConfigureAwait(false);
         if (ext is null) return;
 
         var list = _bindings.GetOrAdd(ext.Number, _ => new List<SipBinding>());
@@ -148,7 +172,7 @@ public sealed class SipServer : IDisposable
                 string uri = c.ContactURI.ToString();
                 list.RemoveAll(b => string.Equals(b.ContactUri, uri, StringComparison.OrdinalIgnoreCase));
                 if (exp > 0)
-                    list.Add(new SipBinding(ext.Number, uri, remote, DateTime.UtcNow.AddSeconds(exp), req.Header.UserAgent ?? ""));
+                    list.Add(new SipBinding(ext.Number, uri, remote, DateTime.UtcNow.AddSeconds(exp), req.Header.UserAgent ?? "", t, local.Port));
             }
             after = list.Count > 0;
         }
@@ -160,7 +184,7 @@ public sealed class SipServer : IDisposable
             h.Expires = (long)Math.Max(0, (b.ExpiresUtc - DateTime.UtcNow).TotalSeconds);
             return h;
         }).ToList();
-        await Transport.SendResponseAsync(resp).ConfigureAwait(false);
+        await t.SendResponseAsync(resp).ConfigureAwait(false);
 
         if (before != after)
         {
@@ -169,14 +193,14 @@ public sealed class SipServer : IDisposable
         }
     }
 
-    private async Task HandleInvite(SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
+    private async Task HandleInvite(SIPTransport t, SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
     {
-        var ext = await AuthenticateAsync(local, remote, req, req.Header.From?.FromURI?.User).ConfigureAwait(false);
+        var ext = await AuthenticateAsync(t, local, remote, req, req.Header.From?.FromURI?.User).ConfigureAwait(false);
         if (ext is null) return;
 
         var s = _config.Current.Settings;
         IPAddress? bind = IPAddress.TryParse(HostFor(remote), out var b) ? b : null;
-        var leg = SipLeg.FromInvite(Transport, req, s.RtpPortStart, s.RtpPortEnd, bind);
+        var leg = SipLeg.FromInvite(t, req, s.RtpPortStart, s.RtpPortEnd, bind);
         leg.Extension = ext.Number;
         leg.Number = ext.Number;
         leg.Name = string.IsNullOrWhiteSpace(ext.Name) ? ext.Number : ext.Name;
@@ -208,7 +232,7 @@ public sealed class SipServer : IDisposable
         var legs = new List<SipLeg>();
         foreach (var b in Bindings(extension))
         {
-            var leg = SipLeg.Dial(Transport, b.RemoteEndPoint, b.ContactUri, callerNumber, callerName,
+            var leg = SipLeg.Dial(b.Transport, b.RemoteEndPoint, b.ContactUri, callerNumber, callerName,
                 HostFor(b.RemoteEndPoint), ringSeconds, s.RtpPortStart, s.RtpPortEnd);
             leg.Extension = extension;
             legs.Add(leg);
@@ -238,6 +262,6 @@ public sealed class SipServer : IDisposable
 
     public void Dispose()
     {
-        try { Transport.Shutdown(); } catch { }
+        foreach (var (t, _) in _transports) { try { t.Shutdown(); } catch { } }
     }
 }

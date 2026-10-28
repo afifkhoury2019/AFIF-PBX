@@ -147,6 +147,7 @@ public sealed class CallTests : IDisposable
             };
             c.RingGroups = new() { new RingGroup { Number = "600", Name = "All", Members = new() { "100", "101" }, RingSeconds = 8 } };
             c.Ivrs = new() { new Ivr { Number = "700", Name = "Menu", PromptText = "Press one", Options = new() { ["1"] = "ext:101" }, TimeoutSeconds = 6 } };
+            c.Settings.ExtraSipPorts = new(); // tests use free ports only
             configure?.Invoke(c);
         });
         engine.Start(IPAddress.Loopback);
@@ -193,6 +194,27 @@ public sealed class CallTests : IDisposable
         Assert.True(await Eventually(() => engine.Calls.ActiveCalls.Count == 0));
         var log = engine.Db.Calls();
         Assert.Contains(log, c => c.FromNumber == "100" && c.Disposition == "ANSWERED");
+    }
+
+    [Fact]
+    public async Task Phone_on_the_extra_sip_port_is_called_from_that_port()
+    {
+        int extra = FreePort();
+        var (engine, port) = StartEngine(configure: c => c.Settings.ExtraSipPorts = new() { extra });
+        Assert.Equal(new[] { port, extra }, engine.Sip.Ports);
+        var a = Phone("100", port, 900);
+        var b = new TestPhone("101", "s101", extra, 1300); // Linphone set up for the Pi's port 5160
+        _cleanup.Add(b);
+        Assert.True(await a.RegisterAsync());
+        Assert.True(await b.RegisterAsync(), "101 should register on the extra port");
+        b.AutoAnswer = true;
+
+        Assert.True(await a.DialAsync("101"), "call should be answered");
+        var invite = await b.IncomingInvite.Task;
+        Assert.Equal(extra, invite.RemoteSIPEndPoint.Port);
+        Assert.True(await Eventually(() => a.LoudFrames > 15 && b.LoudFrames > 15, 15000),
+            $"audio both ways (100 heard {a.LoudFrames}, 101 heard {b.LoudFrames})");
+        a.Hangup();
     }
 
     [Fact]

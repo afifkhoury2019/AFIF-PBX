@@ -63,7 +63,7 @@ Write-Host "Web panel port: $port"
 Step 'Allowing phones on the local network to reach AFIF-PBX'
 Get-NetFirewallRule -DisplayName 'AFIF-PBX*' -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 New-NetFirewallRule -DisplayName 'AFIF-PBX Phone System' -Direction Inbound -Action Allow -Program $exe `
-  -RemoteAddress LocalSubnet -Profile Any | Out-Null
+  -RemoteAddress LocalSubnet,'100.64.0.0/10','fd7a:115c:a1e0::/48' -Profile Any | Out-Null
 
 # ---------- tray icon at sign-in ----------
 Step 'Starting the AFIF-PBX tray icon at sign-in'

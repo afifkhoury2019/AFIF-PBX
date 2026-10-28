@@ -7,6 +7,9 @@ namespace AfifPbx.Data;
 public sealed class PbxSettings
 {
     public int SipPort { get; set; } = 5060;
+    /// <summary>More SIP ports to listen on. 5160 is where FreePBX's chan_sip listened, so phones set up for
+    /// the Raspberry Pi keep working unchanged.</summary>
+    public List<int> ExtraSipPorts { get; set; } = new() { 5160 };
     public int RtpPortStart { get; set; } = 10000;
     public int RtpPortEnd { get; set; } = 20000;
     public int HttpPort { get; set; } = 80;

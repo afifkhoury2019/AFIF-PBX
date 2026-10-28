@@ -47,7 +47,7 @@ public sealed class PbxEngine : IDisposable
     public void Start(IPAddress? sipBind = null)
     {
         var s = Config.Current.Settings;
-        Sip.Start(sipBind ?? IPAddress.Any, s.SipPort);
+        Sip.Start(sipBind ?? IPAddress.Any, s.SipPort, s.ExtraSipPorts);
 
         if (s.GsmEnabled)
         {

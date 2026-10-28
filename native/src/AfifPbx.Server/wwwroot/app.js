@@ -581,6 +581,105 @@ pages.bridge = {
 };
 
 // ------------------------------------------------------------ settings
+pages.tailscale = {
+  title: "Tailscale", refresh: 5000,
+  async render() {
+    if (document.activeElement && $("#view form")?.contains(document.activeElement)) return;
+    if ($("#tsBusy") || $("#tsKey")?.value || $("#tsToken")?.value) return;
+    const [r, st] = await Promise.all([api("/tailscale"), api("/status")]);
+    const t = r.status;
+    const altPort = r.sipPorts.find(p => p !== 5060) || r.sipPorts[0];
+    const server = t.domain || t.dnsName || t.ipv4 || "";
+    const pill = !t.installed ? '<span class="pill bad">Not installed</span>'
+      : t.connected ? '<span class="pill good">Connected</span>'
+      : `<span class="pill warn">${esc(t.message)}</span>`;
+    const expires = t.keyExpiry ? new Date(t.keyExpiry) : null;
+    const expSoon = expires && (expires - Date.now()) < 30 * 86400e3;
+    const phones = t.peers.filter(p => ["android", "iOS", "ios"].includes(p.os));
+    $("#view").innerHTML = `
+      <div class="notice info">With <b>Tailscale</b>, your mobile and this PC join your private tailnet. Linphone then registers to AFIF-PBX
+        from anywhere — Wi-Fi or 4G — with voice going straight to this PC, encrypted, and <b>no router ports opened</b>.</div>
+      <div class="grid">
+        <div class="card"><h3>This PC on Tailscale</h3><div class="row">${pill}</div>
+          ${t.connected ? `<dl class="kv" style="margin-top:12px"><dt>Name</dt><dd class="mono">${esc(t.dnsName)}</dd>
+            <dt>Address</dt><dd class="mono">${esc(t.ipv4)}</dd><dt>Tailnet</dt><dd>${esc(t.tailnet)}</dd>
+            <dt>Key expiry</dt><dd>${expires ? `<span class="${expSoon ? "pill warn" : ""}">${expires.toLocaleDateString()}</span>` : "never"}</dd></dl>
+            <div class="row" style="margin-top:12px"><button class="btn small danger" id="tsLogout">Disconnect</button></div>`
+          : `<p class="sub">${esc(t.message || "")}</p>`}
+          ${t.health?.length ? `<div class="notice" style="margin-top:10px">${t.health.map(esc).join("<br>")}</div>` : ""}
+          ${t.version ? `<div class="sub" style="margin-top:8px">Tailscale ${esc(t.version)}</div>` : ""}</div>
+        <div class="card"><h3>Linphone settings</h3>
+          ${server ? `<dl class="kv"><dt>Username</dt><dd>your extension (${st.extensions.map(e => esc(e.number)).join(", ")})</dd>
+            <dt>Password</dt><dd>the extension's secret</dd><dt>Domain</dt><dd class="mono">${esc(server)}:${altPort}</dd>
+            <dt>Transport</dt><dd>UDP</dd></dl>
+            <div class="sub" style="margin-top:8px">AFIF-PBX listens on ports ${r.sipPorts.map(p => `<b>${p}</b>`).join(" and ")} — use either.</div>`
+          : '<div class="sub">Connect this PC to Tailscale first.</div>'}</div>
+        ${!t.installed ? `<div class="card wide"><h3>Step 1 — install Tailscale on this PC</h3>
+          <p class="sub">Tailscale runs as a Windows service and stays connected even when nobody is signed in to Windows.</p>
+          ${t.installerAvailable ? '<button class="btn primary" id="tsInstall">Install Tailscale</button>'
+            : '<p>Download it from <a href="https://tailscale.com/download/windows" target="_blank">tailscale.com/download/windows</a>, install, then come back here.</p>'}</div>` : ""}
+        ${t.installed && !t.connected ? `<div class="card wide"><h3>Step 2 — connect this PC to your tailnet</h3>
+          <form id="tsConnect"><div class="form-grid">
+            <label>Name on the tailnet<input name="hostname" value="${esc(t.hostname || "afif-pbx")}"></label>
+            <label>Auth key (optional)<input id="tsKey" name="authKey" type="password" autocomplete="off" placeholder="tskey-auth-…"></label></div>
+            <p class="sub">Leave the key empty to sign in with your Tailscale account in the browser instead.
+              Keys: Tailscale admin console → <b>Settings → Keys → Generate auth key</b>.</p>
+            <button class="btn primary">Connect</button></form>
+          ${t.authUrl ? `<div class="notice info" style="margin-top:12px">Open this link and sign in with your Tailscale account:<br>
+            <a href="${esc(t.authUrl)}" target="_blank" class="mono">${esc(t.authUrl)}</a></div>` : ""}</div>` : ""}
+        ${t.connected ? `<div class="card wide"><h3>Your domain (optional)</h3>
+          <p class="sub">Give the PBX a name on your own domain, e.g. <b class="mono">voip.powerchain.uk</b>. AFIF-PBX creates a DNS-only record
+            pointing to <b class="mono">${esc(t.ipv4)}</b> in Cloudflare; it only answers for devices on your tailnet.
+            ${t.dnsName ? `Without a domain, Linphone can use <b class="mono">${esc(t.dnsName)}</b>.` : ""}</p>
+          <form id="tsDomain"><div class="form-grid">
+            <label>Name<input name="domain" value="${esc(t.domain || "voip.powerchain.uk")}" required></label>
+            <label>Cloudflare API token ${t.hasApiToken || t.bridgeTokenAvailable ? "(saved — leave empty)" : ""}<input id="tsToken" name="apiToken" type="password" autocomplete="off"
+              placeholder="${t.hasApiToken || t.bridgeTokenAvailable ? "using the saved token" : "Zone · DNS · Edit"}"></label></div>
+            <div class="row"><button class="btn primary">Point the name to this PBX</button>
+            ${t.domain ? `<span class="pill ${t.domainOk ? "good" : "warn"}">${esc(t.domain)} → ${esc(t.domainResolvesTo || "?")}</span>
+              <button type="button" class="link" id="tsDomainClear">Forget</button>` : ""}</div></form>
+          ${t.lastDnsLog?.length ? `<div class="mono sub" style="white-space:pre-wrap;margin-top:10px">${t.lastDnsLog.map(esc).join("\n")}</div>` : ""}</div>` : ""}
+        ${t.connected ? `<div class="card wide"><h3>Devices on your tailnet</h3>
+          ${t.peers.length ? `<div class="table-wrap"><table><tr><th>Device</th><th>System</th><th>Address</th><th>Status</th></tr>
+            ${t.peers.map(p => `<tr><td>${esc(p.hostName)}</td><td>${esc(p.os)}</td><td class="mono">${esc(p.address)}</td>
+              <td><span class="dot ${p.online ? "on" : "off"}"></span>${p.online ? esc(p.connection || "online") : "offline"}</td></tr>`).join("")}</table></div>`
+          : '<div class="empty">No other devices yet — install Tailscale on your mobile.</div>'}</div>` : ""}
+        <div class="card wide"><h3>Your mobile — step by step</h3>
+          <ol>
+            <li>Install <b>Tailscale</b> from Google Play or the App Store and sign in with the <b>same account</b> as this PC.
+              ${phones.length ? `<span class="pill good">${phones.length} phone${phones.length > 1 ? "s" : ""} on the tailnet</span>` : ""}</li>
+            <li>Android: Settings → Network → VPN → Tailscale → <b>Always-on VPN</b>, and allow Tailscale and Linphone to run without battery restrictions.</li>
+            <li>Install <b>Linphone</b> → <b>Use SIP account</b>: username = extension, password = its secret (Extensions → Edit),
+              domain = <b class="mono">${esc(server || "voip.powerchain.uk")}:${altPort}</b>, transport <b>UDP</b>.</li>
+            <li>Linphone → Settings → Advanced: turn on <b>Keep alive service</b> so calls ring when the app is in the background.</li>
+            <li>Call <b>*43</b> (echo test) — you should hear yourself. Then try mobile data with Wi-Fi off.</li>
+          </ol>
+          <p class="sub">In the Tailscale admin console, open this PC (${esc(t.hostName || t.hostname || "afif-pbx")}) → <b>Disable key expiry</b>, so the PBX never drops off the tailnet.</p></div>
+      </div>`;
+    const busy = async (btn, fn) => { btn.disabled = true; const label = btn.textContent; btn.textContent = "Working…"; btn.id = "tsBusy";
+      try { await fn(); } finally { btn.removeAttribute("id"); btn.disabled = false; btn.textContent = label; } };
+    $("#tsInstall")?.addEventListener("click", run(async e => busy(e.target, async () => {
+      const x = await api("/tailscale/install", { method: "POST" }); toast(x.message); pages.tailscale.render(); })));
+    $("#tsConnect")?.addEventListener("submit", run(async e => { e.preventDefault(); const f = e.target;
+      await busy(f.querySelector(".btn.primary"), async () => {
+        const x = await api("/tailscale/connect", { method: "POST", body: formData(f) });
+        if ($("#tsKey")) $("#tsKey").value = "";
+        if (x.authUrl) window.open(x.authUrl, "_blank");
+        toast(x.message); });
+      document.activeElement?.blur(); pages.tailscale.render(); }));
+    $("#tsLogout")?.addEventListener("click", run(async () => {
+      if (!confirm("Disconnect this PC from Tailscale? Phones outside your network will stop reaching AFIF-PBX.")) return;
+      const x = await api("/tailscale/logout", { method: "POST" }); toast(x.message); pages.tailscale.render(); }));
+    $("#tsDomain")?.addEventListener("submit", run(async e => { e.preventDefault(); const f = e.target;
+      await busy(f.querySelector(".btn.primary"), async () => {
+        const res = await fetch("/api/tailscale/domain", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData(f)) });
+        const j = await res.json(); toast(j.ok ? "Done" : (j.log || []).slice(-1)[0] || "Failed", !j.ok);
+        if ($("#tsToken")) $("#tsToken").value = ""; });
+      document.activeElement?.blur(); pages.tailscale.render(); }));
+    $("#tsDomainClear")?.addEventListener("click", run(async () => { await api("/tailscale/domain", { method: "DELETE" }); pages.tailscale.render(); }));
+  }
+};
+
 pages.settings = {
   title: "Settings",
   async render() {
@@ -588,6 +687,7 @@ pages.settings = {
     $("#view").innerHTML = `<div class="grid">
       <div class="card wide"><h3>System</h3><form id="sys"><div class="form-grid">
         <label>SIP port<input type="number" name="sipPort" value="${s.sipPort}"></label>
+        <label>Extra SIP ports<input name="extraSipPortsText" value="${esc((s.extraSipPorts || []).join(", "))}" placeholder="5160"></label>
         <label>Web panel port<input type="number" name="httpPort" value="${s.httpPort}"></label>
         <label>RTP ports from<input type="number" name="rtpPortStart" value="${s.rtpPortStart}"></label>
         <label>RTP ports to<input type="number" name="rtpPortEnd" value="${s.rtpPortEnd}"></label>
@@ -602,6 +702,7 @@ pages.settings = {
     </div>`;
     $("#sys").addEventListener("submit", run(async e => {
       e.preventDefault(); const cur = await api("/settings"); Object.assign(cur, formData(e.target));
+      cur.extraSipPorts = String(cur.extraSipPortsText || "").split(/[ ,;]+/).map(Number).filter(n => n > 0 && n < 65536); delete cur.extraSipPortsText;
       const r = await api("/settings", { method: "PUT", body: cur });
       toast(r.restartNeeded ? "Saved — restart AFIF-PBX (tray icon → Restart) to apply" : "Saved");
     }));

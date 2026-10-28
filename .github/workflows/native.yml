@@ -104,6 +104,19 @@ jobs:
           gh release download --repo cloudflare/cloudflared --pattern 'cloudflared-windows-amd64.exe' --dir native/dist
           Move-Item native/dist/cloudflared-windows-amd64.exe native/dist/app/cloudflared.exe -Force
           & native/dist/app/cloudflared.exe --version
+      - name: Bundle Tailscale (remote phones)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force native/dist/app/deps | Out-Null
+          $name = $null
+          try { $name = (Invoke-RestMethod "https://pkgs.tailscale.com/stable/?mode=json").MSIs.amd64 } catch { Write-Warning $_ }
+          $url = if ($name) { "https://pkgs.tailscale.com/stable/$name" } else { "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi" }
+          "Downloading $url"
+          Invoke-WebRequest $url -OutFile native/dist/app/deps/tailscale.msi -UseBasicParsing
+          $sig = Get-AuthenticodeSignature native/dist/app/deps/tailscale.msi
+          "Signature: $($sig.Status) — $($sig.SignerCertificate.Subject)"
+          if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Tailscale') { throw "Tailscale MSI signature check failed" }
+          (Get-Item native/dist/app/deps/tailscale.msi).Length
       - name: Build dongle driver catalog
         shell: pwsh
         run: |
@@ -146,6 +159,23 @@ jobs:
           "Bridge: $($br.message) — connector installed: $($br.connectorInstalled)"
           if (-not $br.connectorInstalled) { throw "cloudflared not bundled" }
           if ($ext.Count -lt 1) { throw "no extensions" }
+          $local = Invoke-RestMethod "http://127.0.0.1:$port/api/local/status"
+          "SIP ports in settings: $((Invoke-RestMethod "http://127.0.0.1:$port/api/settings" -WebSession $s).extraSipPorts)"
+          # Tailscale: install the bundled MSI the way the panel does, then ask AFIF-PBX for its status
+          $ts0 = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale" -WebSession $s
+          "Tailscale before: installed=$($ts0.status.installed) installer=$($ts0.status.installerAvailable) ports=$($ts0.sipPorts -join ',')"
+          if (-not $ts0.status.installerAvailable) { throw "Tailscale MSI not bundled" }
+          if (($ts0.sipPorts -join ',') -ne '5060,5160') { throw "SIP should listen on 5060 and 5160" }
+          $inst = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale/install" -Method Post -WebSession $s -TimeoutSec 400
+          "Install: $($inst.message)"
+          Start-Sleep 5
+          $ts = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale" -WebSession $s
+          $ts.status | ConvertTo-Json -Depth 3
+          if (-not $ts.status.installed) { throw "Tailscale did not install" }
+          if (-not $ts.status.daemonRunning) { Write-Warning "Tailscale service not answering yet" }
+          $fw = netsh advfirewall firewall show rule name="AFIF-PBX Phone System" | Out-String
+          $fw
+          if ($fw -notmatch '100\.64\.0\.0/10') { throw "firewall rule does not allow the Tailscale range" }
           $wav = Invoke-WebRequest "http://127.0.0.1:$port/api/speech/preview" -Method Post -ContentType "application/json" -Body '{"text":"Welcome to AFIF PBX"}' -WebSession $s -UseBasicParsing
           "Speech preview bytes: $($wav.RawContentLength)"
           if ($wav.RawContentLength -lt 8000) { Write-Warning "Text-to-speech gave little audio on this build machine (no SAPI voices?)" }
