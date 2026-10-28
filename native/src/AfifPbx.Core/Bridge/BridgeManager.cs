@@ -111,6 +111,12 @@ public sealed class BridgeManager : IDisposable
 
     private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("AFIF-PBX bridge");
 
+    /// <summary>The Cloudflare API token saved by the bridge setup ("" if none). Used to manage other AFIF-PBX DNS names.</summary>
+    public string SavedApiToken()
+    {
+        try { return Unprotect(Config.ProtectedApiToken); } catch { return ""; }
+    }
+
     // ------------------------------------------------------------------ setup
 
     public sealed record SetupRequest(string ApiToken, string Zone, string PanelHostname, string SipHostname, string? LanIp, bool AdjustSplitTunnel = true);

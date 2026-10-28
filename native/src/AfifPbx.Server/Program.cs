@@ -42,7 +42,7 @@ File.WriteAllText(Path.Combine(dataDir, "http-port.txt"), httpPort.ToString());
 var bridge = new AfifPbx.Bridge.BridgeManager(dataDir, () => httpPort, loggerFactory.CreateLogger("Bridge"));
 bridge.Start();
 var tailscale = new AfifPbx.Remote.TailscaleManager(dataDir, loggerFactory.CreateLogger("Tailscale"),
-    bridgeToken: () => AfifPbx.Bridge.BridgeManager.Unprotect(bridge.Config.ProtectedApiToken));
+    bridgeToken: () => bridge.SavedApiToken());
 tailscale.Start();
 Firewall.Ensure(startLog);
 
