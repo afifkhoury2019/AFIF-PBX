@@ -38,7 +38,7 @@ jobs:
       - name: Branding assets
         if: always()
         run: |
-          sudo apt-get install -y -qq librsvg2-bin imagemagick >/dev/null
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq librsvg2-bin imagemagick >/dev/null
           mkdir -p brand
           if [ -f branding/logo.png ]; then cp branding/logo.png brand/logo.png; else rsvg-convert -w 1280 branding/logo.svg -o brand/logo.png; fi
           h=$(identify -format %h brand/logo.png); w=$(identify -format %w brand/logo.png)
