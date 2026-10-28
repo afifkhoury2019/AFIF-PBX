@@ -154,6 +154,8 @@ print("== Presets for AFIF-PBX")
 rc = os.path.join(MAIN, "assets", "linphonerc_default")
 edit(rc, 'contact="Linphone Android" <sip:linphone.android@unknown-host>', f'contact="{APP_NAME}" <sip:afif.phone@unknown-host>')
 edit(rc, "[app]\n", "[app]\nkeep_service_alive=1\n")
+# AFIF-PBX speaks plain RTP: never insist on SRTP (the phone would hang up the moment a call is answered)
+edit(rc, "media_encryption=none\n", "media_encryption=none\nmedia_encryption_mandatory=0\n")
 edit(rc, "version_check_url_root=https://download.linphone.org/releases\n", "version_check_url_root=\n")
 edit(rc, "[ui]\ncontacts_filter=sip.linphone.org\n",
      "[ui]\ncontacts_filter=\n"
