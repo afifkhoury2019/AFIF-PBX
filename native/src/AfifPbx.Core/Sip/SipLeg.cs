@@ -47,9 +47,19 @@ public sealed class SipLeg : CallLeg
     /// <param name="bind">The local address that routes to the phone. Binding to it makes the address in the
     /// SDP and the source address of our RTP the same, which strict phones require (no one-way audio
     /// on PCs with several network adapters, e.g. Hyper-V/WSL/VPN).</param>
-    internal static RTPSession CreateRtp(int portStart, int portEnd, IPAddress? bind)
+    internal static RTPSession CreateRtp(int portStart, int portEnd, IPAddress? bind, bool sdesSrtp = false)
     {
-        var rtp = new RTPSession(false, false, false, bind, 0, new PortRange(portStart, portEnd));
+        // Phones that insist on encrypted audio (Linphone / AFIF Phone offer RTP/SAVP + a=crypto) get SDES-SRTP;
+        // everything else gets plain RTP.
+        var rtp = new RTPSession(new RtpSessionConfig
+        {
+            IsMediaMultiplexed = false,
+            IsRtcpMultiplexed = false,
+            RtpSecureMediaOption = sdesSrtp ? RtpSecureMediaOptionEnum.SdpCryptoNegotiation : RtpSecureMediaOptionEnum.None,
+            BindAddress = bind,
+            BindPort = 0,
+            RtpPortRange = new PortRange(portStart, portEnd),
+        });
         var formats = new List<SDPAudioVideoMediaFormat>
         {
             new(SDPWellKnownMediaFormatsEnum.PCMU),
@@ -65,7 +75,7 @@ public sealed class SipLeg : CallLeg
     {
         var ua = new SIPUserAgent(transport, null);
         var uas = ua.AcceptCall(invite);
-        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind), uas)
+        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind, OffersSrtp(invite.Body)), uas)
         {
             Number = invite.Header.From.FromURI.User ?? "",
             Name = invite.Header.From.FromName ?? "",
@@ -74,6 +84,10 @@ public sealed class SipLeg : CallLeg
         ua.ServerCallCancelled += (_, _) => leg.Close("cancelled");
         return leg;
     }
+
+    /// <summary>True when the caller's SDP offers only secure audio (RTP/SAVP with SDES keys).</summary>
+    internal static bool OffersSrtp(string? sdp) =>
+        !string.IsNullOrEmpty(sdp) && sdp.Contains("RTP/SAVP") && !sdp.Contains("RTP/SAVPF") && sdp.Contains("a=crypto:");
 
     /// <summary>Start ringing a phone. Await <see cref="CallLeg.AnsweredTask"/> for the outcome.</summary>
     public static SipLeg Dial(SIPTransport transport, SIPEndPoint? sendTo, string contactUri,

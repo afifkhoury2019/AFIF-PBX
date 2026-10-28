@@ -25,6 +25,8 @@ internal sealed class TestPhone : IDisposable
     public SIPUserAgent? Call { get; private set; }
     public RTPSession? Rtp { get; private set; }
     public bool AutoAnswer { get; set; }
+    /// <summary>Behave like Linphone with encryption on: offer RTP/SAVP with SDES keys only.</summary>
+    public bool Srtp { get; set; }
     public int LoudFrames;
     public TaskCompletionSource<SIPRequest> IncomingInvite { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     public TaskCompletionSource<bool> Answered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -52,7 +54,9 @@ internal sealed class TestPhone : IDisposable
 
     private RTPSession MakeRtp()
     {
-        var rtp = new RTPSession(false, false, false, IPAddress.Loopback);
+        var rtp = Srtp
+            ? new RTPSession(new RtpSessionConfig { BindAddress = IPAddress.Loopback, RtpSecureMediaOption = RtpSecureMediaOptionEnum.SdpCryptoNegotiation })
+            : new RTPSession(false, false, false, IPAddress.Loopback);
         rtp.addTrack(new MediaStreamTrack(SDPMediaTypesEnum.audio, false,
             new List<SDPAudioVideoMediaFormat> { new(SDPWellKnownMediaFormatsEnum.PCMU) }, MediaStreamStatusEnum.SendRecv));
         rtp.OnRtpPacketReceived += (_, media, pkt) =>
@@ -324,6 +328,21 @@ public sealed class CallTests : IDisposable
         var invite = await Task.WhenAny(b.IncomingInvite.Task, Task.Delay(8000));
         Assert.True(invite == b.IncomingInvite.Task, "pressing 1 should ring extension 101");
         Assert.True(await Eventually(() => a.LoudFrames > 10), "caller should be connected to 101");
+        a.Hangup();
+    }
+
+    [Fact]
+    public async Task Phone_that_requires_srtp_is_answered_with_srtp_and_hears_audio()
+    {
+        var (_, port) = StartEngine();
+        var a = Phone("100", port);
+        a.Srtp = true;
+        Assert.True(await a.RegisterAsync());
+        Assert.True(await a.DialAsync("*43"), "echo test must be answered");
+        var answer = a.Rtp!.RemoteDescription?.ToString() ?? "";
+        Assert.Contains("RTP/SAVP", answer);
+        Assert.Contains("a=crypto:", answer);
+        Assert.True(await Eventually(() => a.LoudFrames > 15, 15000), $"phone should hear its echo over SRTP (heard {a.LoudFrames})");
         a.Hangup();
     }
 

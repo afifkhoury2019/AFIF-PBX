@@ -151,6 +151,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      - uses: actions/checkout@v4
+        with: { path: afif }
       - uses: actions/download-artifact@v4
         with: { name: AFIF-Phone-x86_64-test }
       - name: Enable KVM
@@ -163,24 +165,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: |
-            mkdir -p shots
-            adb install -r AFIF-Phone-x86_64-test.apk
-            adb shell pm grant com.afiftech.phone android.permission.POST_NOTIFICATIONS || true
-            adb logcat -c || true
-            adb shell monkey -p com.afiftech.phone -c android.intent.category.LAUNCHER 1
-            sleep 25
-            adb exec-out screencap -p > shots/1-start.png
-            adb shell input keyevent KEYCODE_BACK; sleep 3
-            adb exec-out screencap -p > shots/2-after-back.png
-            adb shell am start -n com.afiftech.phone/com.tailscale.ipn.MainActivity || true
-            sleep 15
-            adb exec-out screencap -p > shots/3-secure-network.png
-            adb shell pidof com.afiftech.phone > shots/pid.txt || echo "NOT RUNNING" > shots/pid.txt
-            adb logcat -d -b crash > shots/crash.txt || true
-            adb logcat -d -b main -b system | grep -vE "NamespaceManager|Phenotype" > shots/logcat.txt || true
-            grep -E "ANR in com.afiftech" -A20 shots/logcat.txt >> shots/crash.txt || true
-            adb root >/dev/null 2>&1; sleep 2; adb shell 'cat /data/anr/anr_* 2>/dev/null' | head -400 > shots/anr.txt || true
+          script: bash afif/mobile/emulator-test.sh
       - name: Publish screenshots
         if: always()
         run: |

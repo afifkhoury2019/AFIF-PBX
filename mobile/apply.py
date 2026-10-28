@@ -81,6 +81,11 @@ shutil.copy(os.path.join(HERE, "tailscale-module.gradle.kts"), os.path.join(TS, 
 shutil.copy(os.path.join(HERE, "afif-proguard.pro"), os.path.join(TS, "afif-proguard.pro"))
 shutil.copy(os.path.join(T, "LICENSE"), os.path.join(TS, "LICENSE-tailscale"))
 TSJ = os.path.join(TS, "src", "main", "java", "com", "tailscale", "ipn")
+# Tailscale's launcher icons (mipmap-anydpi-v26 beat Linphone's mipmap-anydpi): AFIF Phone keeps its own icon
+for d in os.listdir(os.path.join(TS, "src", "main", "res")):
+    if d.startswith("mipmap"):
+        shutil.rmtree(os.path.join(TS, "src", "main", "res", d))
+        print("  removed tailscale res/" + d)
 # AFIF Phone's Application class extends Tailscale's
 edit(os.path.join(TSJ, "App.kt"), "\nclass App : UninitializedApp()", "\nopen class App : UninitializedApp()")
 man = os.path.join(TS, "src", "main", "AndroidManifest.xml")
@@ -169,6 +174,16 @@ edit(tp, '<entry name="stun_server" overwrite="true">stun.linphone.org</entry>',
 edit(tp, '<entry name="protocols" overwrite="true">stun,ice</entry>', '<entry name="protocols" overwrite="true"></entry>')
 edit(tp, '<entry name="media_encryption">srtp</entry>', '<entry name="media_encryption">none</entry>')
 
+print("== Secure network: first-run choice")
+edit(os.path.join(MAIN, "java", "org", "linphone", "ui", "assistant", "AssistantActivity.kt"),
+     "        binding = DataBindingUtil.setContentView(this, R.layout.assistant_activity)",
+     "        binding = DataBindingUtil.setContentView(this, R.layout.assistant_activity)\n"
+     "        org.linphone.AfifSecureNetwork.askOnce(this)")
+edit(os.path.join(MAIN, "java", "org", "linphone", "ui", "main", "MainActivity.kt"),
+     "        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)",
+     "        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)\n"
+     "        org.linphone.AfifSecureNetwork.askOnce(this)")
+
 print("== 'Secure network' in the side menu")
 drawer = os.path.join(MAIN, "res", "layout", "drawer_menu.xml")
 edit(drawer, 'app:layout_constraintBottom_toTopOf="@id/settings" />',
@@ -194,7 +209,7 @@ edit(drawer, 'app:layout_constraintBottom_toTopOf="@id/settings" />',
 frag = os.path.join(MAIN, "java", "org", "linphone", "ui", "main", "fragment", "DrawerMenuFragment.kt")
 edit(frag, "        binding.setHelpClickedListener {",
      "        binding.secureNetwork.setOnClickListener {\n"
-     "            startActivity(Intent(requireContext(), com.tailscale.ipn.MainActivity::class.java))\n"
+     "            org.linphone.AfifSecureNetwork.open(requireActivity())\n"
      "            (requireActivity() as MainActivity).closeDrawerMenu()\n"
      "        }\n\n"
      "        binding.setHelpClickedListener {")
