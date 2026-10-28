@@ -9,11 +9,11 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: "8.0.x" }
       - run: dotnet build native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release
-      - name: Run the call tests 20 times
+      - name: Run the full test suite 20 times
         run: |
           mkdir -p out; fails=0
           for i in $(seq 1 20); do
-            if ! dotnet test native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~CallTests" \
+            if ! dotnet test native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release --no-build \
                  --logger "trx;LogFileName=run$i.trx" --results-directory out > out/run$i.log 2>&1; then
               fails=$((fails+1)); echo "run $i FAILED"; grep -E "^\s+Failed " out/run$i.log
             else echo "run $i ok"; fi
