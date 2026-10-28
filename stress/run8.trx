@@ -1,0 +1,1004 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="d95c33f3-2882-49c1-ac58-3f949755693d" name="@runnervm48cm3 2026-10-28 15:11:51" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-28T15:11:51.5968223+00:00" queuing="2026-10-28T15:11:51.5968224+00:00" start="2026-10-28T15:11:51.0665134+00:00" finish="2026-10-28T15:12:08.8856788+00:00" />
+  <TestSettings name="default" id="f975e9bd-0795-495e-8c30-98b731d6f2e9">
+    <Deployment runDeploymentRoot="_runnervm48cm3_2026-10-28_15_11_51" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="4849f1f1-a75d-4a45-a58f-225b10210bde" testId="1ae1ec3d-f807-d1bc-5aed-a48e0f2b2177" testName="AfifPbx.Tests.WinUsbChooseTests.Settings_override_detection" computerName="runnervm48cm3" duration="00:00:00.0001737" startTime="2026-10-28T15:11:51.5707343+00:00" endTime="2026-10-28T15:11:51.5707344+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4849f1f1-a75d-4a45-a58f-225b10210bde" />
+    <UnitTestResult executionId="5c70ed57-b05f-400d-9373-3854db3f21a1" testId="6e087f88-9f35-42a4-cfcc-61c3c5efe2d1" testName="AfifPbx.Tests.SmsPduTests.Encodes_reference_submit" computerName="runnervm48cm3" duration="00:00:00.0021915" startTime="2026-10-28T15:11:51.5725653+00:00" endTime="2026-10-28T15:11:51.5725653+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5c70ed57-b05f-400d-9373-3854db3f21a1" />
+    <UnitTestResult executionId="1594b3ec-38d3-4f8d-a13f-9098329597b8" testId="cf797701-0b4d-3924-eaf7-8457fd2977de" testName="AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: False)" computerName="runnervm48cm3" duration="00:00:00.0002389" startTime="2026-10-28T15:11:51.5361077+00:00" endTime="2026-10-28T15:11:51.5361078+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1594b3ec-38d3-4f8d-a13f-9098329597b8" />
+    <UnitTestResult executionId="60158a0d-f032-4be7-beb5-d468c7ea07a3" testId="6da656f4-15b6-a4e3-8da5-9b64deadcaaa" testName="AfifPbx.Tests.BridgeTests.Full_setup_creates_tunnel_dns_route_and_split_tunnel" computerName="runnervm48cm3" duration="00:00:00.0442974" startTime="2026-10-28T15:11:51.5825045+00:00" endTime="2026-10-28T15:11:51.5825047+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="60158a0d-f032-4be7-beb5-d468c7ea07a3" />
+    <UnitTestResult executionId="6692072f-35f6-453b-89c1-69c3f58c170e" testId="65bd4a84-559c-cb5f-f193-f22525f6f0d7" testName="AfifPbx.Tests.MediaTests.Dtmf_detects_every_key_and_ignores_noise" computerName="runnervm48cm3" duration="00:00:00.0189738" startTime="2026-10-28T15:11:51.5299798+00:00" endTime="2026-10-28T15:11:51.5299802+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6692072f-35f6-453b-89c1-69c3f58c170e" />
+    <UnitTestResult executionId="9c81f63c-f2ea-4d99-a164-7ccf91f37221" testId="a59e0437-5b9b-dd3d-5325-8ed08d7d676b" testName="AfifPbx.Tests.TailscaleTests.Status_runs_the_cli" computerName="runnervm48cm3" duration="00:00:00.0314674" startTime="2026-10-28T15:11:51.6022540+00:00" endTime="2026-10-28T15:11:51.6022542+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9c81f63c-f2ea-4d99-a164-7ccf91f37221" />
+    <UnitTestResult executionId="b1efb9d6-751a-412d-b26b-8e9c9a246219" testId="6c0291ec-d1d3-2a7d-b669-4053b535dc4b" testName="AfifPbx.Tests.CallTests.Ivr_sends_the_caller_where_they_press" computerName="runnervm48cm3" duration="00:00:04.3611383" startTime="2026-10-28T15:12:03.7741036+00:00" endTime="2026-10-28T15:12:03.7741038+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b1efb9d6-751a-412d-b26b-8e9c9a246219">
+      <Output>
+        <StdOut>15:11:59.443 [Information] SIP: SIP server listening on 127.0.0.1:49977
+15:11:59.444 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:49977, callback period 115s.
+15:11:59.444 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:49977.
+15:11:59.444 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:49977 at udp:127.0.0.1:49977 for sip:100@127.0.0.1:49977.
+15:11:59.445 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:49977.
+15:11:59.445 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:38514)
+15:11:59.445 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:49977.
+15:11:59.446 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:49977 in 114s.
+15:11:59.446 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:101@127.0.0.1:49977, callback period 115s.
+15:11:59.446 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:101@127.0.0.1:49977.
+15:11:59.446 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:49977 at udp:127.0.0.1:49977 for sip:101@127.0.0.1:49977.
+15:11:59.447 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:101@127.0.0.1:49977.
+15:11:59.447 [Information] SIP: Extension 101 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:38259)
+15:11:59.447 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:101@127.0.0.1:49977.
+15:11:59.447 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:101@127.0.0.1:49977 in 114s.
+15:11:59.447 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:46104 started.
+15:11:59.447 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:49977.
+15:11:59.447 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:49977 to udp:127.0.0.1:49977 in 0.01ms.
+15:11:59.448 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:11:59.448 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:700@127.0.0.1:49977.
+15:11:59.448 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:700@127.0.0.1:49977.
+15:11:59.448 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:59.448 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:59.449 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:11:59.449 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:700@127.0.0.1:49977.
+15:11:59.449 [lib Information] SIPUserAgent: Call attempt to sip:700@127.0.0.1:49977 received a trying response INVITE 100 Trying.
+15:11:59.449 [Information] SIP: Call from 100 to 700
+15:11:59.449 [Information] Calls: Call 882b970136d5: sip:100[7922228c24] → ivr:700
+15:11:59.450 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:46104 and control destination 127.0.0.1:46105.
+15:11:59.450 [Information] SIP: Leg sip:100[7922228c24] answered: local 127.0.0.1:10000 → remote 127.0.0.1:46104, codec PCMU
+15:11:59.499 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:700@127.0.0.1:49977.
+15:11:59.499 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:11:59.499 [lib Information] SIPUserAgent: Call attempt to sip:700@127.0.0.1:49977 was answered.
+15:11:59.499 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 778650122 remote RTP endpoint 127.0.0.1:46104.
+15:11:59.499 [Information] SIP: Leg sip:100[7922228c24]: first RTP from 127.0.0.1:46104
+15:11:59.513 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 643250513 remote RTP endpoint 127.0.0.1:10000.
+15:12:03.571 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:12:03.571 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:12:03.571 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10002 started.
+15:12:03.571 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:12:03.571 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:38259.
+15:12:03.572 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:38259&lt;-udp:127.0.0.1:49977, uri:sip:127.0.0.1:38259.
+15:12:03.572 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:03.572 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:03.572 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:34380 started.
+15:12:03.572 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:38259.
+15:12:03.572 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:38259 received a trying response INVITE 100 Trying.
+15:12:03.572 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10002 and control destination 127.0.0.1:10003.
+15:12:03.572 [Information] SIP: Leg sip:101[cc0691a3fe]: first RTP from 127.0.0.1:34380
+15:12:03.622 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:38259.
+15:12:03.622 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:34380 and control destination 127.0.0.1:34381.
+15:12:03.622 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:38259 was answered.
+15:12:03.622 [Information] SIP: Leg sip:101[cc0691a3fe] answered: local 127.0.0.1:10002 → remote 127.0.0.1:34380, codec PCMU
+15:12:03.623 [Information] Calls: Call 882b970136d5: connected sip:100[7922228c24] ⇄ sip:101[cc0691a3fe]
+15:12:03.632 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1210697626 remote RTP endpoint 127.0.0.1:34380.
+15:12:03.633 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 244850535 remote RTP endpoint 127.0.0.1:10002.
+15:12:03.771 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:12:03.771 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 46104, Control receiver on port 46105. Reason: call hungup.
+15:12:03.772 [lib Debug] RTPSession: RTCP BYE received for SSRC 778650122, reason call hungup.
+15:12:03.772 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:49977 SIP/2.0.
+15:12:03.772 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:46105.
+15:12:03.772 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:12:03.772 [Information] SIP: Leg sip:100[7922228c24] ended (hangup): received 209 RTP packets, sent 211 frames, 0 send errors
+15:12:03.772 [Information] Calls: Call 882b970136d5: bridge ended (sip:100[7922228c24]: hangup; sip:101[cc0691a3fe]: up)
+15:12:03.772 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:34381.
+15:12:03.772 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10002, Control receiver on port 10003. Reason: call hungup.
+15:12:03.772 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:49977.
+15:12:03.772 [Information] SIP: Leg sip:101[cc0691a3fe] ended (hangup): received 10 RTP packets, sent 7 frames, 0 send errors
+15:12:03.773 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10003.
+15:12:03.773 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 34380, Control receiver on port 34381. Reason: call hungup.
+15:12:03.773 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:101@127.0.0.1:49977.
+15:12:03.773 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:49977.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1ba6c934-ce39-4ace-8416-a62eba89fe0d" testId="665f95b6-a3e5-686b-217c-8c6bd9199eb6" testName="AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: True)" computerName="runnervm48cm3" duration="00:00:00.0057652" startTime="2026-10-28T15:11:51.5358220+00:00" endTime="2026-10-28T15:11:51.5358220+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1ba6c934-ce39-4ace-8416-a62eba89fe0d" />
+    <UnitTestResult executionId="57c98260-e59f-4a69-aab0-bd5b6141fed7" testId="62049dc0-88a6-ae98-a077-536bd9184233" testName="AfifPbx.Tests.CallTests.Ring_group_rings_every_member_and_connects_the_one_who_answers" computerName="runnervm48cm3" duration="00:00:00.4478560" startTime="2026-10-28T15:12:07.6392943+00:00" endTime="2026-10-28T15:12:07.6392946+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="57c98260-e59f-4a69-aab0-bd5b6141fed7">
+      <Output>
+        <StdOut>15:12:07.221 [Information] SIP: SIP server listening on 127.0.0.1:54494
+15:12:07.222 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:102@127.0.0.1:54494, callback period 115s.
+15:12:07.222 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:102@127.0.0.1:54494.
+15:12:07.222 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:54494 at udp:127.0.0.1:54494 for sip:102@127.0.0.1:54494.
+15:12:07.223 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:102@127.0.0.1:54494.
+15:12:07.223 [Information] SIP: Extension 102 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:40941)
+15:12:07.223 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:102@127.0.0.1:54494.
+15:12:07.223 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:102@127.0.0.1:54494 in 114s.
+15:12:07.224 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:54494, callback period 115s.
+15:12:07.224 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:54494.
+15:12:07.224 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:54494 at udp:127.0.0.1:54494 for sip:100@127.0.0.1:54494.
+15:12:07.224 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:54494.
+15:12:07.225 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:40815)
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:54494.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:54494 in 114s.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:101@127.0.0.1:54494, callback period 115s.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:101@127.0.0.1:54494.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:54494 at udp:127.0.0.1:54494 for sip:101@127.0.0.1:54494.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:101@127.0.0.1:54494.
+15:12:07.225 [Information] SIP: Extension 101 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:47190)
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:101@127.0.0.1:54494.
+15:12:07.225 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:101@127.0.0.1:54494 in 114s.
+15:12:07.226 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:46824 started.
+15:12:07.226 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:54494.
+15:12:07.226 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:54494 to udp:127.0.0.1:54494 in 0ms.
+15:12:07.226 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:12:07.226 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:600@127.0.0.1:54494.
+15:12:07.226 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:600@127.0.0.1:54494.
+15:12:07.226 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:07.226 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:07.226 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:12:07.226 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:600@127.0.0.1:54494.
+15:12:07.226 [lib Information] SIPUserAgent: Call attempt to sip:600@127.0.0.1:54494 received a trying response INVITE 100 Trying.
+15:12:07.226 [Information] SIP: Call from 102 to 600
+15:12:07.226 [Information] Calls: Call b5335b700249: sip:102[f52baf5aa5] → rg:600
+15:12:07.227 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:12:07.227 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:12:07.227 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:12:07.227 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10002 started.
+15:12:07.227 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:12:07.227 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:40815.
+15:12:07.227 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:12:07.227 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:12:07.227 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:12:07.227 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 2.
+15:12:07.227 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10004 started.
+15:12:07.227 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:12:07.227 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:47190.
+15:12:07.227 [lib Debug] SIPClientUserAgent: Information response 180 Ringing for sip:600@127.0.0.1:54494.
+15:12:07.227 [lib Information] SIPUserAgent: Call attempt to sip:600@127.0.0.1:54494 received a ringing response INVITE 180 Ringing.
+15:12:07.227 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:40815&lt;-udp:127.0.0.1:54494, uri:sip:127.0.0.1:40815.
+15:12:07.227 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:47190&lt;-udp:127.0.0.1:54494, uri:sip:127.0.0.1:47190.
+15:12:07.227 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:07.227 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:07.227 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:47190.
+15:12:07.227 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:47190 received a trying response INVITE 100 Trying.
+15:12:07.228 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:41732 started.
+15:12:07.228 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10004 and control destination 127.0.0.1:10005.
+15:12:07.228 [Information] SIP: Leg sip:101[049ba0392a]: first RTP from 127.0.0.1:41732
+15:12:07.278 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:47190.
+15:12:07.278 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:41732 and control destination 127.0.0.1:41733.
+15:12:07.278 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:47190 was answered.
+15:12:07.278 [Information] SIP: Leg sip:101[049ba0392a] answered: local 127.0.0.1:10004 → remote 127.0.0.1:41732, codec PCMU
+15:12:07.279 [lib Debug] SIPClientUserAgent: Cancelling forwarded call leg, sending CANCEL to sip:127.0.0.1:40815.
+15:12:07.279 [lib Warning] SIPUserAgent: Call attempt to sip:127.0.0.1:40815 failed with Call cancelled by user..
+15:12:07.279 [Information] SIP: Leg sip:100[b5fea6de4f] ended (Call cancelled by user.): received 0 RTP packets, sent 0 frames, 0 send errors
+15:12:07.280 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10002, Control receiver on port 10003. Reason: Call cancelled by user..
+15:12:07.280 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:46824 and control destination 127.0.0.1:46825.
+15:12:07.280 [Information] SIP: Leg sip:102[f52baf5aa5] answered: local 127.0.0.1:10000 → remote 127.0.0.1:46824, codec PCMU
+15:12:07.280 [Information] Calls: Call b5335b700249: connected sip:102[f52baf5aa5] ⇄ sip:101[049ba0392a]
+15:12:07.287 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1852408830 remote RTP endpoint 127.0.0.1:41732.
+15:12:07.291 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 728395866 remote RTP endpoint 127.0.0.1:10004.
+15:12:07.329 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:600@127.0.0.1:54494.
+15:12:07.336 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:12:07.336 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 791013431 remote RTP endpoint 127.0.0.1:10000.
+15:12:07.336 [lib Information] SIPUserAgent: Call attempt to sip:600@127.0.0.1:54494 was answered.
+15:12:07.336 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 70019019 remote RTP endpoint 127.0.0.1:46824.
+15:12:07.336 [Information] SIP: Leg sip:102[f52baf5aa5]: first RTP from 127.0.0.1:46824
+15:12:07.636 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:12:07.636 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 46824, Control receiver on port 46825. Reason: call hungup.
+15:12:07.636 [lib Debug] RTPSession: RTCP BYE received for SSRC 70019019, reason call hungup.
+15:12:07.636 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:54494 SIP/2.0.
+15:12:07.636 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:46825.
+15:12:07.636 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:12:07.636 [Information] SIP: Leg sip:102[f52baf5aa5] ended (hangup): received 16 RTP packets, sent 18 frames, 0 send errors
+15:12:07.636 [Information] Calls: Call b5335b700249: bridge ended (sip:102[f52baf5aa5]: hangup; sip:101[049ba0392a]: up)
+15:12:07.636 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:41733.
+15:12:07.636 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10004, Control receiver on port 10005. Reason: call hungup.
+15:12:07.637 [Information] SIP: Leg sip:101[049ba0392a] ended (hangup): received 21 RTP packets, sent 18 frames, 0 send errors
+15:12:07.637 [lib Debug] RTPSession: RTCP BYE received for SSRC 728395866, reason call hungup.
+15:12:07.637 [lib Debug] MediaStream: Sending key audio RTCP packet size 96 to 127.0.0.1:10005.
+15:12:07.637 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 41732, Control receiver on port 41733. Reason: call hungup.
+15:12:07.637 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:101@127.0.0.1:54494.
+15:12:07.637 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:54494.
+15:12:07.637 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:54494.
+15:12:07.637 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:102@127.0.0.1:54494.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ddd02f73-9a45-4835-8071-8d223de54c6e" testId="b147c5bd-8ac4-198e-342d-21c0b16fbe51" testName="AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: &quot;192.168.0.0/16&quot;, ip: &quot;192.168.0.103&quot;, blocks: 16)" computerName="runnervm48cm3" duration="00:00:00.0003622" startTime="2026-10-28T15:11:51.4956458+00:00" endTime="2026-10-28T15:11:51.4956459+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ddd02f73-9a45-4835-8071-8d223de54c6e" />
+    <UnitTestResult executionId="71316cbf-b27d-4f59-8949-a39eaa7c0aa7" testId="6f7ec7ed-f9aa-d6a4-ea97-49bbab0c7368" testName="AfifPbx.Tests.CallTests.Incoming_gsm_call_rings_the_inbound_destination" computerName="runnervm48cm3" duration="00:00:00.6399155" startTime="2026-10-28T15:12:04.4487625+00:00" endTime="2026-10-28T15:12:04.4487630+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="71316cbf-b27d-4f59-8949-a39eaa7c0aa7">
+      <Output>
+        <StdOut>15:12:03.839 [Information] SIP: SIP server listening on 127.0.0.1:45962
+15:12:03.840 [Debug] GSM: AT &gt; AT
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; ATZ
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; ATE0
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CMEE=0
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CGMI
+15:12:03.840 [Debug] GSM: AT &lt; huawei
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CGMM
+15:12:03.840 [Debug] GSM: AT &lt; E303
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CGMR
+15:12:03.840 [Debug] GSM: AT &lt; 21.157.00.00.00
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CGSN
+15:12:03.840 [Debug] GSM: AT &lt; 861234567890123
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CPIN?
+15:12:03.840 [Debug] GSM: AT &lt; +CPIN: READY
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CIMI
+15:12:03.840 [Debug] GSM: AT &lt; 416011234567890
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT^CVOICE?
+15:12:03.840 [Debug] GSM: AT &lt; ^CVOICE:0,8000,16,20
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+COPS=3,0
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CREG=2
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CLIP=1
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.840 [Debug] GSM: AT &gt; AT+CSSN=1,1
+15:12:03.840 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CMGF=0
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CPMS="SM","SM","SM"
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CNMI=2,1,0,2,0
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CNUM
+15:12:03.841 [Debug] GSM: AT &lt; +CNUM: "","+962790000000",145
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CSQ
+15:12:03.841 [Debug] GSM: AT &lt; +CSQ: 21,99
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CREG?
+15:12:03.841 [Debug] GSM: AT &lt; +CREG: 2,1,"1A2B","3C4D"
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+COPS?
+15:12:03.841 [Debug] GSM: AT &lt; +COPS: 0,0,"Zain JO",2
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Debug] GSM: AT &gt; AT+CMGL=4
+15:12:03.841 [Debug] GSM: AT &lt; OK
+15:12:03.841 [Information] GSM: GSM dongle ready: huawei E303 on FAKE-AT/FAKE-AUDIO
+15:12:03.941 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:45962, callback period 115s.
+15:12:03.941 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:45962.
+15:12:03.941 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:45962 at udp:127.0.0.1:45962 for sip:100@127.0.0.1:45962.
+15:12:03.942 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:45962.
+15:12:03.942 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:50811)
+15:12:03.942 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:45962.
+15:12:03.942 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:45962 in 114s.
+15:12:03.942 [Debug] GSM: AT &lt; RING
+15:12:03.943 [Debug] GSM: AT &lt; +CLIP: "0791112233",129,,,,0
+15:12:03.943 [Information] GSM: Incoming GSM call from 0791112233
+15:12:03.943 [Information] Calls: Call 53dd8fde94dc: gsm:0791112233[6e4d68a974] → ext:100
+15:12:03.943 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:12:03.944 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:12:03.944 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:50811.
+15:12:03.944 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:50811&lt;-udp:127.0.0.1:45962, uri:sip:127.0.0.1:50811.
+15:12:03.944 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:03.944 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:03.944 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:43716 started.
+15:12:03.944 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:50811.
+15:12:03.944 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:50811 received a trying response INVITE 100 Trying.
+15:12:03.944 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:12:03.944 [Information] SIP: Leg sip:100[2d40af91bd]: first RTP from 127.0.0.1:43716
+15:12:03.994 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:50811.
+15:12:03.995 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:43716 and control destination 127.0.0.1:43717.
+15:12:03.995 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:50811 was answered.
+15:12:03.995 [Information] SIP: Leg sip:100[2d40af91bd] answered: local 127.0.0.1:10000 → remote 127.0.0.1:43716, codec PCMU
+15:12:03.996 [Debug] GSM: AT &gt; ATA
+15:12:03.996 [Debug] GSM: AT &lt; OK
+15:12:03.996 [Debug] GSM: AT &gt; AT^DDSETEX=2
+15:12:03.997 [Debug] GSM: AT &lt; OK
+15:12:03.997 [Information] Calls: Call 53dd8fde94dc: connected gsm:0791112233[6e4d68a974] ⇄ sip:100[2d40af91bd]
+15:12:04.005 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1940551525 remote RTP endpoint 127.0.0.1:43716.
+15:12:04.010 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1942137273 remote RTP endpoint 127.0.0.1:10000.
+15:12:04.345 [Debug] GSM: AT &lt; ^CEND:1,10,104,16
+15:12:04.346 [Information] Calls: Call 53dd8fde94dc: bridge ended (gsm:0791112233[6e4d68a974]: normal; sip:100[2d40af91bd]: up)
+15:12:04.346 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:43717.
+15:12:04.346 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: call hungup.
+15:12:04.346 [lib Debug] RTPSession: RTCP BYE received for SSRC 1942137273, reason call hungup.
+15:12:04.346 [Information] SIP: Leg sip:100[2d40af91bd] ended (hangup): received 21 RTP packets, sent 17 frames, 0 send errors
+15:12:04.346 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:50811 SIP/2.0.
+15:12:04.346 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:10001.
+15:12:04.346 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 43716, Control receiver on port 43717. Reason: normal.
+15:12:04.346 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:50811.
+15:12:04.364 [lib Debug] MediaStream: RTP packet for audio not sent, the RTP session is closed.
+15:12:04.446 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:45962.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9eff8e09-f82e-4ac1-b8a6-7336854d7f1e" testId="76f0a048-5b17-7537-ea94-445075f3d6be" testName="AfifPbx.Tests.SmsPduTests.Splits_long_arabic_into_parts" computerName="runnervm48cm3" duration="00:00:00.0044008" startTime="2026-10-28T15:11:51.5709602+00:00" endTime="2026-10-28T15:11:51.5709603+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9eff8e09-f82e-4ac1-b8a6-7336854d7f1e" />
+    <UnitTestResult executionId="ef8f4c1b-c75d-48e9-8ca6-793708375686" testId="4c605078-45a2-0e73-24af-dc24eae27d12" testName="AfifPbx.Tests.MediaTests.Wav_round_trip_and_resample" computerName="runnervm48cm3" duration="00:00:00.0086968" startTime="2026-10-28T15:11:51.5687770+00:00" endTime="2026-10-28T15:11:51.5687772+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ef8f4c1b-c75d-48e9-8ca6-793708375686" />
+    <UnitTestResult executionId="326e071d-6f11-4a68-a77d-1e8fb3c0e07e" testId="a0855bed-1484-cefe-f9c8-61dfec685300" testName="AfifPbx.Tests.CallTests.Calling_an_outside_number_uses_the_gsm_line" computerName="runnervm48cm3" duration="00:00:01.1879616" startTime="2026-10-28T15:12:08.8278926+00:00" endTime="2026-10-28T15:12:08.8278928+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="326e071d-6f11-4a68-a77d-1e8fb3c0e07e">
+      <Output>
+        <StdOut>15:12:07.669 [Information] SIP: SIP server listening on 127.0.0.1:39830
+15:12:07.669 [Debug] GSM: AT &gt; AT
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; ATZ
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; ATE0
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CMEE=0
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CGMI
+15:12:07.670 [Debug] GSM: AT &lt; huawei
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CGMM
+15:12:07.670 [Debug] GSM: AT &lt; E303
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CGMR
+15:12:07.670 [Debug] GSM: AT &lt; 21.157.00.00.00
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CGSN
+15:12:07.670 [Debug] GSM: AT &lt; 861234567890123
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CPIN?
+15:12:07.670 [Debug] GSM: AT &lt; +CPIN: READY
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CIMI
+15:12:07.670 [Debug] GSM: AT &lt; 416011234567890
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT^CVOICE?
+15:12:07.670 [Debug] GSM: AT &lt; ^CVOICE:0,8000,16,20
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+COPS=3,0
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CREG=2
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CLIP=1
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CSSN=1,1
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CMGF=0
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CPMS="SM","SM","SM"
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CNMI=2,1,0,2,0
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CNUM
+15:12:07.670 [Debug] GSM: AT &lt; +CNUM: "","+962790000000",145
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CSQ
+15:12:07.670 [Debug] GSM: AT &lt; +CSQ: 21,99
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CREG?
+15:12:07.670 [Debug] GSM: AT &lt; +CREG: 2,1,"1A2B","3C4D"
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+COPS?
+15:12:07.670 [Debug] GSM: AT &lt; +COPS: 0,0,"Zain JO",2
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.670 [Debug] GSM: AT &gt; AT+CMGL=4
+15:12:07.670 [Debug] GSM: AT &lt; OK
+15:12:07.671 [Information] GSM: GSM dongle ready: huawei E303 on FAKE-AT/FAKE-AUDIO
+15:12:07.771 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:39830, callback period 115s.
+15:12:07.771 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:39830.
+15:12:07.771 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:39830 at udp:127.0.0.1:39830 for sip:100@127.0.0.1:39830.
+15:12:07.772 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:39830.
+15:12:07.772 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:40732)
+15:12:07.772 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:39830.
+15:12:07.772 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:39830 in 114s.
+15:12:07.772 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:53460 started.
+15:12:07.772 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:39830.
+15:12:07.772 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:39830 to udp:127.0.0.1:39830 in 0ms.
+15:12:07.773 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:12:07.773 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:0791234567@127.0.0.1:39830.
+15:12:07.773 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:0791234567@127.0.0.1:39830.
+15:12:07.773 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:07.773 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:07.773 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:0791234567@127.0.0.1:39830.
+15:12:07.773 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:12:07.773 [lib Information] SIPUserAgent: Call attempt to sip:0791234567@127.0.0.1:39830 received a trying response INVITE 100 Trying.
+15:12:07.773 [Information] SIP: Call from 100 to 0791234567
+15:12:07.773 [Information] Calls: Call 446b60b80b7d: sip:100[b5881e4889] → gsm:0791234567
+15:12:07.774 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:12:07.775 [Debug] GSM: AT &gt; ATD0791234567;
+15:12:07.775 [Debug] GSM: AT &lt; OK
+15:12:07.776 [Debug] GSM: AT &lt; ^ORIG:1,0
+15:12:07.776 [Debug] GSM: AT &gt; AT^DDSETEX=2
+15:12:07.776 [Debug] GSM: AT &lt; OK
+15:12:07.824 [lib Debug] SIPClientUserAgent: Information response 180 Ringing for sip:0791234567@127.0.0.1:39830.
+15:12:07.824 [lib Information] SIPUserAgent: Call attempt to sip:0791234567@127.0.0.1:39830 received a ringing response INVITE 180 Ringing.
+15:12:07.976 [Debug] GSM: AT &lt; ^CONF:1
+15:12:08.376 [Debug] GSM: AT &lt; ^CONN:1,0
+15:12:08.377 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:53460 and control destination 127.0.0.1:53461.
+15:12:08.377 [Information] SIP: Leg sip:100[b5881e4889] answered: local 127.0.0.1:10000 → remote 127.0.0.1:53460, codec PCMU
+15:12:08.377 [Information] Calls: Call 446b60b80b7d: connected sip:100[b5881e4889] ⇄ gsm:0791234567[e50259ebfd]
+15:12:08.425 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:0791234567@127.0.0.1:39830.
+15:12:08.425 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:12:08.425 [lib Information] SIPUserAgent: Call attempt to sip:0791234567@127.0.0.1:39830 was answered.
+15:12:08.425 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 433729016 remote RTP endpoint 127.0.0.1:53460.
+15:12:08.425 [Information] SIP: Leg sip:100[b5881e4889]: first RTP from 127.0.0.1:53460
+15:12:08.440 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 816074103 remote RTP endpoint 127.0.0.1:10000.
+15:12:08.725 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:12:08.725 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 53460, Control receiver on port 53461. Reason: call hungup.
+15:12:08.725 [lib Debug] RTPSession: RTCP BYE received for SSRC 433729016, reason call hungup.
+15:12:08.725 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:39830 SIP/2.0.
+15:12:08.726 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:53461.
+15:12:08.726 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:12:08.726 [Information] SIP: Leg sip:100[b5881e4889] ended (hangup): received 16 RTP packets, sent 18 frames, 0 send errors
+15:12:08.726 [Information] Calls: Call 446b60b80b7d: bridge ended (sip:100[b5881e4889]: hangup; gsm:0791234567[e50259ebfd]: up)
+15:12:08.726 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:39830.
+15:12:08.726 [Debug] GSM: AT &gt; AT+CHUP
+15:12:08.727 [Debug] GSM: AT &lt; OK
+15:12:08.727 [Debug] GSM: AT &lt; ^CEND:1,5,104,16
+15:12:08.826 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:39830.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="76f90564-f0b4-4618-9dbc-b99729317946" testId="b535b518-d965-1847-5c0c-c22e53c5fa4e" testName="AfifPbx.Tests.CallTests.Wrong_password_cannot_register" computerName="runnervm48cm3" duration="00:00:00.0338790" startTime="2026-10-28T15:12:03.8086164+00:00" endTime="2026-10-28T15:12:03.8086168+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="76f90564-f0b4-4618-9dbc-b99729317946">
+      <Output>
+        <StdOut>15:12:03.804 [Information] SIP: SIP server listening on 127.0.0.1:41087
+15:12:03.805 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:41087, callback period 115s.
+15:12:03.805 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:41087.
+15:12:03.805 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:41087 at udp:127.0.0.1:41087 for sip:100@127.0.0.1:41087.
+15:12:03.805 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:41087.
+15:12:03.806 [lib Warning] SIPRequestAuthenticator: Authentication token check failed for realm=afif-pbx, username=100, uri=sip:127.0.0.1:41087, nonce=10104047101385444109, method=REGISTER.
+15:12:03.806 [lib Debug] SIPRegistrationUserAgent: Server auth response Unauthorised received for sip:100@127.0.0.1:41087.
+15:12:03.806 [lib Warning] SIPRegistrationUserAgent: Registration unequivocal failure with Unauthorised for sip:100@127.0.0.1:41087 ,no further registration attempts will be made.
+15:12:03.807 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:41087.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e79257d4-b611-486f-9d1b-747e9b73609b" testId="5ef60a33-3443-fd62-bc6a-f8a6ade44602" testName="AfifPbx.Tests.TailscaleTests.Parses_tailscale_status" computerName="runnervm48cm3" duration="00:00:00.0005081" startTime="2026-10-28T15:11:51.6275591+00:00" endTime="2026-10-28T15:11:51.6275592+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e79257d4-b611-486f-9d1b-747e9b73609b" />
+    <UnitTestResult executionId="77e0b67d-feaf-48fd-985c-fda2a3db4d84" testId="cbd217ed-8c85-f07f-fe66-044953d4b735" testName="AfifPbx.Tests.BridgeTests.Bad_token_reports_a_clear_error" computerName="runnervm48cm3" duration="00:00:00.0434345" startTime="2026-10-28T15:11:51.5355863+00:00" endTime="2026-10-28T15:11:51.5355865+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="77e0b67d-feaf-48fd-985c-fda2a3db4d84" />
+    <UnitTestResult executionId="dd06092a-43fd-49b2-afa2-fe1a30b54886" testId="5076654c-9698-342d-9312-809915004346" testName="AfifPbx.Tests.SmsPduTests.Decodes_gsm7_reference_pdu" computerName="runnervm48cm3" duration="00:00:00.0000578" startTime="2026-10-28T15:11:51.5709137+00:00" endTime="2026-10-28T15:11:51.5709137+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dd06092a-43fd-49b2-afa2-fe1a30b54886" />
+    <UnitTestResult executionId="d82107a1-9fad-44a5-bce9-9aae14cb898a" testId="614cbb5b-45fe-5550-98e2-0faf7bf750e6" testName="AfifPbx.Tests.WinUsbChooseTests.Network_interface_is_never_taken_for_voice" computerName="runnervm48cm3" duration="00:00:00.0076561" startTime="2026-10-28T15:11:51.5705487+00:00" endTime="2026-10-28T15:11:51.5705488+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d82107a1-9fad-44a5-bce9-9aae14cb898a" />
+    <UnitTestResult executionId="f5370b63-3a77-43e8-8796-a63871ea2589" testId="8c2ec327-074c-cafe-219f-9c665f714029" testName="AfifPbx.Tests.MediaTests.Dtmf_survives_g711" computerName="runnervm48cm3" duration="00:00:00.0304998" startTime="2026-10-28T15:11:51.5108968+00:00" endTime="2026-10-28T15:11:51.5108970+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f5370b63-3a77-43e8-8796-a63871ea2589" />
+    <UnitTestResult executionId="9ab36f84-5ddf-4285-9def-138a918169f5" testId="7c116479-a691-42e3-5a6f-831c7cb81e22" testName="AfifPbx.Tests.CallTests.Sms_are_received_and_sent" computerName="runnervm48cm3" duration="00:00:00.2459034" startTime="2026-10-28T15:11:52.7224020+00:00" endTime="2026-10-28T15:11:52.7224022+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9ab36f84-5ddf-4285-9def-138a918169f5">
+      <Output>
+        <StdOut>15:11:52.509 [Information] SIP: SIP server listening on 127.0.0.1:47390
+15:11:52.514 [Debug] GSM: AT &gt; AT
+15:11:52.515 [Debug] GSM: AT &lt; OK
+15:11:52.517 [Debug] GSM: AT &gt; ATZ
+15:11:52.517 [Debug] GSM: AT &lt; OK
+15:11:52.517 [Debug] GSM: AT &gt; ATE0
+15:11:52.517 [Debug] GSM: AT &lt; OK
+15:11:52.518 [Debug] GSM: AT &gt; AT+CMEE=0
+15:11:52.518 [Debug] GSM: AT &lt; OK
+15:11:52.518 [Debug] GSM: AT &gt; AT+CGMI
+15:11:52.518 [Debug] GSM: AT &lt; huawei
+15:11:52.518 [Debug] GSM: AT &lt; OK
+15:11:52.518 [Debug] GSM: AT &gt; AT+CGMM
+15:11:52.518 [Debug] GSM: AT &lt; E303
+15:11:52.518 [Debug] GSM: AT &lt; OK
+15:11:52.518 [Debug] GSM: AT &gt; AT+CGMR
+15:11:52.519 [Debug] GSM: AT &lt; 21.157.00.00.00
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CGSN
+15:11:52.519 [Debug] GSM: AT &lt; 861234567890123
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CPIN?
+15:11:52.519 [Debug] GSM: AT &lt; +CPIN: READY
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CIMI
+15:11:52.519 [Debug] GSM: AT &lt; 416011234567890
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT^CVOICE?
+15:11:52.519 [Debug] GSM: AT &lt; ^CVOICE:0,8000,16,20
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+COPS=3,0
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CREG=2
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CLIP=1
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CSSN=1,1
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CMGF=0
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CPMS="SM","SM","SM"
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CNMI=2,1,0,2,0
+15:11:52.519 [Debug] GSM: AT &lt; OK
+15:11:52.519 [Debug] GSM: AT &gt; AT+CNUM
+15:11:52.520 [Debug] GSM: AT &lt; +CNUM: "","+962790000000",145
+15:11:52.520 [Debug] GSM: AT &lt; OK
+15:11:52.522 [Debug] GSM: AT &gt; AT+CSQ
+15:11:52.522 [Debug] GSM: AT &lt; +CSQ: 21,99
+15:11:52.522 [Debug] GSM: AT &lt; OK
+15:11:52.522 [Debug] GSM: AT &gt; AT+CREG?
+15:11:52.522 [Debug] GSM: AT &lt; +CREG: 2,1,"1A2B","3C4D"
+15:11:52.522 [Debug] GSM: AT &lt; OK
+15:11:52.523 [Debug] GSM: AT &gt; AT+COPS?
+15:11:52.523 [Debug] GSM: AT &lt; +COPS: 0,0,"Zain JO",2
+15:11:52.523 [Debug] GSM: AT &lt; OK
+15:11:52.523 [Debug] GSM: AT &gt; AT+CMGL=4
+15:11:52.523 [Debug] GSM: AT &lt; OK
+15:11:52.524 [Information] GSM: GSM dongle ready: huawei E303 on FAKE-AT/FAKE-AUDIO
+15:11:52.610 [Debug] GSM: AT &lt; +CMTI: "SM",3
+15:11:52.611 [Debug] GSM: AT &gt; AT+CMGR=3
+15:11:52.612 [Debug] GSM: AT &lt; +CMGR: 0,,24
+15:11:52.612 [Debug] GSM: AT &lt; 00040C916972191122330008621070210000001406450631062D0628062700200041004600490046
+15:11:52.612 [Debug] GSM: AT &lt; OK
+15:11:52.614 [Debug] GSM: AT &gt; AT+CMGD=3
+15:11:52.615 [Debug] GSM: AT &lt; OK
+15:11:52.716 [Debug] GSM: AT &gt; AT+CMGS=29
+15:11:52.717 [Debug] GSM: AT &gt; 0001000A817019325476000013C8329BFD0699E5EF3628684C1A5B502116\x1a
+15:11:52.717 [Debug] GSM: AT &lt; +CMGS: 7
+15:11:52.717 [Debug] GSM: AT &lt; OK</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b90b5b84-33b7-4be0-b6f5-ed6a6df33a45" testId="36b4e412-f871-7f78-6a36-9b13e5a04769" testName="AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: &quot;10.0.0.0/8&quot;, ip: &quot;10.1.2.3&quot;, blocks: 24)" computerName="runnervm48cm3" duration="00:00:00.0093439" startTime="2026-10-28T15:11:51.4922869+00:00" endTime="2026-10-28T15:11:51.4923069+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b90b5b84-33b7-4be0-b6f5-ed6a6df33a45" />
+    <UnitTestResult executionId="7c017ec2-33d5-4ca9-a0a5-bb7c0346fccb" testId="6254cec5-7354-e0f1-7267-a2383e965002" testName="AfifPbx.Tests.TailscaleTests.Parses_signed_out_state_with_login_link" computerName="runnervm48cm3" duration="00:00:00.0002237" startTime="2026-10-28T15:11:51.6036655+00:00" endTime="2026-10-28T15:11:51.6036656+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7c017ec2-33d5-4ca9-a0a5-bb7c0346fccb" />
+    <UnitTestResult executionId="08bb04da-a55d-44c4-9df0-224149e524b6" testId="b07f2ee5-34c5-c5d1-d921-f7c4666f22de" testName="AfifPbx.Tests.SmsPduTests.Decodes_multipart_headers" computerName="runnervm48cm3" duration="00:00:00.0028492" startTime="2026-10-28T15:11:51.5708670+00:00" endTime="2026-10-28T15:11:51.5708670+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08bb04da-a55d-44c4-9df0-224149e524b6" />
+    <UnitTestResult executionId="2aa4d9e7-d986-41c8-8a88-8ea91c97ed4e" testId="04c6df6e-ed33-f378-e1eb-a439611632c1" testName="AfifPbx.Tests.CallTests.Extensions_register_and_call_each_other_with_audio_both_ways" computerName="runnervm48cm3" duration="00:00:00.9956287" startTime="2026-10-28T15:11:52.4760641+00:00" endTime="2026-10-28T15:11:52.4760643+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2aa4d9e7-d986-41c8-8a88-8ea91c97ed4e">
+      <Output>
+        <StdOut>15:11:51.617 [Information] SIP: SIP server listening on 127.0.0.1:43749
+15:11:51.628 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:43749, callback period 115s.
+15:11:51.629 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:43749.
+15:11:51.637 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:43749 at udp:127.0.0.1:43749 for sip:100@127.0.0.1:43749.
+15:11:51.671 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:43749.
+15:11:51.675 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:45182)
+15:11:51.675 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:43749.
+15:11:51.676 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:43749 in 114s.
+15:11:51.677 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:101@127.0.0.1:43749, callback period 115s.
+15:11:51.677 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:101@127.0.0.1:43749.
+15:11:51.677 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:43749 at udp:127.0.0.1:43749 for sip:101@127.0.0.1:43749.
+15:11:51.678 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:101@127.0.0.1:43749.
+15:11:51.678 [Information] SIP: Extension 101 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:41397)
+15:11:51.678 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:101@127.0.0.1:43749.
+15:11:51.678 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:101@127.0.0.1:43749 in 114s.
+15:11:51.686 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:60702 started.
+15:11:51.692 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:43749.
+15:11:51.692 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:43749 to udp:127.0.0.1:43749 in 0.01ms.
+15:11:51.700 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:11:51.700 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:101@127.0.0.1:43749.
+15:11:51.706 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:101@127.0.0.1:43749.
+15:11:51.709 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:51.711 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:51.711 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:11:51.712 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:101@127.0.0.1:43749.
+15:11:51.712 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:43749 received a trying response INVITE 100 Trying.
+15:11:51.712 [Information] SIP: Call from 100 to 101
+15:11:51.716 [Information] Calls: Call 3a622ae9d008: sip:100[092b70582b] → ext:101
+15:11:51.718 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:11:51.720 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:11:51.720 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:11:51.720 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10002 started.
+15:11:51.721 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:11:51.721 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:41397.
+15:11:51.723 [lib Debug] SIPClientUserAgent: Information response 180 Ringing for sip:101@127.0.0.1:43749.
+15:11:51.723 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:41397&lt;-udp:127.0.0.1:43749, uri:sip:127.0.0.1:41397.
+15:11:51.724 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:51.724 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:43749 received a ringing response INVITE 180 Ringing.
+15:11:51.724 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:51.724 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:41532 started.
+15:11:51.724 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:41397.
+15:11:51.724 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:41397 received a trying response INVITE 100 Trying.
+15:11:51.751 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10002 and control destination 127.0.0.1:10003.
+15:11:51.761 [Information] SIP: Leg sip:101[1e08e68c41]: first RTP from 127.0.0.1:41532
+15:11:51.775 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:41397.
+15:11:51.776 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:41532 and control destination 127.0.0.1:41533.
+15:11:51.776 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:41397 was answered.
+15:11:51.777 [Information] SIP: Leg sip:101[1e08e68c41] answered: local 127.0.0.1:10002 → remote 127.0.0.1:41532, codec PCMU
+15:11:51.778 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:60702 and control destination 127.0.0.1:60703.
+15:11:51.778 [Information] SIP: Leg sip:100[092b70582b] answered: local 127.0.0.1:10000 → remote 127.0.0.1:60702, codec PCMU
+15:11:51.777 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 495657954 remote RTP endpoint 127.0.0.1:41532.
+15:11:51.779 [Information] Calls: Call 3a622ae9d008: connected sip:100[092b70582b] ⇄ sip:101[1e08e68c41]
+15:11:51.789 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1959088536 remote RTP endpoint 127.0.0.1:10002.
+15:11:51.823 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:101@127.0.0.1:43749.
+15:11:51.823 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:11:51.823 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:43749 was answered.
+15:11:51.824 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1164415209 remote RTP endpoint 127.0.0.1:60702.
+15:11:51.824 [Information] SIP: Leg sip:100[092b70582b]: first RTP from 127.0.0.1:60702
+15:11:51.828 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1856073489 remote RTP endpoint 127.0.0.1:10000.
+15:11:52.231 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:11:52.232 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 60702, Control receiver on port 60703. Reason: call hungup.
+15:11:52.234 [lib Debug] RTPSession: RTCP BYE received for SSRC 1164415209, reason call hungup.
+15:11:52.235 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:43749 SIP/2.0.
+15:11:52.235 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:60703.
+15:11:52.235 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:11:52.236 [Information] SIP: Leg sip:100[092b70582b] ended (hangup): received 21 RTP packets, sent 23 frames, 0 send errors
+15:11:52.236 [Information] Calls: Call 3a622ae9d008: bridge ended (sip:100[092b70582b]: hangup; sip:101[1e08e68c41]: up)
+15:11:52.236 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:41533.
+15:11:52.237 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10002, Control receiver on port 10003. Reason: call hungup.
+15:11:52.237 [lib Debug] RTPSession: RTCP BYE received for SSRC 1959088536, reason call hungup.
+15:11:52.237 [Information] SIP: Leg sip:101[1e08e68c41] ended (hangup): received 25 RTP packets, sent 23 frames, 0 send errors
+15:11:52.237 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:41397 SIP/2.0.
+15:11:52.237 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:10003.
+15:11:52.237 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 41532, Control receiver on port 41533. Reason: normal.
+15:11:52.238 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:43749.
+15:11:52.238 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:41397.
+15:11:52.256 [lib Debug] MediaStream: RTP packet for audio not sent, the RTP session is closed.
+15:11:52.472 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:101@127.0.0.1:43749.
+15:11:52.473 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:43749.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="95c44ff5-afe5-4491-b381-ec9f4a064133" testId="16f6afa4-dd0b-777b-8c7b-70629a832f55" testName="AfifPbx.Tests.SmsPduTests.Decodes_ucs2_arabic" computerName="runnervm48cm3" duration="00:00:00.0018482" startTime="2026-10-28T15:11:51.5708138+00:00" endTime="2026-10-28T15:11:51.5708139+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="95c44ff5-afe5-4491-b381-ec9f4a064133" />
+    <UnitTestResult executionId="063fed0f-d208-45df-acdb-689c6cc402f7" testId="bd0fb5ba-4768-4b0b-9687-921d8e0757c5" testName="AfifPbx.Tests.CallTests.Phone_on_the_extra_sip_port_is_called_from_that_port" computerName="runnervm48cm3" duration="00:00:00.4977949" startTime="2026-10-28T15:11:53.2209008+00:00" endTime="2026-10-28T15:11:53.2209012+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="063fed0f-d208-45df-acdb-689c6cc402f7">
+      <Output>
+        <StdOut>15:11:52.754 [Information] SIP: SIP server listening on 127.0.0.1:33650
+15:11:52.755 [Information] SIP: SIP server listening on 127.0.0.1:40084
+15:11:52.760 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:33650, callback period 115s.
+15:11:52.760 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:33650.
+15:11:52.760 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:33650 at udp:127.0.0.1:33650 for sip:100@127.0.0.1:33650.
+15:11:52.761 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:33650.
+15:11:52.762 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:58256)
+15:11:52.762 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:33650.
+15:11:52.762 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:33650 in 114s.
+15:11:52.763 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:101@127.0.0.1:40084, callback period 115s.
+15:11:52.763 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:101@127.0.0.1:40084.
+15:11:52.763 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:40084 at udp:127.0.0.1:40084 for sip:101@127.0.0.1:40084.
+15:11:52.764 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:101@127.0.0.1:40084.
+15:11:52.764 [Information] SIP: Extension 101 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:52368)
+15:11:52.765 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:101@127.0.0.1:40084.
+15:11:52.765 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:101@127.0.0.1:40084 in 114s.
+15:11:52.765 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:38504 started.
+15:11:52.765 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:33650.
+15:11:52.765 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:33650 to udp:127.0.0.1:33650 in 0.01ms.
+15:11:52.765 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:11:52.765 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:101@127.0.0.1:33650.
+15:11:52.766 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:101@127.0.0.1:33650.
+15:11:52.766 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:52.766 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:52.767 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:11:52.767 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:101@127.0.0.1:33650.
+15:11:52.767 [Information] SIP: Call from 100 to 101
+15:11:52.767 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:33650 received a trying response INVITE 100 Trying.
+15:11:52.767 [Information] Calls: Call fb8d6fa6f108: sip:100[dc33e02556] → ext:101
+15:11:52.767 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:11:52.767 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:11:52.767 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:11:52.767 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10002 started.
+15:11:52.767 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:11:52.767 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:52368.
+15:11:52.768 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:52368&lt;-udp:127.0.0.1:40084, uri:sip:127.0.0.1:52368.
+15:11:52.768 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:52.768 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:52.768 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:38692 started.
+15:11:52.768 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10002 and control destination 127.0.0.1:10003.
+15:11:52.768 [Information] SIP: Leg sip:101[56d380a0e7]: first RTP from 127.0.0.1:38692
+15:11:52.769 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:52368.
+15:11:52.769 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:52368 received a trying response INVITE 100 Trying.
+15:11:52.769 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:52368.
+15:11:52.769 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:38692 and control destination 127.0.0.1:38693.
+15:11:52.769 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:52368 was answered.
+15:11:52.769 [Information] SIP: Leg sip:101[56d380a0e7] answered: local 127.0.0.1:10002 → remote 127.0.0.1:38692, codec PCMU
+15:11:52.769 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:38504 and control destination 127.0.0.1:38505.
+15:11:52.769 [Information] SIP: Leg sip:100[dc33e02556] answered: local 127.0.0.1:10000 → remote 127.0.0.1:38504, codec PCMU
+15:11:52.769 [Information] Calls: Call fb8d6fa6f108: connected sip:100[dc33e02556] ⇄ sip:101[56d380a0e7]
+15:11:52.783 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1222451389 remote RTP endpoint 127.0.0.1:10002.
+15:11:52.789 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1528610001 remote RTP endpoint 127.0.0.1:38692.
+15:11:52.817 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:101@127.0.0.1:33650.
+15:11:52.817 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:11:52.818 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:33650 was answered.
+15:11:52.818 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1352381404 remote RTP endpoint 127.0.0.1:38504.
+15:11:52.818 [Information] SIP: Leg sip:100[dc33e02556]: first RTP from 127.0.0.1:38504
+15:11:52.823 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 293636909 remote RTP endpoint 127.0.0.1:10000.
+15:11:53.217 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:11:53.217 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 38504, Control receiver on port 38505. Reason: call hungup.
+15:11:53.217 [lib Debug] RTPSession: RTCP BYE received for SSRC 1352381404, reason call hungup.
+15:11:53.218 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:33650 SIP/2.0.
+15:11:53.218 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:38505.
+15:11:53.218 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10003.
+15:11:53.218 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:11:53.218 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 38692, Control receiver on port 38693. Reason: call hungup.
+15:11:53.218 [Information] SIP: Leg sip:100[dc33e02556] ended (hangup): received 21 RTP packets, sent 22 frames, 0 send errors
+15:11:53.219 [lib Debug] RTPSession: RTCP BYE received for SSRC 1528610001, reason call hungup.
+15:11:53.219 [Information] Calls: Call fb8d6fa6f108: bridge ended (sip:100[dc33e02556]: hangup; sip:101[56d380a0e7]: up)
+15:11:53.219 [lib Debug] MediaStream: Sending key audio RTCP packet size 96 to 127.0.0.1:38693.
+15:11:53.219 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10002, Control receiver on port 10003. Reason: call hungup.
+15:11:53.219 [lib Warning] SIPTransport: Resending final response for BYE, sip:127.0.0.1:33650, cseq=3.
+15:11:53.219 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:101@127.0.0.1:40084.
+15:11:53.219 [Information] SIP: Leg sip:101[56d380a0e7] ended (hangup): received 23 RTP packets, sent 22 frames, 0 send errors
+15:11:53.219 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:33650.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="59e1556b-f04f-4e24-85eb-9402ac1cf07e" testId="2453b076-9e52-d1ad-7edb-01c1c97e7b8d" testName="AfifPbx.Tests.TailscaleTests.Rejects_names_that_are_not_full_hostnames" computerName="runnervm48cm3" duration="00:00:00.0006311" startTime="2026-10-28T15:11:51.6206217+00:00" endTime="2026-10-28T15:11:51.6206217+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="59e1556b-f04f-4e24-85eb-9402ac1cf07e" />
+    <UnitTestResult executionId="00c88cda-5d60-4b55-b425-72f350dc4203" testId="07b10915-d6ed-7184-26ab-8c88b9418fd7" testName="AfifPbx.Tests.CallTests.Unavailable_extension_goes_to_voicemail" computerName="runnervm48cm3" duration="00:00:06.1909266" startTime="2026-10-28T15:11:59.4122967+00:00" endTime="2026-10-28T15:11:59.4122969+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00c88cda-5d60-4b55-b425-72f350dc4203">
+      <Output>
+        <StdOut>15:11:53.251 [Information] SIP: SIP server listening on 127.0.0.1:34874
+15:11:53.252 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:34874, callback period 115s.
+15:11:53.252 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:34874.
+15:11:53.252 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:34874 at udp:127.0.0.1:34874 for sip:100@127.0.0.1:34874.
+15:11:53.253 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:34874.
+15:11:53.253 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:41905)
+15:11:53.254 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:34874.
+15:11:53.254 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:34874 in 114s.
+15:11:53.254 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:45974 started.
+15:11:53.254 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:34874.
+15:11:53.254 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:34874 to udp:127.0.0.1:34874 in 0.01ms.
+15:11:53.255 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:11:53.255 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:102@127.0.0.1:34874.
+15:11:53.255 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:102@127.0.0.1:34874.
+15:11:53.256 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:11:53.256 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:11:53.256 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:11:53.256 [Information] SIP: Call from 100 to 102
+15:11:53.256 [Information] Calls: Call a6d7f9736fb3: sip:100[7bdbc893df] → ext:102
+15:11:53.256 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:11:53.256 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:102@127.0.0.1:34874.
+15:11:53.256 [lib Information] SIPUserAgent: Call attempt to sip:102@127.0.0.1:34874 received a trying response INVITE 100 Trying.
+15:11:53.258 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:45974 and control destination 127.0.0.1:45975.
+15:11:53.258 [Information] SIP: Leg sip:100[7bdbc893df] answered: local 127.0.0.1:10000 → remote 127.0.0.1:45974, codec PCMU
+15:11:53.307 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:102@127.0.0.1:34874.
+15:11:53.307 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:11:53.307 [lib Information] SIPUserAgent: Call attempt to sip:102@127.0.0.1:34874 was answered.
+15:11:53.307 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 504870283 remote RTP endpoint 127.0.0.1:45974.
+15:11:53.307 [Information] SIP: Leg sip:100[7bdbc893df]: first RTP from 127.0.0.1:45974
+15:11:53.322 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1679305545 remote RTP endpoint 127.0.0.1:10000.
+15:11:59.165 [lib Debug] MediaStream: Sending key audio RTCP packet size 100 to 127.0.0.1:45975.
+15:11:59.307 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:11:59.307 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 45974, Control receiver on port 45975. Reason: call hungup.
+15:11:59.307 [lib Debug] RTPSession: RTCP BYE received for SSRC 504870283, reason call hungup.
+15:11:59.308 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:34874 SIP/2.0.
+15:11:59.308 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:45975.
+15:11:59.308 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:11:59.308 [Information] SIP: Leg sip:100[7bdbc893df] ended (hangup): received 301 RTP packets, sent 300 frames, 0 send errors
+15:11:59.324 [Information] Calls: Voicemail for 102 from 100 (3s)
+15:11:59.359 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:34874.
+15:11:59.410 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:34874.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="bd86b487-3030-4349-ad9a-af8cee6be87e" testId="4c7f1d1e-d6fc-f74a-b355-4bf5308eb82d" testName="AfifPbx.Tests.TailscaleTests.Domain_needs_a_token_and_says_what_to_create_otherwise" computerName="runnervm48cm3" duration="00:00:00.0061649" startTime="2026-10-28T15:11:51.6273721+00:00" endTime="2026-10-28T15:11:51.6273722+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bd86b487-3030-4349-ad9a-af8cee6be87e" />
+    <UnitTestResult executionId="46445293-09a8-440c-adc2-a2a6d79020c0" testId="619f5edd-9399-1e13-e727-08c1411e1956" testName="AfifPbx.Tests.WinUsbChooseTests.Classic_three_port_stick_picks_pcui_and_voice" computerName="runnervm48cm3" duration="00:00:00.0002548" startTime="2026-10-28T15:11:51.5706807+00:00" endTime="2026-10-28T15:11:51.5706808+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="46445293-09a8-440c-adc2-a2a6d79020c0" />
+    <UnitTestResult executionId="3ec76cd4-4499-49e9-bb00-3417d83813a8" testId="556dfd85-4e8e-8333-263d-b5fc4d03a77f" testName="AfifPbx.Tests.BridgeTests.Second_setup_reuses_the_tunnel_and_never_touches_foreign_dns" computerName="runnervm48cm3" duration="00:00:00.0081252" startTime="2026-10-28T15:11:51.5882523+00:00" endTime="2026-10-28T15:11:51.5882525+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3ec76cd4-4499-49e9-bb00-3417d83813a8" />
+    <UnitTestResult executionId="fdf4326e-6cc1-4063-bc45-ef71b8ac2354" testId="a017d54d-c41f-c0b2-b04e-fec1d5149e88" testName="AfifPbx.Tests.CallTests.Calls_are_recorded_when_enabled" computerName="runnervm48cm3" duration="00:00:02.7415490" startTime="2026-10-28T15:12:07.1907787+00:00" endTime="2026-10-28T15:12:07.1907790+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fdf4326e-6cc1-4063-bc45-ef71b8ac2354">
+      <Output>
+        <StdOut>15:12:04.480 [Information] SIP: SIP server listening on 127.0.0.1:33398
+15:12:04.481 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:100@127.0.0.1:33398, callback period 115s.
+15:12:04.481 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:100@127.0.0.1:33398.
+15:12:04.481 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:33398 at udp:127.0.0.1:33398 for sip:100@127.0.0.1:33398.
+15:12:04.482 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:100@127.0.0.1:33398.
+15:12:04.482 [Information] SIP: Extension 100 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:60294)
+15:12:04.482 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:100@127.0.0.1:33398.
+15:12:04.482 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:100@127.0.0.1:33398 in 114s.
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: Starting SIPRegistrationUserAgent for sip:101@127.0.0.1:33398, callback period 115s.
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: Starting registration for sip:101@127.0.0.1:33398.
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: Initiating registration to 127.0.0.1:33398 at udp:127.0.0.1:33398 for sip:101@127.0.0.1:33398.
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: Server response Unauthorised received for sip:101@127.0.0.1:33398.
+15:12:04.483 [Information] SIP: Extension 101 registered (sipsorcery_v10.0.17.0 at udp:127.0.0.1:50412)
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: Server auth response Ok received for sip:101@127.0.0.1:33398.
+15:12:04.483 [lib Debug] SIPRegistrationUserAgent: SIPRegistrationUserAgent was successful, scheduling next registration to sip:101@127.0.0.1:33398 in 114s.
+15:12:04.484 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:56144 started.
+15:12:04.484 [lib Debug] SIPClientUserAgent: SIPClientUserAgent attempting to resolve 127.0.0.1:33398.
+15:12:04.484 [lib Debug] SIPClientUserAgent: SIPClientUserAgent resolved 127.0.0.1:33398 to udp:127.0.0.1:33398 in 0ms.
+15:12:04.484 [lib Debug] SIPUserAgent: Setting ring timeout of 20s.
+15:12:04.484 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:101@127.0.0.1:33398.
+15:12:04.484 [lib Debug] SIPClientUserAgent: Response 401 Unauthorised for sip:101@127.0.0.1:33398.
+15:12:04.484 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:04.484 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:04.484 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10000 started.
+15:12:04.484 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:101@127.0.0.1:33398.
+15:12:04.484 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:33398 received a trying response INVITE 100 Trying.
+15:12:04.484 [Information] SIP: Call from 100 to 101
+15:12:04.484 [Information] Calls: Call 50f01e9c2faf: sip:100[1df305289d] → ext:101
+15:12:04.485 [lib Debug] SIPServerUserAgent: UAS call ignoring progress response with status of Ringing(180) as already in Proceeding.
+15:12:04.485 [lib Warning] NetServices: Address already in use exception attempting to bind socket, attempt 0.
+15:12:04.485 [lib Warning] NetServices: CreateRtpSocket failed to create and bind RTP socket(s) on 127.0.0.1:0, bind attempt 1.
+15:12:04.485 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:10002 started.
+15:12:04.485 [lib Debug] SIPUserAgent: Setting ring timeout of 8s.
+15:12:04.485 [lib Debug] SIPClientUserAgent: UAC commencing call to sip:127.0.0.1:50412.
+15:12:04.485 [lib Information] SIPUserAgent: Incoming call request: udp:127.0.0.1:50412&lt;-udp:127.0.0.1:33398, uri:sip:127.0.0.1:50412.
+15:12:04.485 [lib Debug] SIPServerUserAgent: UAS call progressing with Trying.
+15:12:04.485 [lib Debug] SIPServerUserAgent: UAS call progressing with Ringing.
+15:12:04.485 [lib Debug] SIPClientUserAgent: Information response 180 Ringing for sip:101@127.0.0.1:33398.
+15:12:04.485 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:33398 received a ringing response INVITE 180 Ringing.
+15:12:04.485 [lib Debug] RTPChannel: RTPChannel for 127.0.0.1:57858 started.
+15:12:04.485 [lib Debug] SIPClientUserAgent: Information response 100 Trying for sip:127.0.0.1:50412.
+15:12:04.485 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:50412 received a trying response INVITE 100 Trying.
+15:12:04.485 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10002 and control destination 127.0.0.1:10003.
+15:12:04.486 [Information] SIP: Leg sip:101[a7ec360306]: first RTP from 127.0.0.1:57858
+15:12:04.536 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:50412.
+15:12:04.536 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:57858 and control destination 127.0.0.1:57859.
+15:12:04.536 [lib Information] SIPUserAgent: Call attempt to sip:127.0.0.1:50412 was answered.
+15:12:04.536 [Information] SIP: Leg sip:101[a7ec360306] answered: local 127.0.0.1:10002 → remote 127.0.0.1:57858, codec PCMU
+15:12:04.536 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:56144 and control destination 127.0.0.1:56145.
+15:12:04.536 [Information] SIP: Leg sip:100[1df305289d] answered: local 127.0.0.1:10000 → remote 127.0.0.1:56144, codec PCMU
+15:12:04.537 [Information] Calls: Call 50f01e9c2faf: connected sip:100[1df305289d] ⇄ sip:101[a7ec360306]
+15:12:04.546 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1097998167 remote RTP endpoint 127.0.0.1:57858.
+15:12:04.549 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1238394819 remote RTP endpoint 127.0.0.1:10002.
+15:12:04.586 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:101@127.0.0.1:33398.
+15:12:04.586 [lib Debug] RTPSession: Setting remote audio track with sdp destination 127.0.0.1:10000 and control destination 127.0.0.1:10001.
+15:12:04.586 [lib Information] SIPUserAgent: Call attempt to sip:101@127.0.0.1:33398 was answered.
+15:12:04.586 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 1847066509 remote RTP endpoint 127.0.0.1:56144.
+15:12:04.586 [Information] SIP: Leg sip:100[1df305289d]: first RTP from 127.0.0.1:56144
+15:12:04.589 [lib Debug] MediaStream: Set remote track (audio - index=0) SSRC to 185001705 remote RTP endpoint 127.0.0.1:10000.
+15:12:07.087 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:10001.
+15:12:07.087 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 56144, Control receiver on port 56145. Reason: call hungup.
+15:12:07.087 [lib Debug] RTPSession: RTCP BYE received for SSRC 1847066509, reason call hungup.
+15:12:07.087 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:33398 SIP/2.0.
+15:12:07.088 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:56145.
+15:12:07.088 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10000, Control receiver on port 10001. Reason: normal.
+15:12:07.088 [Information] SIP: Leg sip:100[1df305289d] ended (hangup): received 126 RTP packets, sent 127 frames, 0 send errors
+15:12:07.088 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:33398.
+15:12:07.088 [Information] Calls: Call 50f01e9c2faf: bridge ended (sip:100[1df305289d]: hangup; sip:101[a7ec360306]: up)
+15:12:07.088 [lib Debug] MediaStream: Sending key audio RTCP packet size 120 to 127.0.0.1:57859.
+15:12:07.088 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 10002, Control receiver on port 10003. Reason: call hungup.
+15:12:07.088 [lib Debug] RTPSession: RTCP BYE received for SSRC 1238394819, reason call hungup.
+15:12:07.088 [Information] SIP: Leg sip:101[a7ec360306] ended (hangup): received 131 RTP packets, sent 127 frames, 0 send errors
+15:12:07.088 [lib Information] SIPUserAgent: Remote call party hungup BYE sip:127.0.0.1:50412 SIP/2.0.
+15:12:07.088 [lib Debug] MediaStream: Sending key audio RTCP packet size 92 to 127.0.0.1:10003.
+15:12:07.088 [lib Debug] RTPChannel: RTPChannel closing, RTP receiver on port 57858, Control receiver on port 57859. Reason: normal.
+15:12:07.088 [lib Debug] SIPClientUserAgent: Response 200 Ok for sip:127.0.0.1:50412.
+15:12:07.106 [lib Debug] MediaStream: RTP packet for audio not sent, the RTP session is closed.
+15:12:07.189 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:101@127.0.0.1:33398.
+15:12:07.189 [lib Debug] SIPRegistrationUserAgent: Stopping SIP registration user agent for sip:100@127.0.0.1:33398.</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="0d83d554-7781-4495-a2c4-53a30037877d" testId="72146e29-03bd-5145-3cd6-2e7d1ea781d6" testName="AfifPbx.Tests.WinUsbChooseTests.Nothing_answering_means_no_choice" computerName="runnervm48cm3" duration="00:00:00.0002441" startTime="2026-10-28T15:11:51.5706152+00:00" endTime="2026-10-28T15:11:51.5706152+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0d83d554-7781-4495-a2c4-53a30037877d" />
+    <UnitTestResult executionId="1b3f7bf4-7fdc-4c57-8e60-75d08828f25b" testId="bbcc9593-2262-d02d-0d71-a13d1256f349" testName="AfifPbx.Tests.TailscaleTests.Points_the_domain_at_the_tailscale_address_using_the_bridge_token" computerName="runnervm48cm3" duration="00:00:00.0157927" startTime="2026-10-28T15:11:51.6205232+00:00" endTime="2026-10-28T15:11:51.6205234+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1b3f7bf4-7fdc-4c57-8e60-75d08828f25b" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="AfifPbx.Tests.CallTests.Calls_are_recorded_when_enabled" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="a017d54d-c41f-c0b2-b04e-fec1d5149e88">
+      <Execution id="fdf4326e-6cc1-4063-bc45-ef71b8ac2354" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Calls_are_recorded_when_enabled" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.WinUsbChooseTests.Nothing_answering_means_no_choice" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="72146e29-03bd-5145-3cd6-2e7d1ea781d6">
+      <Execution id="0d83d554-7781-4495-a2c4-53a30037877d" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.WinUsbChooseTests" name="Nothing_answering_means_no_choice" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Calling_an_outside_number_uses_the_gsm_line" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="a0855bed-1484-cefe-f9c8-61dfec685300">
+      <Execution id="326e071d-6f11-4a68-a77d-1e8fb3c0e07e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Calling_an_outside_number_uses_the_gsm_line" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Ivr_sends_the_caller_where_they_press" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="6c0291ec-d1d3-2a7d-b669-4053b535dc4b">
+      <Execution id="b1efb9d6-751a-412d-b26b-8e9c9a246219" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Ivr_sends_the_caller_where_they_press" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.SmsPduTests.Splits_long_arabic_into_parts" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="76f0a048-5b17-7537-ea94-445075f3d6be">
+      <Execution id="9eff8e09-f82e-4ac1-b8a6-7336854d7f1e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.SmsPduTests" name="Splits_long_arabic_into_parts" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.BridgeTests.Bad_token_reports_a_clear_error" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="cbd217ed-8c85-f07f-fe66-044953d4b735">
+      <Execution id="77e0b67d-feaf-48fd-985c-fda2a3db4d84" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.BridgeTests" name="Bad_token_reports_a_clear_error" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.SmsPduTests.Decodes_gsm7_reference_pdu" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="5076654c-9698-342d-9312-809915004346">
+      <Execution id="dd06092a-43fd-49b2-afa2-fe1a30b54886" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.SmsPduTests" name="Decodes_gsm7_reference_pdu" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.WinUsbChooseTests.Settings_override_detection" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="1ae1ec3d-f807-d1bc-5aed-a48e0f2b2177">
+      <Execution id="4849f1f1-a75d-4a45-a58f-225b10210bde" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.WinUsbChooseTests" name="Settings_override_detection" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Rejects_names_that_are_not_full_hostnames" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="2453b076-9e52-d1ad-7edb-01c1c97e7b8d">
+      <Execution id="59e1556b-f04f-4e24-85eb-9402ac1cf07e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Rejects_names_that_are_not_full_hostnames" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.WinUsbChooseTests.Classic_three_port_stick_picks_pcui_and_voice" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="619f5edd-9399-1e13-e727-08c1411e1956">
+      <Execution id="46445293-09a8-440c-adc2-a2a6d79020c0" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.WinUsbChooseTests" name="Classic_three_port_stick_picks_pcui_and_voice" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: False)" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="cf797701-0b4d-3924-eaf7-8457fd2977de">
+      <Execution id="1594b3ec-38d3-4f8d-a13f-9098329597b8" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.MediaTests" name="G711_round_trip_is_close" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.SmsPduTests.Decodes_ucs2_arabic" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="16f6afa4-dd0b-777b-8c7b-70629a832f55">
+      <Execution id="95c44ff5-afe5-4491-b381-ec9f4a064133" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.SmsPduTests" name="Decodes_ucs2_arabic" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.BridgeTests.Full_setup_creates_tunnel_dns_route_and_split_tunnel" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="6da656f4-15b6-a4e3-8da5-9b64deadcaaa">
+      <Execution id="60158a0d-f032-4be7-beb5-d468c7ea07a3" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.BridgeTests" name="Full_setup_creates_tunnel_dns_route_and_split_tunnel" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.WinUsbChooseTests.Network_interface_is_never_taken_for_voice" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="614cbb5b-45fe-5550-98e2-0faf7bf750e6">
+      <Execution id="d82107a1-9fad-44a5-bce9-9aae14cb898a" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.WinUsbChooseTests" name="Network_interface_is_never_taken_for_voice" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.MediaTests.Wav_round_trip_and_resample" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="4c605078-45a2-0e73-24af-dc24eae27d12">
+      <Execution id="ef8f4c1b-c75d-48e9-8ca6-793708375686" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.MediaTests" name="Wav_round_trip_and_resample" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Ring_group_rings_every_member_and_connects_the_one_who_answers" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="62049dc0-88a6-ae98-a077-536bd9184233">
+      <Execution id="57c98260-e59f-4a69-aab0-bd5b6141fed7" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Ring_group_rings_every_member_and_connects_the_one_who_answers" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.SmsPduTests.Decodes_multipart_headers" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="b07f2ee5-34c5-c5d1-d921-f7c4666f22de">
+      <Execution id="08bb04da-a55d-44c4-9df0-224149e524b6" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.SmsPduTests" name="Decodes_multipart_headers" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Sms_are_received_and_sent" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="7c116479-a691-42e3-5a6f-831c7cb81e22">
+      <Execution id="9ab36f84-5ddf-4285-9def-138a918169f5" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Sms_are_received_and_sent" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Points_the_domain_at_the_tailscale_address_using_the_bridge_token" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="bbcc9593-2262-d02d-0d71-a13d1256f349">
+      <Execution id="1b3f7bf4-7fdc-4c57-8e60-75d08828f25b" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Points_the_domain_at_the_tailscale_address_using_the_bridge_token" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: &quot;10.0.0.0/8&quot;, ip: &quot;10.1.2.3&quot;, blocks: 24)" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="36b4e412-f871-7f78-6a36-9b13e5a04769">
+      <Execution id="b90b5b84-33b7-4be0-b6f5-ed6a6df33a45" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.BridgeTests" name="Cidr_subtract_covers_everything_but_the_address" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Parses_signed_out_state_with_login_link" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="6254cec5-7354-e0f1-7267-a2383e965002">
+      <Execution id="7c017ec2-33d5-4ca9-a0a5-bb7c0346fccb" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Parses_signed_out_state_with_login_link" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Phone_on_the_extra_sip_port_is_called_from_that_port" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="bd0fb5ba-4768-4b0b-9687-921d8e0757c5">
+      <Execution id="063fed0f-d208-45df-acdb-689c6cc402f7" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Phone_on_the_extra_sip_port_is_called_from_that_port" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.SmsPduTests.Encodes_reference_submit" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="6e087f88-9f35-42a4-cfcc-61c3c5efe2d1">
+      <Execution id="5c70ed57-b05f-400d-9373-3854db3f21a1" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.SmsPduTests" name="Encodes_reference_submit" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Wrong_password_cannot_register" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="b535b518-d965-1847-5c0c-c22e53c5fa4e">
+      <Execution id="76f90564-f0b4-4618-9dbc-b99729317946" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Wrong_password_cannot_register" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.BridgeTests.Cidr_subtract_covers_everything_but_the_address(range: &quot;192.168.0.0/16&quot;, ip: &quot;192.168.0.103&quot;, blocks: 16)" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="b147c5bd-8ac4-198e-342d-21c0b16fbe51">
+      <Execution id="ddd02f73-9a45-4835-8071-8d223de54c6e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.BridgeTests" name="Cidr_subtract_covers_everything_but_the_address" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Parses_tailscale_status" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="5ef60a33-3443-fd62-bc6a-f8a6ade44602">
+      <Execution id="e79257d4-b611-486f-9d1b-747e9b73609b" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Parses_tailscale_status" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Domain_needs_a_token_and_says_what_to_create_otherwise" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="4c7f1d1e-d6fc-f74a-b355-4bf5308eb82d">
+      <Execution id="bd86b487-3030-4349-ad9a-af8cee6be87e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Domain_needs_a_token_and_says_what_to_create_otherwise" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.MediaTests.Dtmf_survives_g711" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="8c2ec327-074c-cafe-219f-9c665f714029">
+      <Execution id="f5370b63-3a77-43e8-8796-a63871ea2589" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.MediaTests" name="Dtmf_survives_g711" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.TailscaleTests.Status_runs_the_cli" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="a59e0437-5b9b-dd3d-5325-8ed08d7d676b">
+      <Execution id="9c81f63c-f2ea-4d99-a164-7ccf91f37221" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.TailscaleTests" name="Status_runs_the_cli" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.BridgeTests.Second_setup_reuses_the_tunnel_and_never_touches_foreign_dns" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="556dfd85-4e8e-8333-263d-b5fc4d03a77f">
+      <Execution id="3ec76cd4-4499-49e9-bb00-3417d83813a8" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.BridgeTests" name="Second_setup_reuses_the_tunnel_and_never_touches_foreign_dns" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: True)" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="665f95b6-a3e5-686b-217c-8c6bd9199eb6">
+      <Execution id="1ba6c934-ce39-4ace-8416-a62eba89fe0d" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.MediaTests" name="G711_round_trip_is_close" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Unavailable_extension_goes_to_voicemail" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="07b10915-d6ed-7184-26ab-8c88b9418fd7">
+      <Execution id="00c88cda-5d60-4b55-b425-72f350dc4203" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Unavailable_extension_goes_to_voicemail" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.MediaTests.Dtmf_detects_every_key_and_ignores_noise" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="65bd4a84-559c-cb5f-f193-f22525f6f0d7">
+      <Execution id="6692072f-35f6-453b-89c1-69c3f58c170e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.MediaTests" name="Dtmf_detects_every_key_and_ignores_noise" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Extensions_register_and_call_each_other_with_audio_both_ways" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="04c6df6e-ed33-f378-e1eb-a439611632c1">
+      <Execution id="2aa4d9e7-d986-41c8-8a88-8ea91c97ed4e" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Extensions_register_and_call_each_other_with_audio_both_ways" />
+    </UnitTest>
+    <UnitTest name="AfifPbx.Tests.CallTests.Incoming_gsm_call_rings_the_inbound_destination" storage="/home/runner/work/afif-pbx/afif-pbx/native/tests/afifpbx.tests/bin/release/net8.0/afifpbx.tests.dll" id="6f7ec7ed-f9aa-d6a4-ea97-49bbab0c7368">
+      <Execution id="71316cbf-b27d-4f59-8949-a39eaa7c0aa7" />
+      <TestMethod codeBase="/home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AfifPbx.Tests.CallTests" name="Incoming_gsm_call_rings_the_inbound_destination" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1ae1ec3d-f807-d1bc-5aed-a48e0f2b2177" executionId="4849f1f1-a75d-4a45-a58f-225b10210bde" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6e087f88-9f35-42a4-cfcc-61c3c5efe2d1" executionId="5c70ed57-b05f-400d-9373-3854db3f21a1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf797701-0b4d-3924-eaf7-8457fd2977de" executionId="1594b3ec-38d3-4f8d-a13f-9098329597b8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6da656f4-15b6-a4e3-8da5-9b64deadcaaa" executionId="60158a0d-f032-4be7-beb5-d468c7ea07a3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="65bd4a84-559c-cb5f-f193-f22525f6f0d7" executionId="6692072f-35f6-453b-89c1-69c3f58c170e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a59e0437-5b9b-dd3d-5325-8ed08d7d676b" executionId="9c81f63c-f2ea-4d99-a164-7ccf91f37221" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6c0291ec-d1d3-2a7d-b669-4053b535dc4b" executionId="b1efb9d6-751a-412d-b26b-8e9c9a246219" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="665f95b6-a3e5-686b-217c-8c6bd9199eb6" executionId="1ba6c934-ce39-4ace-8416-a62eba89fe0d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="62049dc0-88a6-ae98-a077-536bd9184233" executionId="57c98260-e59f-4a69-aab0-bd5b6141fed7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b147c5bd-8ac4-198e-342d-21c0b16fbe51" executionId="ddd02f73-9a45-4835-8071-8d223de54c6e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6f7ec7ed-f9aa-d6a4-ea97-49bbab0c7368" executionId="71316cbf-b27d-4f59-8949-a39eaa7c0aa7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="76f0a048-5b17-7537-ea94-445075f3d6be" executionId="9eff8e09-f82e-4ac1-b8a6-7336854d7f1e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4c605078-45a2-0e73-24af-dc24eae27d12" executionId="ef8f4c1b-c75d-48e9-8ca6-793708375686" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a0855bed-1484-cefe-f9c8-61dfec685300" executionId="326e071d-6f11-4a68-a77d-1e8fb3c0e07e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b535b518-d965-1847-5c0c-c22e53c5fa4e" executionId="76f90564-f0b4-4618-9dbc-b99729317946" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5ef60a33-3443-fd62-bc6a-f8a6ade44602" executionId="e79257d4-b611-486f-9d1b-747e9b73609b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cbd217ed-8c85-f07f-fe66-044953d4b735" executionId="77e0b67d-feaf-48fd-985c-fda2a3db4d84" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5076654c-9698-342d-9312-809915004346" executionId="dd06092a-43fd-49b2-afa2-fe1a30b54886" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="614cbb5b-45fe-5550-98e2-0faf7bf750e6" executionId="d82107a1-9fad-44a5-bce9-9aae14cb898a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8c2ec327-074c-cafe-219f-9c665f714029" executionId="f5370b63-3a77-43e8-8796-a63871ea2589" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7c116479-a691-42e3-5a6f-831c7cb81e22" executionId="9ab36f84-5ddf-4285-9def-138a918169f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="36b4e412-f871-7f78-6a36-9b13e5a04769" executionId="b90b5b84-33b7-4be0-b6f5-ed6a6df33a45" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6254cec5-7354-e0f1-7267-a2383e965002" executionId="7c017ec2-33d5-4ca9-a0a5-bb7c0346fccb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b07f2ee5-34c5-c5d1-d921-f7c4666f22de" executionId="08bb04da-a55d-44c4-9df0-224149e524b6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="04c6df6e-ed33-f378-e1eb-a439611632c1" executionId="2aa4d9e7-d986-41c8-8a88-8ea91c97ed4e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="16f6afa4-dd0b-777b-8c7b-70629a832f55" executionId="95c44ff5-afe5-4491-b381-ec9f4a064133" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd0fb5ba-4768-4b0b-9687-921d8e0757c5" executionId="063fed0f-d208-45df-acdb-689c6cc402f7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2453b076-9e52-d1ad-7edb-01c1c97e7b8d" executionId="59e1556b-f04f-4e24-85eb-9402ac1cf07e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="07b10915-d6ed-7184-26ab-8c88b9418fd7" executionId="00c88cda-5d60-4b55-b425-72f350dc4203" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4c7f1d1e-d6fc-f74a-b355-4bf5308eb82d" executionId="bd86b487-3030-4349-ad9a-af8cee6be87e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="619f5edd-9399-1e13-e727-08c1411e1956" executionId="46445293-09a8-440c-adc2-a2a6d79020c0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="556dfd85-4e8e-8333-263d-b5fc4d03a77f" executionId="3ec76cd4-4499-49e9-bb00-3417d83813a8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a017d54d-c41f-c0b2-b04e-fec1d5149e88" executionId="fdf4326e-6cc1-4063-bc45-ef71b8ac2354" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72146e29-03bd-5145-3cd6-2e7d1ea781d6" executionId="0d83d554-7781-4495-a2c4-53a30037877d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bbcc9593-2262-d02d-0d71-a13d1256f349" executionId="1b3f7bf4-7fdc-4c57-8e60-75d08828f25b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="35" executed="35" passed="35" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.33)
+[xUnit.net 00:00:00.05]   Discovering: AfifPbx.Tests
+[xUnit.net 00:00:00.09]   Discovered:  AfifPbx.Tests
+[xUnit.net 00:00:00.09]   Starting:    AfifPbx.Tests
+[xUnit.net 00:00:17.47]   Finished:    AfifPbx.Tests
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

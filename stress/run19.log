@@ -1,0 +1,5 @@
+Test run for /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
+Results File: /home/runner/work/AFIF-PBX/AFIF-PBX/out/run19.trx
+
+Passed!  - Failed:     0, Passed:    35, Skipped:     0, Total:    35, Duration: 18 s - AfifPbx.Tests.dll (net8.0)
