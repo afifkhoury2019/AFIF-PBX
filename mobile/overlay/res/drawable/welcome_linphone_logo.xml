@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AFIF Phone mark (replaces the upstream logo) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp" android:height="100dp" android:viewportWidth="200" android:viewportHeight="200">
+    <group android:translateX="100" android:translateY="100">
+        <path android:pathData="M0,-82 L71,-41 L71,41 L0,82 L-71,41 L-71,-41 Z" android:fillColor="#00000000" android:strokeColor="#FF000000" android:strokeWidth="8" android:strokeLineJoin="round"/>
+        <path android:pathData="M-30,-22 c6,-8 16,-8 20,-2 l7,12 c3,5 1,11 -4,14 l-6,3 c4,10 12,19 22,24 l4,-6 c3,-5 9,-7 14,-4 l12,7 c6,4 6,14 -1,20 c-10,9 -26,10 -42,-1 c-17,-12 -30,-30 -32,-46 c-1,-8 1,-15 6,-21 z" android:fillColor="#FF000000"/>
+        <path android:pathData="M14,-34 a26,26 0 0 1 22,22" android:strokeColor="#FF000000" android:strokeWidth="7" android:strokeLineCap="round"/>
+        <path android:pathData="M16,-54 a46,46 0 0 1 40,40" android:strokeColor="#FF000000" android:strokeWidth="7" android:strokeLineCap="round" android:strokeAlpha="0.7"/>
+    </group>
+</vector>
