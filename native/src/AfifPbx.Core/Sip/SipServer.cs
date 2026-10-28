@@ -61,6 +61,7 @@ public sealed class SipServer : IDisposable
     {
         _config = config;
         _log = log ?? NullLogger.Instance;
+        SipLeg.Log = _log;
     }
 
     /// <summary>

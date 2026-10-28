@@ -135,12 +135,40 @@ internal sealed class TestLogs : Microsoft.Extensions.Logging.ILoggerFactory
     }
 }
 
+/// <summary>Routes the SIP library's own logs (RTP/media and warnings) to whichever call test is running.</summary>
+internal sealed class LibraryLogs : Microsoft.Extensions.Logging.ILoggerFactory
+{
+    public static ITestOutputHelper? Current;
+    private static int _set;
+    public static void Install() { if (Interlocked.Exchange(ref _set, 1) == 0) SIPSorcery.LogFactory.Set(new LibraryLogs()); }
+    public Microsoft.Extensions.Logging.ILogger CreateLogger(string category) => new L(category);
+    public void AddProvider(Microsoft.Extensions.Logging.ILoggerProvider provider) { }
+    public void Dispose() { }
+    private sealed class L : Microsoft.Extensions.Logging.ILogger
+    {
+        private readonly string _c; private readonly bool _media;
+        public L(string c) { _c = c.Split('.').Last(); _media = c.Contains("RTP") || c.Contains("Media") || c.Contains("UserAgent"); }
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel l) => l >= (_media ? Microsoft.Extensions.Logging.LogLevel.Debug : Microsoft.Extensions.Logging.LogLevel.Warning);
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel l, Microsoft.Extensions.Logging.EventId id, TState s, Exception? ex, Func<TState, Exception?, string> f)
+        {
+            if (!IsEnabled(l)) return;
+            try { Current?.WriteLine($"{DateTime.Now:HH:mm:ss.fff} [lib {l}] {_c}: {f(s, ex)}"); } catch { }
+        }
+    }
+}
+
 public sealed class CallTests : IDisposable
 {
     private readonly ITestOutputHelper _out;
     private readonly List<IDisposable> _cleanup = new();
 
-    public CallTests(ITestOutputHelper output) => _out = output;
+    public CallTests(ITestOutputHelper output)
+    {
+        _out = output;
+        LibraryLogs.Install();
+        LibraryLogs.Current = output;
+    }
 
     private static int FreePort()
     {

@@ -273,10 +273,13 @@ public sealed class CallManager
             }
             catch (Exception ex) { _log.LogWarning("Could not start recording: {Message}", ex.Message); }
         }
+        _log.LogInformation("Call {Id}: connected {A} ⇄ {B}", call.Id, a, b);
         try { await _media.BridgeAsync(a, b, rec).ConfigureAwait(false); }
         finally
         {
             rec?.Dispose();
+            _log.LogInformation("Call {Id}: bridge ended ({A}: {Ra}; {B}: {Rb})", call.Id, a,
+                a.IsEnded ? a.EndedTask.Result : "up", b, b.IsEnded ? b.EndedTask.Result : "up");
             if (!a.IsEnded) a.Hangup();
             if (!b.IsEnded) b.Hangup();
         }

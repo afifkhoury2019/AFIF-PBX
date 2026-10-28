@@ -17,6 +17,11 @@ public sealed class SipLeg : CallLeg
     private readonly SIPServerUserAgent? _uas;
     private readonly object _sendLock = new();
     private bool _rtpReady;
+    private long _rxPackets, _txFrames, _txErrors;
+    private string _lastTxError = "";
+
+    /// <summary>Diagnostics for every SIP leg (set by the SIP server).</summary>
+    public static Microsoft.Extensions.Logging.ILogger Log { get; set; } = Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance;
 
     public override string Kind => "sip";
     public bool IsInbound => _uas is not null;
@@ -27,11 +32,12 @@ public sealed class SipLeg : CallLeg
         _ua = ua; _rtp = rtp; _uas = uas;
         _ua.OnCallHungup += _ => Close("hangup");
         _ua.OnDtmfTone += (tone, _) => OnDigit(ToneToChar(tone));
-        _rtp.OnRtpPacketReceived += (_, media, pkt) =>
+        _rtp.OnRtpPacketReceived += (from, media, pkt) =>
         {
             if (media != SDPMediaTypesEnum.audio) return;
             int pt = pkt.Header.PayloadType;
             if (pt != 0 && pt != 8) return; // only G.711 carries voice; 101 = DTMF events
+            if (Interlocked.Increment(ref _rxPackets) == 1) Microsoft.Extensions.Logging.LoggerExtensions.LogInformation(Log, "Leg {Leg}: first RTP from {Remote}", this, from?.ToString());
             Inbound.Push(G711.Decode(pkt.Payload, alaw: pt == 8));
         };
         _rtp.OnTimeout += _ => { if (State == LegState.Answered) Hangup("media timeout"); };
@@ -75,7 +81,7 @@ public sealed class SipLeg : CallLeg
         var ua = new SIPUserAgent(transport, sendTo);
         IPAddress? bind = IPAddress.TryParse(pbxHost, out var b) ? b : null;
         var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind), null) { Number = contactUri };
-        ua.ClientCallAnswered += (_, _) => { leg._rtpReady = true; leg.MarkAnsweredPublic(); };
+        ua.ClientCallAnswered += (_, _) => { leg._rtpReady = true; leg.MarkAnsweredPublic(); leg.Describe("answered"); };
         ua.ClientCallFailed += (_, err, resp) => leg.Close(resp is null ? err : $"{(int)resp.Status} {resp.ReasonPhrase}");
 
         string display = string.IsNullOrWhiteSpace(callerName) ? callerNumber : callerName;
@@ -109,6 +115,7 @@ public sealed class SipLeg : CallLeg
         {
             _rtpReady = true;
             MarkAnswered();
+            Describe("answered");
         }
         else Close("answer failed");
         return ok;
@@ -165,13 +172,32 @@ public sealed class SipLeg : CallLeg
                 bool alaw = fmt is not null && fmt.Value.ID == 8;
                 _rtp.SendAudio((uint)Audio.FrameSamples, G711.Encode(frame, alaw));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _txErrors++;
+                if (_lastTxError != ex.Message) { _lastTxError = ex.Message; Microsoft.Extensions.Logging.LoggerExtensions.LogWarning(Log, "Leg {Leg}: RTP send failed: {Error}", this, ex.Message); }
+                return;
+            }
+            _txFrames++;
         }
+    }
+
+    private void Describe(string what)
+    {
+        try
+        {
+            var ch = _rtp.AudioStream?.GetRTPChannel();
+            Microsoft.Extensions.Logging.LoggerExtensions.LogInformation(Log, "Leg {Leg} {What}: local {Local} → remote {Remote}, codec {Codec}",
+                this, what, ch?.RTPLocalEndPoint, _rtp.AudioDestinationEndPoint, _rtp.AudioStream?.GetSendingFormat().Name());
+        }
+        catch (Exception ex) { Microsoft.Extensions.Logging.LoggerExtensions.LogInformation(Log, "Leg {Leg} {What} ({Error})", this, what, ex.Message); }
     }
 
     private void Close(string reason)
     {
         if (IsEnded) return;
+        Microsoft.Extensions.Logging.LoggerExtensions.LogInformation(Log, "Leg {Leg} ended ({Reason}): received {Rx} RTP packets, sent {Tx} frames, {Err} send errors",
+            this, reason, Interlocked.Read(ref _rxPackets), _txFrames, _txErrors);
         MarkEnded(reason);
         try { _rtp.Close(reason); } catch { }
         try { _ua.Close(); } catch { }
