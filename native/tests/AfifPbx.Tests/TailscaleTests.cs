@@ -47,6 +47,16 @@ public class TailscaleTests
     }
 
     [Fact]
+    public void Status_serializes_like_the_web_panel_does()
+    {
+        var st = new TailscaleStatus();
+        TailscaleManager.Parse(RunningJson, st);
+        var json = System.Text.Json.JsonSerializer.Serialize(st, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        Assert.Contains("\"ipv4\":\"100.101.102.103\"", json);
+        Assert.Contains("\"connected\":true", json);
+    }
+
+    [Fact]
     public void Parses_signed_out_state_with_login_link()
     {
         var st = new TailscaleStatus();

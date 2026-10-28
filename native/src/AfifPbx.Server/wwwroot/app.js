@@ -620,7 +620,7 @@ pages.tailscale = {
             : '<p>Download it from <a href="https://tailscale.com/download/windows" target="_blank">tailscale.com/download/windows</a>, install, then come back here.</p>'}</div>` : ""}
         ${t.installed && !t.connected ? `<div class="card wide"><h3>Step 2 — connect this PC to your tailnet</h3>
           <form id="tsConnect"><div class="form-grid">
-            <label>Name on the tailnet<input name="hostname" value="${esc(t.hostname || "afif-pbx")}"></label>
+            <label>Name on the tailnet<input name="hostname" value="${esc(t.wantedName || "afif-pbx")}"></label>
             <label>Auth key (optional)<input id="tsKey" name="authKey" type="password" autocomplete="off" placeholder="tskey-auth-…"></label></div>
             <p class="sub">Leave the key empty to sign in with your Tailscale account in the browser instead.
               Keys: Tailscale admin console → <b>Settings → Keys → Generate auth key</b>.</p>
@@ -654,7 +654,7 @@ pages.tailscale = {
             <li>Linphone → Settings → Advanced: turn on <b>Keep alive service</b> so calls ring when the app is in the background.</li>
             <li>Call <b>*43</b> (echo test) — you should hear yourself. Then try mobile data with Wi-Fi off.</li>
           </ol>
-          <p class="sub">In the Tailscale admin console, open this PC (${esc(t.hostName || t.hostname || "afif-pbx")}) → <b>Disable key expiry</b>, so the PBX never drops off the tailnet.</p></div>
+          <p class="sub">In the Tailscale admin console, open this PC (${esc(t.hostName || t.wantedName || "afif-pbx")}) → <b>Disable key expiry</b>, so the PBX never drops off the tailnet.</p></div>
       </div>`;
     const busy = async (btn, fn) => { btn.disabled = true; const label = btn.textContent; btn.textContent = "Working…"; btn.id = "tsBusy";
       try { await fn(); } finally { btn.removeAttribute("id"); btn.disabled = false; btn.textContent = label; } };

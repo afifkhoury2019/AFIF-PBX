@@ -45,7 +45,8 @@ public sealed class TailscaleStatus
     public List<TailscalePeer> Peers { get; set; } = new();
     public string Message { get; set; } = "";
     // our own settings
-    public string Hostname { get; set; } = "";
+    /// <summary>The name AFIF-PBX asks Tailscale to use for this PC.</summary>
+    public string WantedName { get; set; } = "";
     public string Domain { get; set; } = "";
     public bool HasApiToken { get; set; }
     public bool BridgeTokenAvailable { get; set; }
@@ -171,7 +172,7 @@ public sealed class TailscaleManager : IDisposable
                 _ => st.BackendState,
             };
 
-        st.Hostname = c.Hostname;
+        st.WantedName = c.Hostname;
         st.Domain = c.Domain;
         st.HasApiToken = !string.IsNullOrEmpty(c.ProtectedApiToken);
         st.BridgeTokenAvailable = !string.IsNullOrEmpty(SafeBridgeToken());
