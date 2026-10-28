@@ -1,0 +1,28 @@
+name: Call tests x20 (find intermittent audio problems)
+on: { workflow_dispatch: {} }
+permissions: { contents: write }
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: "8.0.x" }
+      - run: dotnet build native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release
+      - name: Run the call tests 20 times
+        run: |
+          mkdir -p out; fails=0
+          for i in $(seq 1 20); do
+            if ! dotnet test native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~CallTests" \
+                 --logger "trx;LogFileName=run$i.trx" --results-directory out > out/run$i.log 2>&1; then
+              fails=$((fails+1)); echo "run $i FAILED"; grep -E "^\s+Failed " out/run$i.log
+            else echo "run $i ok"; fi
+          done
+          echo "failures: $fails/20" | tee out/summary.txt
+      - name: Publish logs
+        if: always()
+        run: |
+          mkdir -p /tmp/ci/stress && cp out/* /tmp/ci/stress/ 2>/dev/null || true
+          cd /tmp/ci && git init -q -b ci-stress && git add -A
+          git -c user.name=ci -c user.email=ci@localhost commit -q -m "stress ${{ github.run_id }}"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-stress
