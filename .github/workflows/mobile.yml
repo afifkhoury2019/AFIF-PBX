@@ -112,12 +112,15 @@ jobs:
           ./gradlew --no-daemon --stacktrace assembleRelease \
             -PtailscaleVersion="$TS_VER" -PafifAppId="$APP_ID" \
             -PafifVersionName="$VERSION_NAME" -PafifVersionCode="$VERSION_CODE" 2>&1 | tee ../build.log
-          ls -la app/build/outputs/apk/release/
+          cp app/build/outputs/apk/release/*.apk ../AFIF-Phone.apk
+          # an x86_64 build only for the emulator test
+          ./gradlew --no-daemon assembleRelease -PafifAbis=x86_64 \
+            -PtailscaleVersion="$TS_VER" -PafifAppId="$APP_ID" \
+            -PafifVersionName="$VERSION_NAME" -PafifVersionCode="$VERSION_CODE" 2>&1 | tail -5 | tee -a ../build.log
+          cp app/build/outputs/apk/release/*.apk ../AFIF-Phone-x86_64-test.apk
 
       - name: Check the APK
         run: |
-          APK=$(ls linphone/app/build/outputs/apk/release/*.apk | head -1)
-          cp "$APK" AFIF-Phone.apk
           AAPT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/aapt2
           $AAPT dump badging AFIF-Phone.apk | grep -E "^package|application-label:|launchable-activity|native-code" | tee badging.txt
           grep -q "name='$APP_ID'" badging.txt
@@ -137,6 +140,10 @@ jobs:
         with:
           name: AFIF-Phone
           path: AFIF-Phone.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AFIF-Phone-x86_64-test
+          path: AFIF-Phone-x86_64-test.apk
 
   emulator:
     name: Run it on an Android emulator
@@ -145,7 +152,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/download-artifact@v4
-        with: { name: AFIF-Phone }
+        with: { name: AFIF-Phone-x86_64-test }
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -158,8 +165,9 @@ jobs:
           disable-animations: true
           script: |
             mkdir -p shots
-            adb install -r AFIF-Phone.apk
+            adb install -r AFIF-Phone-x86_64-test.apk
             adb shell pm grant com.afiftech.phone android.permission.POST_NOTIFICATIONS || true
+            adb logcat -c || true
             adb shell monkey -p com.afiftech.phone -c android.intent.category.LAUNCHER 1
             sleep 25
             adb exec-out screencap -p > shots/1-start.png
@@ -169,8 +177,10 @@ jobs:
             sleep 15
             adb exec-out screencap -p > shots/3-secure-network.png
             adb shell pidof com.afiftech.phone > shots/pid.txt || echo "NOT RUNNING" > shots/pid.txt
-            adb logcat -d -t 3000 > shots/logcat.txt || true
-            grep -E "FATAL EXCEPTION|AndroidRuntime" -A25 shots/logcat.txt > shots/crash.txt || true
+            adb logcat -d -b crash > shots/crash.txt || true
+            adb logcat -d -b main -b system | grep -vE "NamespaceManager|Phenotype" > shots/logcat.txt || true
+            grep -E "ANR in com.afiftech" -A20 shots/logcat.txt >> shots/crash.txt || true
+            adb root >/dev/null 2>&1; sleep 2; adb shell 'cat /data/anr/anr_* 2>/dev/null' | head -400 > shots/anr.txt || true
       - name: Publish screenshots
         if: always()
         run: |
@@ -181,7 +191,7 @@ jobs:
       - name: Fail on crash
         run: |
           cat shots/pid.txt
-          if [ -s shots/crash.txt ]; then cat shots/crash.txt; exit 1; fi
+          if grep -qE "FATAL|ANR in" shots/crash.txt; then cat shots/crash.txt; exit 1; fi
           ! grep -q "NOT RUNNING" shots/pid.txt
 
   release:

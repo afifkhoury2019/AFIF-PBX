@@ -104,6 +104,8 @@ edit(gb, 'println("Computed git version: $gitVersion")',
 edit(gb, 'versionName = "6.3.0-alpha"', 'versionName = providers.gradleProperty("afifVersionName").getOrElse("1.0")')
 edit(gb, 'output.outputFileName = "linphone-android-${variant.buildType.name}-$gitVersion.apk"',
      'output.outputFileName = "AFIF-Phone-${variant.buildType.name}.apk"')
+edit(gb, 'abiFilters += listOf("armeabi-v7a", "arm64-v8a")',
+     'abiFilters += providers.gradleProperty("afifAbis").getOrElse("armeabi-v7a,arm64-v8a").split(",")')
 edit(gb, "dependencies {", 'dependencies {\n    implementation(project(":tailscale"))', count=1)
 gs = os.path.join(APP, "google-services.json")
 if os.path.exists(gs):
