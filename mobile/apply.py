@@ -174,6 +174,15 @@ edit(tp, '<entry name="stun_server" overwrite="true">stun.linphone.org</entry>',
 edit(tp, '<entry name="protocols" overwrite="true">stun,ice</entry>', '<entry name="protocols" overwrite="true"></entry>')
 edit(tp, '<entry name="media_encryption">srtp</entry>', '<entry name="media_encryption">none</entry>')
 
+print("== Keep the secure network's notification channels")
+# Linphone wipes every notification channel on first start/upgrade, including the ones the Tailscale engine just
+# created; its VPN service then crashes the app ("Bad notification for startForeground").
+edit(os.path.join(MAIN, "java", "org", "linphone", "notifications", "NotificationsManager.kt"),
+     "            for (channel in notificationManager.notificationChannels) {\n                try {",
+     "            for (channel in notificationManager.notificationChannels) {\n"
+     "                if (channel.id.startsWith(\"tailscale\") || channel.id == \"start_vpn_channel\") continue\n"
+     "                try {")
+
 print("== Secure network: first-run choice")
 edit(os.path.join(MAIN, "java", "org", "linphone", "ui", "assistant", "AssistantActivity.kt"),
      "        binding = DataBindingUtil.setContentView(this, R.layout.assistant_activity)",
