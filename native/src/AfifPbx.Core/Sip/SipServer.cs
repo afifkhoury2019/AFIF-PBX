@@ -42,6 +42,9 @@ public sealed class SipServer : IDisposable
     private readonly ConcurrentDictionary<string, List<SipBinding>> _bindings = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly List<(SIPTransport Transport, int Port)> _transports = new();
+    /// <summary>INVITEs already being handled, by transaction key — a phone resends its INVITE when the answer is slow
+    /// (common over 4G/VPN), and each copy must not become a second call.</summary>
+    private readonly ConcurrentDictionary<string, DateTime> _seenInvites = new();
 
     /// <summary>The transport of the main SIP port.</summary>
     public SIPTransport Transport => _transports.Count > 0 ? _transports[0].Transport : throw new InvalidOperationException("SIP server not started");
@@ -197,6 +200,17 @@ public sealed class SipServer : IDisposable
     {
         var ext = await AuthenticateAsync(t, local, remote, req, req.Header.From?.FromURI?.User).ConfigureAwait(false);
         if (ext is null) return;
+
+        string key = $"{req.Header.CallId}|{req.Header.CSeq}|{req.Header.Vias.TopViaHeader?.Branch}";
+        var now = DateTime.UtcNow;
+        if (!_seenInvites.TryAdd(key, now))
+        {
+            _log.LogDebug("Ignoring retransmitted INVITE {Key}", key);
+            return;
+        }
+        if (_seenInvites.Count > 200)
+            foreach (var old in _seenInvites.Where(kv => now - kv.Value > TimeSpan.FromSeconds(64)).Select(kv => kv.Key).ToList())
+                _seenInvites.TryRemove(old, out _);
 
         var s = _config.Current.Settings;
         IPAddress? bind = IPAddress.TryParse(HostFor(remote), out var b) ? b : null;

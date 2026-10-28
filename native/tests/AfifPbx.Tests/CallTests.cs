@@ -113,6 +113,28 @@ internal sealed class TestPhone : IDisposable
     }
 }
 
+/// <summary>Sends the PBX's own log lines to the test output, so a failing test shows what the engine did.</summary>
+internal sealed class TestLogs : Microsoft.Extensions.Logging.ILoggerFactory
+{
+    private readonly ITestOutputHelper _out;
+    public TestLogs(ITestOutputHelper output) => _out = output;
+    public Microsoft.Extensions.Logging.ILogger CreateLogger(string category) => new L(_out, category);
+    public void AddProvider(Microsoft.Extensions.Logging.ILoggerProvider provider) { }
+    public void Dispose() { }
+
+    private sealed class L : Microsoft.Extensions.Logging.ILogger
+    {
+        private readonly ITestOutputHelper _o; private readonly string _c;
+        public L(ITestOutputHelper o, string c) { _o = o; _c = c; }
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel level) => level >= Microsoft.Extensions.Logging.LogLevel.Debug;
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel level, Microsoft.Extensions.Logging.EventId id, TState state, Exception? ex, Func<TState, Exception?, string> f)
+        {
+            try { _o.WriteLine($"{DateTime.Now:HH:mm:ss.fff} [{level}] {_c}: {f(state, ex)}{(ex is null ? "" : " — " + ex.Message)}"); } catch { }
+        }
+    }
+}
+
 public sealed class CallTests : IDisposable
 {
     private readonly ITestOutputHelper _out;
@@ -132,7 +154,7 @@ public sealed class CallTests : IDisposable
         var dir = Path.Combine(Path.GetTempPath(), "afif-test-" + Guid.NewGuid().ToString("N")[..8]);
         int port = FreePort();
         Func<(IModemPorts?, string, string)>? opener = modem is null ? null : () => (modem, "starting", "");
-        var engine = new PbxEngine(dir, null, new FallbackSpeech(), opener);
+        var engine = new PbxEngine(dir, new TestLogs(_out), new FallbackSpeech(), opener);
         engine.Config.Update(c =>
         {
             c.Settings.SipPort = port;
