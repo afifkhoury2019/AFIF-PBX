@@ -227,18 +227,25 @@ public sealed class CallManager
     {
         if (legs.Count == 0) return caller.IsEnded;
         lock (call.Legs) call.Legs.AddRange(legs);
+        // The first phone to answer wins. "Nobody answered" is only decided once every phone has given up —
+        // deciding it from a separate "all finished" task raced with the answer and hung up the phone that had
+        // just picked up (the caller then went to voicemail).
         var winner = new TaskCompletionSource<CallLeg?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        int ringing = legs.Count;
         foreach (var leg in legs)
         {
             var l = leg;
             _ = l.AnsweredTask.ContinueWith(t =>
             {
-                if (t.Result && !winner.TrySetResult(l)) l.Hangup(); // someone else already answered
+                if (t.Result)
+                {
+                    if (!winner.TrySetResult(l)) l.Hangup(); // someone else already answered, or we stopped waiting
+                }
+                else if (Interlocked.Decrement(ref ringing) == 0) winner.TrySetResult(null);
             }, TaskScheduler.Default);
         }
-        var allFailed = Task.WhenAll(legs.Select(l => l.AnsweredTask));
-        await Task.WhenAny(winner.Task, allFailed, caller.EndedTask, Task.Delay((ringSeconds + 2) * 1000)).ConfigureAwait(false);
-        winner.TrySetResult(null);
+        await Task.WhenAny(winner.Task, caller.EndedTask, Task.Delay((ringSeconds + 2) * 1000)).ConfigureAwait(false);
+        winner.TrySetResult(null); // stop accepting answers (timeout / caller gone)
         var answered = winner.Task.Result;
 
         foreach (var l in legs.Where(l => l != answered && !l.IsEnded))
