@@ -87,9 +87,53 @@ public sealed class SipServer : IDisposable
             catch (Exception ex) { _log.LogWarning("SIP over TCP on port {Port} not available: {Message}", p, ex.Message); }
             var transport = t;
             t.SIPTransportRequestReceived += (local, remote, req) => OnRequest(transport, local, remote, req);
+            Trace(t);
             _transports.Add((t, p));
             _log.LogInformation("SIP server listening on {Address}:{Port}", bind, p);
         }
+    }
+
+    /// <summary>Logs the call-setup messages that explain dropped calls: offer/answer SDP and who sent BYE (with its Reason).</summary>
+    private void Trace(SIPTransport t)
+    {
+        static string Sdp(string? body)
+        {
+            if (string.IsNullOrEmpty(body)) return "(no SDP)";
+            var keep = body.Split('\n').Select(l => l.Trim())
+                .Where(l => l.StartsWith("c=") || l.StartsWith("m=") || l.StartsWith("a=rtpmap") || l.StartsWith("a=crypto") ||
+                            l.StartsWith("a=sendrecv") || l.StartsWith("a=sendonly") || l.StartsWith("a=recvonly") || l.StartsWith("a=inactive") ||
+                            l.StartsWith("a=rtcp-mux") || l.StartsWith("a=ice") || l.StartsWith("a=zrtp") || l.StartsWith("a=encryption"));
+            return string.Join(" | ", keep);
+        }
+        void Req(string dir, SIPEndPoint remote, SIPRequest req)
+        {
+            try
+            {
+                if (req.Method == SIPMethodsEnum.INVITE)
+                    _log.LogInformation("SIP {Dir} INVITE {Remote} call {CallId}: {Sdp}", dir, remote, req.Header.CallId, Sdp(req.Body));
+                else if (req.Method == SIPMethodsEnum.ACK)
+                    _log.LogInformation("SIP {Dir} ACK {Remote} call {CallId}", dir, remote, req.Header.CallId);
+                else if (req.Method == SIPMethodsEnum.BYE || req.Method == SIPMethodsEnum.CANCEL)
+                    _log.LogInformation("SIP {Dir} {Method} {Remote} call {CallId} reason: {Reason}", dir, req.Method, remote, req.Header.CallId,
+                        req.Header.Reason ?? "(none)");
+            }
+            catch { }
+        }
+        void Resp(string dir, SIPEndPoint remote, SIPResponse resp)
+        {
+            try
+            {
+                if (resp.Header.CSeqMethod == SIPMethodsEnum.INVITE && (int)resp.Status >= 180)
+                    _log.LogInformation("SIP {Dir} {Status} {Remote} call {CallId} contact {Contact}: {Sdp}", dir, (int)resp.Status, remote, resp.Header.CallId,
+                        resp.Header.Contact?.FirstOrDefault()?.ContactURI?.ToString() ?? "(none)",
+                        (int)resp.Status == 200 || (int)resp.Status == 183 ? Sdp(resp.Body) : resp.ReasonPhrase);
+            }
+            catch { }
+        }
+        t.SIPRequestInTraceEvent += (_, remote, req) => Req("in", remote, req);
+        t.SIPRequestOutTraceEvent += (_, remote, req) => Req("out", remote, req);
+        t.SIPResponseInTraceEvent += (_, remote, resp) => Resp("in", remote, resp);
+        t.SIPResponseOutTraceEvent += (_, remote, resp) => Resp("out", remote, resp);
     }
 
     private Extension? FindExtension(string? number) =>

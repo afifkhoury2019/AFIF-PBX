@@ -41,6 +41,7 @@ public sealed class SipLeg : CallLeg
             Inbound.Push(G711.Decode(pkt.Payload, alaw: pt == 8));
         };
         _rtp.OnTimeout += _ => { if (State == LegState.Answered) Hangup("media timeout"); };
+        _rtp.OnRtpClosed += reason => Microsoft.Extensions.Logging.LoggerExtensions.LogInformation(Log, "Leg {Leg}: media closed ({Reason})", this, reason ?? "");
     }
 
     /// <param name="bind">The local address that routes to the phone. Binding to it makes the address in the
