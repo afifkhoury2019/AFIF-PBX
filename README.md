@@ -27,19 +27,22 @@ Feature codes: **\*97** voicemail · **\*43** echo test · **\*&lt;ext&gt;** lea
 4. Under **Extensions**, note each extension's secret. On each phone, set the server to the PC's IP address, the user name to the extension number, and the password to the secret.
 5. Under **GSM line**, choose where calls to the SIM go. Use a SIM with the **PIN turned off**.
 
-## Remote phones with Tailscale
+## Remote phones — the built-in secure network
 
-Linphone on your mobile can use AFIF-PBX from anywhere, on Wi-Fi or 4G, with no router ports opened:
+AFIF-PBX carries its own Tailscale engine (`afif-net.exe`, built from `native/afif-net` with Tailscale's `tsnet`).
+It is a userspace node: **no VPN, network adapter or route is added to Windows**, and only the phone system is on your
+tailnet. Nothing else needs to be installed on the PC, and no router ports are opened.
 
-1. **This PC:** the installer can install Tailscale. Then go to **Tailscale** in the panel → **Connect**, and sign in, or paste an auth key.
-   In the Tailscale admin console, open the PC and choose **Disable key expiry**.
-2. **Your domain (optional):** in the same page, enter `voip.powerchain.uk` → **Point the name to this PBX**. This creates a DNS-only Cloudflare record that points at the PC's Tailscale address (100.x.y.z). It only answers for devices on your tailnet.
-3. **Mobile:** install **Tailscale** (same account, Always-on VPN), then **Linphone** → *Use SIP account*:
-   username = extension, password = its secret, domain = `voip.powerchain.uk:5160`, transport **UDP**. Enable *Keep alive service*.
+1. Panel → **Secure network** → **Switch on and connect** → sign in with your Tailscale account (or paste an auth key).
+   In the Tailscale admin console, open *afif-pbx* → **Disable key expiry**.
+2. **Your domain (optional):** enter `voip.powerchain.uk` → **Point the name to this PBX** (DNS-only record at the PBX's 100.x address; needs a Cloudflare DNS token with Zone · DNS · Edit).
+3. **Mobile:** **AFIF Phone** (`/mobile`) has the same engine built in and uses it **only for its own traffic**. On first start choose **Connect**, sign in with the same account,
+   then add the extension: domain `voip.powerchain.uk:5160`, transport **UDP**.
 4. Dial **\*43** for an echo test.
 
-AFIF-PBX listens for SIP on **5060** and **5160** (the port the Raspberry Pi's FreePBX used). The Windows Firewall rule allows the local network and the Tailscale range (100.64.0.0/10) only.
-Voice (RTP, UDP 10000–20000) goes directly between the phone and the PC over WireGuard. Tailscale *Funnel* is not used, because it only carries TLS over TCP and cannot carry voice.
+How it works: afif-net answers on the PBX's tailnet address for SIP (5060, 5160) and voice (UDP 21000–21199) and relays
+each phone's packets to AFIF-PBX on 127.0.0.1; the PBX advertises its tailnet address in SIP and SDP for those phones.
+The Windows Firewall rule for the PBX itself allows the local network only.
 
 ## Building
 

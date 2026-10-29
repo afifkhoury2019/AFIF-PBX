@@ -42,6 +42,9 @@ public sealed class SipServer : IDisposable
     private readonly ConcurrentDictionary<string, List<SipBinding>> _bindings = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly List<(SIPTransport Transport, int Port)> _transports = new();
+    /// <summary>Transports that receive phones through the built-in secure network relay: transport → its tailnet port.</summary>
+    private readonly ConcurrentDictionary<SIPTransport, int> _relayPorts = new();
+    private readonly List<(int Public, int Local, SIPTransport Transport)> _relays = new();
     /// <summary>INVITEs already being handled, by transaction key — a phone resends its INVITE when the answer is slow
     /// (common over 4G/VPN), and each copy must not become a second call.</summary>
     private readonly ConcurrentDictionary<string, DateTime> _seenInvites = new();
@@ -52,6 +55,12 @@ public sealed class SipServer : IDisposable
     /// <summary>Every port the PBX is listening on (main port first).</summary>
     public IReadOnlyList<int> Ports => _transports.Select(t => t.Port).ToList();
     public IPAddress BindAddress { get; private set; } = IPAddress.Any;
+
+    /// <summary>The PBX's address on the built-in secure network (tailnet IPv4), or null while it is off.</summary>
+    public IPAddress? TailnetAddress { get; set; }
+
+    /// <summary>"tailnet port:local port" pairs for the secure network relay, e.g. "5060:53122,5160:53123".</summary>
+    public string RelaySipMap => string.Join(",", _relays.Select(r => $"{r.Public}:{r.Local}"));
 
     /// <summary>A phone placed a call: (leg from the phone, dialled number).</summary>
     public event Action<SipLeg, string>? IncomingCall;
@@ -135,6 +144,50 @@ public sealed class SipServer : IDisposable
         t.SIPResponseInTraceEvent += (_, remote, resp) => Resp("in", remote, resp);
         t.SIPResponseOutTraceEvent += (_, remote, resp) => Resp("out", remote, resp);
     }
+
+    /// <summary>
+    /// Open one loopback-only SIP transport per public port for phones that come through the built-in secure network.
+    /// The relay (afif-net) receives on tailnetIP:publicPort and forwards to these. Everything we send on them is
+    /// rewritten to say tailnetIP:publicPort (Via, Contact) so the phone answers through the relay too.
+    /// </summary>
+    public void StartRelay(IEnumerable<int> publicPorts)
+    {
+        foreach (var pub in publicPorts.Where(p => p is > 0 and < 65536).Distinct())
+        {
+            if (_relays.Any(r => r.Public == pub)) continue;
+            var t = new SIPTransport();
+            var ch = new SIPUDPChannel(new IPEndPoint(IPAddress.Loopback, 0));
+            t.AddSIPChannel(ch);
+            int local = ch.ListeningEndPoint.Port;
+            int publicPort = pub;
+            t.CustomiseRequestHeader = (_, _, req) => RewriteForTailnet(req.Header, publicPort, rewriteVia: true);
+            t.CustomiseResponseHeader = (_, _, resp) => RewriteForTailnet(resp.Header, publicPort, rewriteVia: false);
+            var transport = t;
+            t.SIPTransportRequestReceived += (localEp, remote, req) => OnRequest(transport, localEp, remote, req);
+            Trace(t);
+            _relayPorts[t] = pub;
+            _relays.Add((pub, local, t));
+            _log.LogInformation("Secure network SIP {Public} → 127.0.0.1:{Local}", pub, local);
+        }
+    }
+
+    private SIPHeader? RewriteForTailnet(SIPHeader header, int publicPort, bool rewriteVia)
+    {
+        var ip = TailnetAddress;
+        if (ip is null) return null;
+        var copy = header.Copy();
+        string host = $"{ip}:{publicPort}";
+        if (copy.Contact is { Count: > 0 } && copy.Contact[0].ContactURI is not null)
+            copy.Contact[0].ContactURI.Host = host;
+        if (rewriteVia && copy.Vias.Via.Count > 0)
+        {
+            copy.Vias.Via[0].Host = ip.ToString();
+            copy.Vias.Via[0].Port = publicPort;
+        }
+        return copy;
+    }
+
+    public bool IsRelay(SIPTransport t) => _relayPorts.ContainsKey(t);
 
     private Extension? FindExtension(string? number) =>
         number is null ? null : _config.Current.Extensions.FirstOrDefault(e => e.Number == number && e.Enabled);
@@ -258,8 +311,18 @@ public sealed class SipServer : IDisposable
                 _seenInvites.TryRemove(old, out _);
 
         var s = _config.Current.Settings;
-        IPAddress? bind = IPAddress.TryParse(HostFor(remote), out var b) ? b : null;
-        var leg = SipLeg.FromInvite(t, req, s.RtpPortStart, s.RtpPortEnd, bind);
+        SipLeg leg;
+        if (IsRelay(t))
+        {
+            var ip = TailnetAddress;
+            if (ip is null) { await Respond(t, req, SIPResponseStatusCodesEnum.ServiceUnavailable).ConfigureAwait(false); return; }
+            leg = SipLeg.FromInvite(t, req, s.TailnetRtpStart, s.TailnetRtpEnd, IPAddress.Loopback, ip, remote);
+        }
+        else
+        {
+            IPAddress? bind = IPAddress.TryParse(HostFor(remote), out var b) ? b : null;
+            leg = SipLeg.FromInvite(t, req, s.RtpPortStart, s.RtpPortEnd, bind);
+        }
         leg.Extension = ext.Number;
         leg.Number = ext.Number;
         leg.Name = string.IsNullOrWhiteSpace(ext.Name) ? ext.Number : ext.Name;
@@ -291,8 +354,17 @@ public sealed class SipServer : IDisposable
         var legs = new List<SipLeg>();
         foreach (var b in Bindings(extension))
         {
-            var leg = SipLeg.Dial(b.Transport, b.RemoteEndPoint, b.ContactUri, callerNumber, callerName,
-                HostFor(b.RemoteEndPoint), ringSeconds, s.RtpPortStart, s.RtpPortEnd);
+            SipLeg leg;
+            if (IsRelay(b.Transport))
+            {
+                var ip = TailnetAddress;
+                if (ip is null) continue; // secure network is off: this phone can't be reached now
+                leg = SipLeg.Dial(b.Transport, b.RemoteEndPoint, b.ContactUri, callerNumber, callerName,
+                    ip.ToString(), ringSeconds, s.TailnetRtpStart, s.TailnetRtpEnd, IPAddress.Loopback, ip);
+            }
+            else
+                leg = SipLeg.Dial(b.Transport, b.RemoteEndPoint, b.ContactUri, callerNumber, callerName,
+                    HostFor(b.RemoteEndPoint), ringSeconds, s.RtpPortStart, s.RtpPortEnd);
             leg.Extension = extension;
             legs.Add(leg);
         }
@@ -322,5 +394,6 @@ public sealed class SipServer : IDisposable
     public void Dispose()
     {
         foreach (var (t, _) in _transports) { try { t.Shutdown(); } catch { } }
+        foreach (var r in _relays) { try { r.Transport.Shutdown(); } catch { } }
     }
 }

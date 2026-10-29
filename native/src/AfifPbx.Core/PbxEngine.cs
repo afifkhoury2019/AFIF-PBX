@@ -48,6 +48,8 @@ public sealed class PbxEngine : IDisposable
     {
         var s = Config.Current.Settings;
         Sip.Start(sipBind ?? IPAddress.Any, s.SipPort, s.ExtraSipPorts);
+        // loopback transports for phones that come through the built-in secure network (afif-net relays to them)
+        Sip.StartRelay(new[] { s.SipPort }.Concat(s.ExtraSipPorts ?? new List<int>()));
 
         if (s.GsmEnabled)
         {

@@ -88,6 +88,11 @@ for d in os.listdir(os.path.join(TS, "src", "main", "res")):
         print("  removed tailscale res/" + d)
 # AFIF Phone's Application class extends Tailscale's
 edit(os.path.join(TSJ, "App.kt"), "\nclass App : UninitializedApp()", "\nopen class App : UninitializedApp()")
+# The secure network carries AFIF Phone's own traffic only: every other app on the phone keeps its normal network.
+edit(os.path.join(TSJ, "IPNService.kt"), r"    val mdmAllowed =.*?(?=    return VPNServiceBuilder\(b\))",
+     "    // AFIF Phone: only AFIF Phone itself uses the secure network\n"
+     "    TSLog.d(TAG, \"Secure network limited to $packageName\")\n"
+     "    allowApp(b, packageName)\n\n", regex=True)
 man = os.path.join(TS, "src", "main", "AndroidManifest.xml")
 # the app (AFIF Phone) owns <application> attributes; keep only Tailscale's components
 edit(man, r"<application\b[^>]*>", "<application>", regex=True)

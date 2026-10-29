@@ -12,6 +12,9 @@ public sealed class PbxSettings
     public List<int> ExtraSipPorts { get; set; } = new() { 5160 };
     public int RtpPortStart { get; set; } = 10000;
     public int RtpPortEnd { get; set; } = 20000;
+    /// <summary>Voice ports used for phones on the built-in secure network (relayed on the tailnet; 100 calls).</summary>
+    public int TailnetRtpStart { get; set; } = 21000;
+    public int TailnetRtpEnd { get; set; } = 21199;
     public int HttpPort { get; set; } = 80;
     public string Realm { get; set; } = "afif-pbx";
     public string AdminUser { get; set; } = "admin";

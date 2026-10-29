@@ -17,6 +17,8 @@ public sealed class SipLeg : CallLeg
     private readonly SIPServerUserAgent? _uas;
     private readonly object _sendLock = new();
     private bool _rtpReady;
+    /// <summary>Reached through the built-in secure network: our audio may only go where the phone's audio came from.</summary>
+    private bool _viaRelay;
     private long _rxPackets, _txFrames, _txErrors;
     private string _lastTxError = "";
 
@@ -47,11 +49,13 @@ public sealed class SipLeg : CallLeg
     /// <param name="bind">The local address that routes to the phone. Binding to it makes the address in the
     /// SDP and the source address of our RTP the same, which strict phones require (no one-way audio
     /// on PCs with several network adapters, e.g. Hyper-V/WSL/VPN).</param>
-    internal static RTPSession CreateRtp(int portStart, int portEnd, IPAddress? bind, bool sdesSrtp = false)
+    /// <param name="announce">Address to put in our SDP instead of the bound one (the PBX's tailnet address when the
+    /// phone comes through the built-in secure network, whose relay forwards that port to <paramref name="bind"/>).</param>
+    internal static RTPSession CreateRtp(int portStart, int portEnd, IPAddress? bind, bool sdesSrtp = false, IPAddress? announce = null)
     {
         // Phones that insist on encrypted audio (Linphone / AFIF Phone offer RTP/SAVP + a=crypto) get SDES-SRTP;
         // everything else gets plain RTP.
-        var rtp = new RTPSession(new RtpSessionConfig
+        var rtp = new AnnouncedRtpSession(announce, new RtpSessionConfig
         {
             IsMediaMultiplexed = false,
             IsRtcpMultiplexed = false,
@@ -71,12 +75,16 @@ public sealed class SipLeg : CallLeg
     }
 
     /// <summary>Wrap an incoming INVITE. The caller is not answered until <see cref="AnswerAsync"/>.</summary>
-    public static SipLeg FromInvite(SIPTransport transport, SIPRequest invite, int rtpStart, int rtpEnd, IPAddress? bind = null)
+    public static SipLeg FromInvite(SIPTransport transport, SIPRequest invite, int rtpStart, int rtpEnd, IPAddress? bind = null,
+        IPAddress? announce = null, SIPEndPoint? outboundProxy = null)
     {
-        var ua = new SIPUserAgent(transport, null);
+        // through the secure network, in-dialog requests (our BYE) must go back through the relay, not to the
+        // phone's tailnet Contact address that this PC cannot reach directly
+        var ua = new SIPUserAgent(transport, outboundProxy);
         var uas = ua.AcceptCall(invite);
-        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind, OffersSrtp(invite.Body)), uas)
+        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind, OffersSrtp(invite.Body), announce), uas)
         {
+            _viaRelay = announce is not null,
             Number = invite.Header.From.FromURI.User ?? "",
             Name = invite.Header.From.FromName ?? "",
             CallId = invite.Header.CallId,
@@ -91,11 +99,12 @@ public sealed class SipLeg : CallLeg
 
     /// <summary>Start ringing a phone. Await <see cref="CallLeg.AnsweredTask"/> for the outcome.</summary>
     public static SipLeg Dial(SIPTransport transport, SIPEndPoint? sendTo, string contactUri,
-        string callerNumber, string callerName, string pbxHost, int ringSeconds, int rtpStart, int rtpEnd)
+        string callerNumber, string callerName, string pbxHost, int ringSeconds, int rtpStart, int rtpEnd,
+        IPAddress? rtpBind = null, IPAddress? announce = null)
     {
         var ua = new SIPUserAgent(transport, sendTo);
-        IPAddress? bind = IPAddress.TryParse(pbxHost, out var b) ? b : null;
-        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind), null) { Number = contactUri };
+        IPAddress? bind = rtpBind ?? (IPAddress.TryParse(pbxHost, out var b) ? b : null);
+        var leg = new SipLeg(ua, CreateRtp(rtpStart, rtpEnd, bind, false, announce), null) { Number = contactUri, _viaRelay = announce is not null };
         ua.ClientCallAnswered += (_, _) => { leg._rtpReady = true; leg.MarkAnsweredPublic(); leg.Describe("answered"); };
         ua.ClientCallFailed += (_, err, resp) => leg.Close(resp is null ? err : $"{(int)resp.Status} {resp.ReasonPhrase}");
 
@@ -179,6 +188,9 @@ public sealed class SipLeg : CallLeg
     public override void Write(short[] frame)
     {
         if (!_rtpReady || State != LegState.Answered) return;
+        // through the secure network the phone's address is only reachable via the relay; wait until the phone's
+        // first packet has told us which relay socket that is (RTP latching)
+        if (_viaRelay && Interlocked.Read(ref _rxPackets) == 0) return;
         lock (_sendLock)
         {
             try
@@ -234,4 +246,26 @@ public sealed class SipLeg : CallLeg
         'A' or 'a' => 12, 'B' or 'b' => 13, 'C' or 'c' => 14, 'D' or 'd' => 15,
         _ => null,
     };
+}
+
+/// <summary>An RTP session that announces a different address in its SDP than the one it is bound to.</summary>
+internal sealed class AnnouncedRtpSession : RTPSession
+{
+    private readonly IPAddress? _announce;
+
+    public AnnouncedRtpSession(IPAddress? announce, RtpSessionConfig config) : base(config) => _announce = announce;
+
+    public override SDP CreateOffer(IPAddress? connectionAddress = null) => Announce(base.CreateOffer(connectionAddress!));
+
+    public override SDP CreateAnswer(IPAddress? connectionAddress) => Announce(base.CreateAnswer(connectionAddress!));
+
+    private SDP Announce(SDP sdp)
+    {
+        if (_announce is null || sdp is null) return sdp!;
+        string ip = _announce.ToString();
+        if (sdp.Connection is not null) sdp.Connection.ConnectionAddress = ip;
+        foreach (var m in sdp.Media)
+            if (m.Connection is not null) m.Connection.ConnectionAddress = ip;
+        return sdp;
+    }
 }

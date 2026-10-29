@@ -39,10 +39,9 @@ if (!PortFree(httpPort))
 }
 File.WriteAllText(Path.Combine(dataDir, "http-port.txt"), httpPort.ToString());
 
-var bridge = new AfifPbx.Bridge.BridgeManager(dataDir, () => httpPort, loggerFactory.CreateLogger("Bridge"));
-bridge.Start();
-var tailscale = new AfifPbx.Remote.TailscaleManager(dataDir, loggerFactory.CreateLogger("Tailscale"),
-    bridgeToken: () => bridge.SavedApiToken());
+// the built-in secure network (Tailscale engine inside AFIF-PBX — nothing installed in Windows)
+var tailscale = new AfifPbx.Remote.TailscaleManager(dataDir, loggerFactory.CreateLogger("Tailscale"), sip: engine.Sip,
+    rtpRange: () => (engine.Config.Current.Settings.TailnetRtpStart, engine.Config.Current.Settings.TailnetRtpEnd));
 tailscale.Start();
 Firewall.Ensure(startLog);
 
@@ -74,7 +73,6 @@ const string Cookie = "afif_session";
 app.Lifetime.ApplicationStopping.Register(() =>
 {
     startLog.LogInformation("AFIF-PBX stopping");
-    bridge.Dispose();
     tailscale.Dispose();
     engine.Dispose();
 });
@@ -108,8 +106,7 @@ var api = app.MapGroup("/api");
 var loginFailures = new ConcurrentDictionary<string, (int Count, DateTime Until)>();
 api.MapPost("/login", (LoginRequest req, HttpContext ctx) =>
 {
-    // behind the Cloudflare tunnel the real visitor address is in CF-Connecting-IP
-    string ip = ctx.Request.Headers["CF-Connecting-IP"].FirstOrDefault() ?? ctx.Connection.RemoteIpAddress?.ToString() ?? "?";
+    string ip = ctx.Connection.RemoteIpAddress?.ToString() ?? "?";
     if (loginFailures.TryGetValue(ip, out var f) && f.Count >= 5 && f.Until > DateTime.UtcNow)
         return Results.Json(new { error = $"Too many wrong passwords. Try again in {(int)Math.Ceiling((f.Until - DateTime.UtcNow).TotalMinutes)} minutes." }, statusCode: 429);
     var s = engine.Config.Current.Settings;
@@ -449,37 +446,12 @@ api.MapPost("/restore", async (HttpRequest req) =>
     return Results.Ok();
 });
 
-// ---------------------------------------------------------------- AFIF Bridge (Cloudflare)
-api.MapGet("/bridge", async () => await bridge.StatusAsync());
-api.MapPost("/bridge/setup", async (BridgeSetupRequest req) =>
-{
-    if (string.IsNullOrWhiteSpace(req.ApiToken) || string.IsNullOrWhiteSpace(req.Zone))
-        return Results.Json(new { error = "Enter the Cloudflare API token and your domain" }, statusCode: 400);
-    var (ok, log) = await bridge.SetupAsync(new AfifPbx.Bridge.BridgeManager.SetupRequest(
-        req.ApiToken, req.Zone, string.IsNullOrWhiteSpace(req.PanelHostname) ? "pbx" : req.PanelHostname,
-        string.IsNullOrWhiteSpace(req.SipHostname) ? "sip" : req.SipHostname, req.LanIp, req.AdjustSplitTunnel ?? true));
-    return Results.Json(new { ok, log }, statusCode: ok ? 200 : 400);
-});
-api.MapPost("/bridge/token", (BridgeTokenRequest req) =>
-{
-    if (string.IsNullOrWhiteSpace(req.Token)) return Results.Json(new { error = "Paste the tunnel token" }, statusCode: 400);
-    bridge.UseTunnelToken(req.Token, req.PanelHostname ?? "");
-    return Results.Ok();
-});
-api.MapPost("/bridge/enabled", (BridgeEnableRequest req) => { bridge.SetEnabled(req.On); return Results.Ok(); });
-api.MapDelete("/bridge", async () => Results.Ok(new { log = await bridge.RemoveAsync() }));
-
 // ---------------------------------------------------------------- Tailscale
 api.MapGet("/tailscale", async () =>
 {
     var st = await tailscale.StatusAsync();
     var s = engine.Config.Current.Settings;
     return Results.Ok(new { status = st, sipPorts = engine.Sip.Ports, mainSipPort = s.SipPort });
-});
-api.MapPost("/tailscale/install", async () =>
-{
-    var (ok, msg) = await tailscale.InstallAsync();
-    return Results.Json(new { ok, message = msg }, statusCode: ok ? 200 : 400);
 });
 api.MapPost("/tailscale/connect", async (TailscaleConnectRequest req) =>
 {
@@ -570,20 +542,19 @@ record PasswordRequest(string? Current, string? New, string? User);
 record SmsRequest(string? Number, string? Text);
 record UssdRequest(string? Code);
 record SpeechRequest(string? Text);
-record BridgeSetupRequest(string? ApiToken, string? Zone, string? PanelHostname, string? SipHostname, string? LanIp, bool? AdjustSplitTunnel);
-record BridgeTokenRequest(string? Token, string? PanelHostname);
-record BridgeEnableRequest(bool On);
 record TailscaleConnectRequest(string? AuthKey, string? Hostname);
 record TailscaleDomainRequest(string? Domain, string? ApiToken);
 
 /// <summary>
-/// Keeps the Windows Firewall rule for AFIF-PBX right: phones on the local network and on your Tailscale
-/// network (100.64.0.0/10) may reach SIP, RTP and the panel; nothing else is opened.
+/// Keeps the Windows Firewall rules for AFIF-PBX right: phones on the local network may reach SIP, RTP and the
+/// panel; the secure network engine (afif-net, encrypted WireGuard) may receive its peer-to-peer packets.
+/// Phones on the secure network come in through afif-net, so the PBX itself is not opened to anything else.
 /// </summary>
 static class Firewall
 {
     public const string RuleName = "AFIF-PBX Phone System";
-    public const string Remote = "LocalSubnet,100.64.0.0/10,fd7a:115c:a1e0::/48";
+    public const string Remote = "LocalSubnet";
+    public const string EngineRule = "AFIF-PBX Secure Network";
 
     public static void Ensure(ILogger log)
     {
@@ -601,7 +572,11 @@ static class Firewall
             // replace any older rule (the first versions allowed the local network only)
             Run($"advfirewall firewall delete rule name=\"{RuleName}\"");
             int code = Run($"advfirewall firewall add rule name=\"{RuleName}\" dir=in action=allow program=\"{exe}\" remoteip={Remote} profile=any enable=yes");
-            if (code == 0) log.LogInformation("Firewall: AFIF-PBX open to the local network and Tailscale");
+            var engineExe = Path.Combine(AppContext.BaseDirectory, "afif-net.exe");
+            Run($"advfirewall firewall delete rule name=\"{EngineRule}\"");
+            if (File.Exists(engineExe))
+                Run($"advfirewall firewall add rule name=\"{EngineRule}\" dir=in action=allow program=\"{engineExe}\" protocol=udp profile=any enable=yes");
+            if (code == 0) log.LogInformation("Firewall: AFIF-PBX open to the local network; secure network engine allowed");
             else log.LogWarning("Firewall rule could not be updated (netsh exit {Code})", code);
         }
         catch (Exception ex) { log.LogWarning("Firewall rule could not be updated: {Message}", ex.Message); }

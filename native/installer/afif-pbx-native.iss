@@ -37,13 +37,14 @@ WelcomeLabel2=This installs AFIF-PBX {#AppVersion}, the AFIF-TECH phone system f
 
 [Tasks]
 Name: "dongledriver"; Description: "Install the AFIF-PBX dongle driver (Huawei E303 and similar — no Huawei software needed)"
-Name: "tailscale"; Description: "Install Tailscale — use Linphone from anywhere through your tailnet (no router ports)"; Check: not TailscaleInstalled
 
 [InstallDelete]
 ; leftovers of the WSL edition
 Type: filesandordirs; Name: "{app}\system"
 Type: filesandordirs; Name: "{app}\deps"
 Type: filesandordirs; Name: "{app}\scripts"
+; the Cloudflare connector of earlier versions (AFIF Bridge removed)
+Type: files; Name: "{app}\cloudflared.exe"
 
 [Files]
 Source: "{#Dist}\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
@@ -64,19 +65,11 @@ Filename: "powershell.exe"; \
 Filename: "powershell.exe"; \
   Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\scripts\install-driver.ps1"" -DriverDir ""{app}\driver"""; \
   StatusMsg: "Installing the AFIF-PBX dongle driver…"; Flags: runhidden waituntilterminated; Tasks: dongledriver
-Filename: "msiexec.exe"; \
-  Parameters: "/i ""{app}\deps\tailscale.msi"" /qn /norestart TS_UNATTENDEDMODE=always TS_NOLAUNCH=yes"; \
-  StatusMsg: "Installing Tailscale…"; Flags: runhidden waituntilterminated; Tasks: tailscale
 Filename: "{app}\AFIF-PBX.exe"; Description: "Start AFIF-PBX now"; Flags: postinstall nowait skipifsilent runasoriginaluser
 
 [Code]
 var
   RemoveData: Boolean;
-
-function TailscaleInstalled(): Boolean;
-begin
-  Result := FileExists(ExpandConstant('{commonpf64}\Tailscale\tailscale.exe'));
-end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
@@ -87,6 +80,8 @@ begin
   Exec(ExpandConstant('{sys}\sc.exe'), 'stop AFIF-PBX', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Sleep(2500);
   Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM AFIF-PBX-Service.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM afif-net.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM cloudflared.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   Result := '';
 end;
 

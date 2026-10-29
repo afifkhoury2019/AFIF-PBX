@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using AfifPbx.Bridge;
+using AfifPbx.Sip;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -14,6 +15,8 @@ namespace AfifPbx.Remote;
 /// <summary>Saved Tailscale settings (tailscale.json in the data folder; the Cloudflare token is encrypted for this PC).</summary>
 public sealed class TailscaleConfig
 {
+    /// <summary>The built-in secure network is switched on (AFIF-PBX keeps its engine running).</summary>
+    public bool Enabled { get; set; }
     /// <summary>Name of this PC on the tailnet (becomes afif-pbx.&lt;tailnet&gt;.ts.net).</summary>
     public string Hostname { get; set; } = "afif-pbx";
     /// <summary>Full name on your own domain that points at this PC's Tailscale address, e.g. voip.powerchain.uk.</summary>
@@ -49,8 +52,10 @@ public sealed class TailscaleStatus
     public string WantedName { get; set; } = "";
     public string Domain { get; set; } = "";
     public bool HasApiToken { get; set; }
-    public bool BridgeTokenAvailable { get; set; }
-    public bool InstallerAvailable { get; set; }
+    public bool Enabled { get; set; }
+    /// <summary>UDP ports the PBX answers on over the secure network (SIP + voice).</summary>
+    public int RelayPorts { get; set; }
+    public List<string> RelayErrors { get; set; } = new();
     public bool LoginInProgress { get; set; }
     public string DomainResolvesTo { get; set; } = "";
     public bool DomainOk { get; set; }
@@ -59,48 +64,57 @@ public sealed class TailscaleStatus
 }
 
 /// <summary>
-/// Runs AFIF-PBX on your Tailscale network: controls the Tailscale client on this PC (install, sign-in,
-/// unattended mode), reports the tailnet address and the phones that can reach it, and keeps a DNS record on
-/// your own domain (e.g. voip.powerchain.uk) pointing at the PBX's Tailscale address so Linphone can use a
-/// friendly name. Voice (SIP + RTP over UDP) then flows phone ⇄ PBX directly over WireGuard.
+/// AFIF-PBX's built-in secure network. Runs afif-net (a Tailscale node that lives only inside that process — no
+/// network adapter, VPN or route is added to Windows) and lets phones on your tailnet reach the PBX's SIP and voice
+/// ports, which afif-net relays to AFIF-PBX on 127.0.0.1. Also keeps a DNS record on your own domain
+/// (e.g. voip.powerchain.uk) pointing at the PBX's tailnet address.
 /// </summary>
 public sealed class TailscaleManager : IDisposable
 {
-    private readonly string _path;
+    private readonly string _path, _stateDir;
     private readonly ILogger _log;
     private readonly Func<HttpMessageHandler?> _handler;
-    private readonly Func<string> _bridgeToken;
+    private readonly SipServer? _sip;
+    private readonly Func<(int Start, int End)> _rtpRange;
     private readonly object _lock = new();
     private TailscaleConfig _cfg;
-    private Process? _login;
-    private string _loginUrl = "";
     private readonly CancellationTokenSource _cts = new();
+    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(8) };
+    private readonly string _token = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(24));
+    private Process? _proc;
+    private string _control = "";
+    private string _pendingAuthKey = "";
+    private DateTime _nextStart = DateTime.MinValue;
+    private int _failures;
 
-    /// <summary>tailscale.exe (CLI). Settable for tests.</summary>
-    public string CliPath { get; set; }
-    /// <summary>The Tailscale MSI shipped with AFIF-PBX (installed on request).</summary>
-    public string InstallerPath { get; set; }
+    /// <summary>The engine (afif-net.exe next to AFIF-PBX). Settable for tests.</summary>
+    public string EnginePath { get; set; }
+    /// <summary>Extra engine arguments (tests use "-plain-ip 127.0.0.2" instead of a real tailnet).</summary>
+    public string ExtraArgs { get; set; } = "";
 
-    public TailscaleManager(string dataDir, ILogger? log = null, Func<HttpMessageHandler?>? handler = null, Func<string>? bridgeToken = null)
+    public TailscaleManager(string dataDir, ILogger? log = null, Func<HttpMessageHandler?>? handler = null,
+        SipServer? sip = null, Func<(int Start, int End)>? rtpRange = null)
     {
         _path = Path.Combine(dataDir, "tailscale.json");
+        _stateDir = Path.Combine(dataDir, "secure-network");
         _log = log ?? NullLogger.Instance;
         _handler = handler ?? (() => null);
-        _bridgeToken = bridgeToken ?? (() => "");
-        CliPath = DefaultCliPath();
-        InstallerPath = Path.Combine(AppContext.BaseDirectory, "deps", "tailscale.msi");
+        _sip = sip;
+        _rtpRange = rtpRange ?? (() => (21000, 21199));
+        EnginePath = Path.Combine(AppContext.BaseDirectory, OperatingSystem.IsWindows() ? "afif-net.exe" : "afif-net");
         _cfg = File.Exists(_path) ? JsonSerializer.Deserialize<TailscaleConfig>(File.ReadAllText(_path)) ?? new() : new();
-    }
-
-    public static string DefaultCliPath()
-    {
-        if (!OperatingSystem.IsWindows()) return "/usr/bin/tailscale";
-        foreach (var root in new[] { Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"C:\Program Files" })
+        // the Cloudflare token saved by the old AFIF Bridge (removed) keeps working for the DNS record
+        try
         {
-            var p = Path.Combine(root, "Tailscale", "tailscale.exe");
-            if (File.Exists(p)) return p;
+            var bridge = Path.Combine(dataDir, "bridge.json");
+            if (_cfg.ProtectedApiToken.Length == 0 && File.Exists(bridge) &&
+                JsonNode.Parse(File.ReadAllText(bridge))?["ProtectedApiToken"]?.GetValue<string>() is { Length: > 0 } old)
+            {
+                _cfg.ProtectedApiToken = old;
+                Save();
+            }
         }
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Tailscale", "tailscale.exe");
+        catch { }
     }
 
     public TailscaleConfig Config { get { lock (_lock) return JsonSerializer.Deserialize<TailscaleConfig>(JsonSerializer.Serialize(_cfg))!; } }
@@ -110,25 +124,93 @@ public sealed class TailscaleManager : IDisposable
         lock (_lock) File.WriteAllText(_path, JsonSerializer.Serialize(_cfg, new JsonSerializerOptions { WriteIndented = true }));
     }
 
-    // ------------------------------------------------------------------ CLI
+    // ------------------------------------------------------------------ engine process
 
-    private async Task<(int Code, string Out)> RunAsync(string args, int timeoutMs = 20000)
+    private bool EngineRunning { get { lock (_lock) return _proc is { HasExited: false } && _control.Length > 0; } }
+
+    private void StartEngine()
     {
-        var psi = new ProcessStartInfo(CliPath, args)
+        lock (_lock)
         {
-            UseShellExecute = false, CreateNoWindow = true,
-            RedirectStandardOutput = true, RedirectStandardError = true,
-            StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
-        };
-        using var p = new Process { StartInfo = psi };
-        try { p.Start(); }
-        catch (Exception ex) { return (-1, ex.Message); }
-        var o = p.StandardOutput.ReadToEndAsync();
-        var e = p.StandardError.ReadToEndAsync();
-        using var cts = new CancellationTokenSource(timeoutMs);
-        try { await p.WaitForExitAsync(cts.Token).ConfigureAwait(false); }
-        catch (OperationCanceledException) { try { p.Kill(true); } catch { } return (-2, "timed out"); }
-        return (p.ExitCode, ((await o) + "\n" + (await e)).Trim());
+            if (_proc is { HasExited: false }) return;
+            if (!File.Exists(EnginePath)) return;
+            Directory.CreateDirectory(_stateDir);
+            var (rs, re) = _rtpRange();
+            string sipMap = _sip?.RelaySipMap ?? "";
+            var psi = new ProcessStartInfo(EnginePath,
+                $"-dir \"{_stateDir}\" -hostname {CleanHostname(_cfg.Hostname)} -sip {sipMap} -rtp {rs}-{re} -watch-stdin {ExtraArgs}".Trim())
+            {
+                UseShellExecute = false, CreateNoWindow = true,
+                RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true,
+            };
+            psi.Environment["AFIF_NET_TOKEN"] = _token;
+            if (_pendingAuthKey.Length > 0) psi.Environment["TS_AUTHKEY"] = _pendingAuthKey;
+            _pendingAuthKey = "";
+            _control = "";
+            var p = new Process { StartInfo = psi, EnableRaisingEvents = true };
+            p.OutputDataReceived += (_, e) =>
+            {
+                var line = e.Data ?? "";
+                if (line.StartsWith("CONTROL ")) lock (_lock) _control = line[8..].Trim();
+            };
+            p.ErrorDataReceived += (_, e) =>
+            {
+                if (!string.IsNullOrWhiteSpace(e.Data)) _log.LogInformation("Secure network: {Line}", e.Data);
+            };
+            p.Exited += (_, _) =>
+            {
+                lock (_lock) { _control = ""; }
+                if (_sip is not null) _sip.TailnetAddress = null;
+            };
+            try
+            {
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+                _proc = p;
+                _log.LogInformation("Secure network engine started (pid {Pid})", p.Id);
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning("Secure network engine could not start: {Message}", ex.Message);
+            }
+        }
+    }
+
+    private void StopEngine()
+    {
+        Process? p;
+        lock (_lock) { p = _proc; _proc = null; _control = ""; }
+        if (_sip is not null) _sip.TailnetAddress = null;
+        if (p is null) return;
+        try { p.StandardInput.Close(); } catch { }
+        try { if (!p.WaitForExit(3000)) p.Kill(true); } catch { }
+        try { p.Dispose(); } catch { }
+    }
+
+    private async Task<bool> WaitForControlAsync(int ms)
+    {
+        for (int i = 0; i < ms / 100; i++)
+        {
+            if (EngineRunning) return true;
+            await Task.Delay(100).ConfigureAwait(false);
+        }
+        return EngineRunning;
+    }
+
+    private async Task<(bool Ok, string Body)> CallAsync(HttpMethod method, string path)
+    {
+        string control;
+        lock (_lock) control = _control;
+        if (control.Length == 0) return (false, "not running");
+        try
+        {
+            using var req = new HttpRequestMessage(method, $"http://{control}{path}");
+            req.Headers.Add("X-Afif-Token", _token);
+            using var resp = await _http.SendAsync(req).ConfigureAwait(false);
+            return (resp.IsSuccessStatusCode, await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
+        }
+        catch (Exception ex) { return (false, ex.Message); }
     }
 
     // ------------------------------------------------------------------ status
@@ -136,47 +218,45 @@ public sealed class TailscaleManager : IDisposable
     public async Task<TailscaleStatus> StatusAsync(bool checkDomain = true)
     {
         var c = Config;
-        var st = new TailscaleStatus();
-        if (File.Exists(CliPath))
+        var st = new TailscaleStatus { Installed = File.Exists(EnginePath), Enabled = c.Enabled, Version = "built in" };
+        if (!st.Installed) st.Message = "The secure network engine (afif-net) is missing — reinstall AFIF-PBX.";
+        else if (!c.Enabled) st.Message = "Switched off";
+        else if (!EngineRunning) st.Message = "Starting the secure network…";
+        else
         {
-            st.Installed = true;
-            var (code, json) = await RunAsync("status --json", 10000).ConfigureAwait(false);
-            int brace = json.IndexOf('{');
-            if (brace >= 0)
+            var (ok, json) = await CallAsync(HttpMethod.Get, "/status").ConfigureAwait(false);
+            if (ok)
             {
-                try { Parse(json[brace..], st); st.DaemonRunning = true; }
-                catch (Exception ex) { st.Message = "Could not read Tailscale status: " + ex.Message; }
+                try { Parse(json, st); st.DaemonRunning = true; }
+                catch (Exception ex) { st.Message = "Could not read the secure network status: " + ex.Message; }
             }
-            else st.Message = code == 0 ? "" : "The Tailscale service is not running on this PC.";
-            var (_, ver) = await RunAsync("version", 5000).ConfigureAwait(false);
-            st.Version = ver.Split('\n').FirstOrDefault()?.Trim() ?? "";
-        }
-        else st.Message = "Tailscale is not installed on this PC.";
-
-        lock (_lock)
-        {
-            if (_login is { HasExited: false })
+            else st.Message = "The secure network is starting…";
+            var (rok, rjson) = await CallAsync(HttpMethod.Get, "/relay").ConfigureAwait(false);
+            if (rok)
             {
-                st.LoginInProgress = true;
-                if (string.IsNullOrEmpty(st.AuthUrl)) st.AuthUrl = _loginUrl;
+                try
+                {
+                    var r = JsonNode.Parse(rjson)!;
+                    st.RelayPorts = (r["ports"] as JsonArray)?.Count ?? 0;
+                    st.RelayErrors = (r["errors"] as JsonArray)?.Select(e => e?.ToString() ?? "").Where(e => e.Length > 0).ToList() ?? new();
+                }
+                catch { }
             }
+            if (string.IsNullOrEmpty(st.Message))
+                st.Message = st.BackendState switch
+                {
+                    "Running" => "Connected",
+                    "NeedsLogin" => "Sign in to connect AFIF-PBX to your tailnet",
+                    "NeedsMachineAuth" => "Waiting for approval in the Tailscale admin console",
+                    "Stopped" => "Stopped",
+                    "Starting" or "NoState" => "Connecting…",
+                    _ => st.BackendState,
+                };
         }
-        if (st.Installed && st.DaemonRunning && string.IsNullOrEmpty(st.Message))
-            st.Message = st.BackendState switch
-            {
-                "Running" => "Connected",
-                "NeedsLogin" => "Signed out — connect this PC to your tailnet",
-                "NeedsMachineAuth" => "Waiting for approval in the Tailscale admin console",
-                "Stopped" => "Tailscale is switched off on this PC",
-                "Starting" => "Connecting…",
-                _ => st.BackendState,
-            };
-
+        st.LoginInProgress = c.Enabled && st.AuthUrl.Length > 0;
         st.WantedName = c.Hostname;
         st.Domain = c.Domain;
         st.HasApiToken = !string.IsNullOrEmpty(c.ProtectedApiToken);
-        st.BridgeTokenAvailable = !string.IsNullOrEmpty(SafeBridgeToken());
-        st.InstallerAvailable = File.Exists(InstallerPath);
         st.LastDnsUpdateUtc = c.LastDnsUpdateUtc;
         st.LastDnsLog = c.LastDnsLog;
         if (checkDomain && !string.IsNullOrWhiteSpace(c.Domain))
@@ -227,25 +307,7 @@ public sealed class TailscaleManager : IDisposable
         }
     }
 
-    // ------------------------------------------------------------------ install / connect
-
-    /// <summary>Install the bundled Tailscale MSI silently, set to stay connected without anyone signed in to Windows.</summary>
-    public async Task<(bool Ok, string Message)> InstallAsync()
-    {
-        if (File.Exists(CliPath)) return (true, "Tailscale is already installed.");
-        if (!File.Exists(InstallerPath)) return (false, "The Tailscale installer is not included in this AFIF-PBX build.");
-        var psi = new ProcessStartInfo("msiexec.exe",
-            $"/i \"{InstallerPath}\" /qn /norestart TS_UNATTENDEDMODE=always TS_NOLAUNCH=yes")
-        { UseShellExecute = false, CreateNoWindow = true };
-        using var p = Process.Start(psi)!;
-        using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(5));
-        try { await p.WaitForExitAsync(cts.Token).ConfigureAwait(false); }
-        catch (OperationCanceledException) { return (false, "The Tailscale installer did not finish in 5 minutes."); }
-        CliPath = DefaultCliPath();
-        bool ok = p.ExitCode is 0 or 3010 && File.Exists(CliPath);
-        _log.LogInformation("Tailscale install finished with code {Code}", p.ExitCode);
-        return ok ? (true, "Tailscale installed.") : (false, $"The Tailscale installer stopped with code {p.ExitCode}.");
-    }
+    // ------------------------------------------------------------------ connect
 
     private static string CleanHostname(string h)
     {
@@ -254,94 +316,102 @@ public sealed class TailscaleManager : IDisposable
     }
 
     /// <summary>
-    /// Join this PC to the tailnet. With an auth key it connects straight away; without one Tailscale returns a
+    /// Switch the secure network on. With an auth key AFIF-PBX joins straight away; without one it returns a
     /// sign-in link to open in a browser (any device).
     /// </summary>
     public async Task<(bool Ok, string Message, string AuthUrl)> ConnectAsync(string? authKey, string? hostname)
     {
-        if (!File.Exists(CliPath)) return (false, "Install Tailscale first.", "");
+        if (!File.Exists(EnginePath)) return (false, "The secure network engine is missing — reinstall AFIF-PBX.", "");
         string host = CleanHostname(string.IsNullOrWhiteSpace(hostname) ? Config.Hostname : hostname!);
-        lock (_lock) { _cfg.Hostname = host; }
-        Save();
-
-        var st = await StatusAsync(false).ConfigureAwait(false);
-        if (st.Connected)
-        {
-            var (code, outp) = await RunAsync($"set --hostname={host}").ConfigureAwait(false);
-            await RunAsync("set --unattended=true").ConfigureAwait(false); // keep running when nobody is signed in to Windows
-            return (code == 0, code == 0 ? "Connected." : Shorten(outp), "");
-        }
-
-        if (!string.IsNullOrWhiteSpace(authKey))
-        {
-            var (code, outp) = await RunAsync($"login --unattended --hostname={host} --auth-key={authKey.Trim()} --timeout=60s", 75000).ConfigureAwait(false);
-            if (code != 0) return (false, "Tailscale did not accept the key: " + Shorten(outp), "");
-            await RunAsync("set --unattended=true").ConfigureAwait(false);
-            _log.LogInformation("Joined the tailnet as {Host} with an auth key", host);
-            return (true, "Connected.", "");
-        }
-
-        // interactive sign-in: start "tailscale login" and hand its URL to the browser
+        bool restart;
         lock (_lock)
         {
-            if (_login is { HasExited: false } && _loginUrl.Length > 0) return (true, "Open the link to sign in.", _loginUrl);
-            try { _login?.Kill(true); } catch { }
-            _loginUrl = "";
-            var psi = new ProcessStartInfo(CliPath, $"login --unattended --hostname={host}")
-            {
-                UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true,
-            };
-            _login = new Process { StartInfo = psi, EnableRaisingEvents = true };
-            void OnLine(object _, DataReceivedEventArgs e)
-            {
-                var m = Regex.Match(e.Data ?? "", @"https://\S+");
-                if (m.Success) lock (_lock) _loginUrl = m.Value;
-            }
-            _login.OutputDataReceived += OnLine;
-            _login.ErrorDataReceived += OnLine;
-            _login.Exited += async (_, _) =>
-            {
-                try { await RunAsync("set --unattended=true").ConfigureAwait(false); } catch { }
-            };
-            _login.Start();
-            _login.BeginOutputReadLine();
-            _login.BeginErrorReadLine();
+            restart = _cfg.Hostname != host || !string.IsNullOrWhiteSpace(authKey);
+            _cfg.Hostname = host;
+            _cfg.Enabled = true;
+            _pendingAuthKey = (authKey ?? "").Trim();
+            _failures = 0;
+            _nextStart = DateTime.MinValue;
         }
-        for (int i = 0; i < 40; i++)
+        Save();
+        if (restart) StopEngine();
+        StartEngine();
+        if (!await WaitForControlAsync(15000).ConfigureAwait(false))
+            return (false, "The secure network engine did not start. See the AFIF-PBX log.", "");
+
+        for (int i = 0; i < 60; i++)
         {
+            var st = await StatusAsync(false).ConfigureAwait(false);
+            if (st.Connected) { await RefreshAddressAsync(st).ConfigureAwait(false); return (true, "Connected.", ""); }
+            if (st.AuthUrl.Length > 0) return (true, "Open the link to sign in.", st.AuthUrl);
+            if (i == 6 && st.BackendState == "NeedsLogin") await CallAsync(HttpMethod.Post, "/login").ConfigureAwait(false);
             await Task.Delay(500).ConfigureAwait(false);
-            string url;
-            lock (_lock) url = _loginUrl;
-            if (url.Length == 0)
-            {
-                var s2 = await StatusAsync(false).ConfigureAwait(false);
-                if (s2.Connected) return (true, "Connected.", "");
-                url = s2.AuthUrl;
-            }
-            if (url.Length > 0) return (true, "Open the link to sign in.", url);
         }
-        return (false, "Tailscale did not return a sign-in link. Check that the Tailscale service is running.", "");
+        return (false, "The secure network did not answer in time. Check the internet connection of this PC.", "");
     }
 
+    /// <summary>Sign out and switch the secure network off.</summary>
     public async Task<(bool Ok, string Message)> LogoutAsync()
     {
-        if (!File.Exists(CliPath)) return (false, "Tailscale is not installed.");
-        var (code, outp) = await RunAsync("logout", 30000).ConfigureAwait(false);
-        return (code == 0, code == 0 ? "Signed out." : Shorten(outp));
+        if (EngineRunning) await CallAsync(HttpMethod.Post, "/logout").ConfigureAwait(false);
+        lock (_lock) _cfg.Enabled = false;
+        Save();
+        StopEngine();
+        return (true, "Signed out and switched off.");
     }
 
-    private static string Shorten(string s) => s.Length > 300 ? s[..300] + "…" : s;
+    private async Task RefreshAddressAsync(TailscaleStatus st)
+    {
+        if (_sip is null) return;
+        IPAddress? ip = st.Connected && IPAddress.TryParse(st.Ipv4, out var a) ? a : null;
+        if (!Equals(_sip.TailnetAddress, ip))
+        {
+            _sip.TailnetAddress = ip;
+            _log.LogInformation("Secure network address: {Ip}", ip?.ToString() ?? "(none)");
+        }
+        var c = Config;
+        if (ip is not null && c.Domain.Length > 0 && c.LastDnsAddress != ip.ToString() &&
+            (c.LastDnsUpdateUtc is null || DateTime.UtcNow - c.LastDnsUpdateUtc > TimeSpan.FromMinutes(1)))
+            await SetDomainAsync(c.Domain, null).ConfigureAwait(false);
+    }
+
+    /// <summary>Keep the engine running while switched on, and the PBX and DNS told about its address.</summary>
+    public void Start()
+    {
+        _ = Task.Run(async () =>
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                try
+                {
+                    var c = Config;
+                    if (c.Enabled && File.Exists(EnginePath))
+                    {
+                        bool alive;
+                        lock (_lock) alive = _proc is { HasExited: false };
+                        if (!alive && DateTime.UtcNow >= _nextStart)
+                        {
+                            lock (_lock)
+                            {
+                                if (_proc is not null) { _failures++; _proc = null; }
+                                _nextStart = DateTime.UtcNow.AddSeconds(Math.Min(60, 2 << Math.Min(5, _failures)));
+                            }
+                            StartEngine();
+                        }
+                        if (EngineRunning) await RefreshAddressAsync(await StatusAsync(false).ConfigureAwait(false)).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex) { _log.LogWarning("Secure network check failed: {Message}", ex.Message); }
+                try { await Task.Delay(TimeSpan.FromSeconds(3), _cts.Token).ConfigureAwait(false); } catch { break; }
+            }
+        });
+    }
 
     // ------------------------------------------------------------------ your domain
 
-    private string SafeBridgeToken()
-    {
-        try { return _bridgeToken() ?? ""; } catch { return ""; }
-    }
-
     /// <summary>
-    /// Point <paramref name="fqdn"/> (e.g. voip.powerchain.uk) at this PC's Tailscale address with a DNS-only A
-    /// record in Cloudflare. The token can be the AFIF Bridge one (it already has Zone · DNS · Edit).
+    /// Point <paramref name="fqdn"/> (e.g. voip.powerchain.uk) at the PBX's tailnet address with a DNS-only A record
+    /// (Cloudflare DNS API, token with Zone · DNS · Edit).
     /// </summary>
     public async Task<(bool Ok, List<string> Log)> SetDomainAsync(string fqdn, string? apiToken)
     {
@@ -351,33 +421,28 @@ public sealed class TailscaleManager : IDisposable
         if (!Regex.IsMatch(fqdn, @"^([a-z0-9-]+\.)+[a-z]{2,}$")) { log.Add("✗ Enter a full name such as voip.powerchain.uk"); return (false, log); }
 
         string token = (apiToken ?? "").Trim();
-        if (token.Length == 0)
-        {
-            token = BridgeManager.Unprotect(Config.ProtectedApiToken);
-            if (token.Length == 0) token = SafeBridgeToken();
-        }
+        if (token.Length == 0) token = Secrets.Unprotect(Config.ProtectedApiToken);
         lock (_lock)
         {
             _cfg.Domain = fqdn;
-            if ((apiToken ?? "").Trim().Length > 0) _cfg.ProtectedApiToken = BridgeManager.Protect(apiToken!.Trim());
+            if ((apiToken ?? "").Trim().Length > 0) _cfg.ProtectedApiToken = Secrets.Protect(apiToken!.Trim());
         }
         Save();
 
         var st = await StatusAsync(false).ConfigureAwait(false);
         if (string.IsNullOrEmpty(st.Ipv4))
         {
-            log.Add("✗ This PC has no Tailscale address yet — connect it to your tailnet first.");
+            log.Add("✗ AFIF-PBX has no secure network address yet — connect it to your tailnet first.");
             return Finish(false, log);
         }
         if (token.Length == 0)
         {
-            log.Add($"• No Cloudflare token: create this record yourself in Cloudflare → DNS: type A, name {fqdn}, IPv4 {st.Ipv4}, proxy status DNS only.");
+            log.Add($"• No DNS token: create this record yourself at your DNS provider: type A, name {fqdn}, IPv4 {st.Ipv4} (Cloudflare: proxy status DNS only).");
             return Finish(false, log);
         }
         var api = new CloudflareApi(token, _handler());
         try
         {
-            // the zone is the longest parent of the name that exists in the account (voip.powerchain.uk → powerchain.uk)
             CloudflareApi.Zone? zone = null;
             CloudflareException? last = null;
             var labels = fqdn.Split('.');
@@ -386,16 +451,17 @@ public sealed class TailscaleManager : IDisposable
                 try { zone = await api.FindZoneAsync(string.Join('.', labels[i..])).ConfigureAwait(false); }
                 catch (CloudflareException ex) { last = ex; if (ex.Message.Contains("permission")) break; }
             }
-            if (zone is null) throw last ?? new CloudflareException($"No domain for {fqdn} was found in this Cloudflare account.");
+            if (zone is null) throw last ?? new CloudflareException($"No domain for {fqdn} was found with this token.");
             log.Add($"✓ Domain {zone.Name} found");
-            var r = await api.UpsertDnsAsync(zone.Id, "A", fqdn, st.Ipv4, false, "AFIF-PBX SIP via Tailscale").ConfigureAwait(false);
-            log.Add($"✓ DNS {fqdn} → {st.Ipv4} {r} (DNS only — reachable when the phone's Tailscale app is on)");
+            var r = await api.UpsertDnsAsync(zone.Id, "A", fqdn, st.Ipv4, false, "AFIF-PBX SIP via secure network").ConfigureAwait(false);
+            log.Add($"✓ DNS {fqdn} → {st.Ipv4} {r} (reachable from AFIF Phone with its secure network on)");
             lock (_lock) { _cfg.LastDnsAddress = st.Ipv4; _cfg.LastDnsUpdateUtc = DateTime.UtcNow; }
             return Finish(true, log);
         }
         catch (Exception ex)
         {
             log.Add("✗ " + ex.Message);
+            lock (_lock) _cfg.LastDnsUpdateUtc = DateTime.UtcNow;
             return Finish(false, log);
         }
     }
@@ -413,33 +479,10 @@ public sealed class TailscaleManager : IDisposable
         Save();
     }
 
-    /// <summary>Keep the DNS record right if the Tailscale address ever changes (e.g. after re-joining).</summary>
-    public void Start()
-    {
-        _ = Task.Run(async () =>
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                try { await Task.Delay(TimeSpan.FromMinutes(5), _cts.Token).ConfigureAwait(false); } catch { break; }
-                try
-                {
-                    var c = Config;
-                    if (string.IsNullOrEmpty(c.Domain) || string.IsNullOrEmpty(c.LastDnsAddress)) continue;
-                    var st = await StatusAsync(false).ConfigureAwait(false);
-                    if (st.Connected && st.Ipv4.Length > 0 && st.Ipv4 != c.LastDnsAddress)
-                    {
-                        _log.LogInformation("Tailscale address changed to {Ip}; updating {Domain}", st.Ipv4, c.Domain);
-                        await SetDomainAsync(c.Domain, null).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex) { _log.LogWarning("Tailscale check failed: {Message}", ex.Message); }
-            }
-        });
-    }
-
     public void Dispose()
     {
         _cts.Cancel();
-        lock (_lock) { try { if (_login is { HasExited: false }) _login.Kill(true); } catch { } }
+        StopEngine();
+        _http.Dispose();
     }
 }

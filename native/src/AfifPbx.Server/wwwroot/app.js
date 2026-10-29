@@ -494,95 +494,9 @@ pages.prompts = {
 };
 
 
-// ------------------------------------------------------------ remote access (AFIF Bridge)
-pages.bridge = {
-  title: "Remote access", refresh: 5000,
-  async render() {
-    if (document.activeElement && $("#bridgeForm")?.contains(document.activeElement)) return;
-    if ($("#bridgeBusy") || $("#bridgeForm [name=apiToken]")?.value) return;
-    const [b, st] = await Promise.all([api("/bridge"), api("/status")]);
-    const lan = st.addresses[0] || "";
-    const pill = b.connected ? '<span class="pill good">Connected</span>' : b.configured && b.enabled ? '<span class="pill warn">' + esc(b.message) + "</span>" : '<span class="pill">' + esc(b.message) + "</span>";
-    const team = b.teamDomain ? b.teamDomain.split(".")[0] : "";
-    const exts = st.extensions.map(e => e.number);
-    $("#view").innerHTML = `
-      <div class="notice info">The AFIF Bridge puts AFIF-PBX on your own domain through <b>Cloudflare</b>, with <b>no router ports opened</b>.
-        It uses its own tunnel named <b>afif-pbx</b>, so your other tunnels and hostnames (for example Node-RED) are not changed.</div>
-      <div class="grid">
-        <div class="card"><h3>Bridge</h3><div class="row">${pill}</div>
-          ${b.panelUrl ? `<div class="stat" style="font-size:18px;margin-top:10px"><a href="${esc(b.panelUrl)}" target="_blank">${esc(b.panelUrl.replace("https://", ""))}</a></div><div class="sub">Web panel from anywhere</div>` : '<div class="sub" style="margin-top:8px">Not set up yet</div>'}
-          ${b.configured ? `<div class="row" style="margin-top:12px"><button class="btn small" id="toggle">${b.enabled ? "Switch off" : "Switch on"}</button>
-            <button class="btn small danger" id="remove">Remove</button></div>` : ""}</div>
-        <div class="card"><h3>Phones outside your network</h3>
-          ${b.sipHostname ? `<dl class="kv"><dt>SIP server</dt><dd class="mono">${esc(b.sipHostname)}</dd><dt>Transport</dt><dd>UDP</dd>
-            <dt>PBX address</dt><dd class="mono">${esc(b.lanIp)}</dd><dt>Cloudflare One team</dt><dd class="mono">${esc(team || "—")}</dd>
-            <dt>Split tunnel</dt><dd>${b.splitTunnelAdjusted ? "Ready" : "Check Zero Trust settings"}</dd></dl>` : '<div class="sub">Set up the bridge first.</div>'}</div>
-        <div class="card wide"><h3>${b.configured ? "Run setup again" : "Set up"}</h3>
-          <form id="bridgeForm"><div class="form-grid">
-            <label>Your domain<input name="zone" value="${esc(b.zone || "powerchain.uk")}" required></label>
-            <label>Web panel name<input name="panelHostname" value="${esc((b.panelUrl || "").replace("https://", "").split(".")[0] || "pbx")}"></label>
-            <label>SIP name (for Linphone)<input name="sipHostname" value="${esc((b.sipHostname || "").split(".")[0] || "sip")}"></label>
-            <label>This PC's address<input name="lanIp" value="${esc(b.lanIp || lan)}"></label>
-          </div>
-          <label>Cloudflare API token<input name="apiToken" type="password" autocomplete="off" placeholder="paste the token here" required></label>
-          <label class="check"><input type="checkbox" name="adjustSplitTunnel" checked> Let the Cloudflare One app send this PC's address through the bridge (adjusts the split tunnel)</label>
-          <details style="margin:6px 0 14px"><summary class="sub" style="cursor:pointer">How to create the API token</summary>
-            <ol class="sub">
-              <li>Cloudflare dashboard → <b>My Profile → API Tokens → Create Token → Create Custom Token</b>.</li>
-              <li>Permissions: <b>Account · Cloudflare Tunnel · Edit</b>, <b>Account · Zero Trust · Edit</b>, <b>Account · Access: Organizations, Identity Providers, and Groups · Read</b>, <b>Zone · DNS · Edit</b>, <b>Zone · Zone · Read</b>.</li>
-              <li>Account resources: your account. Zone resources: <b>${esc(b.zone || "powerchain.uk")}</b>. Create, then copy the token here.</li>
-              <li>The token is stored encrypted on this PC only.</li>
-            </ol></details>
-          <div class="row"><button class="btn primary">Set up the bridge</button><span class="spacer"></span>
-            <button type="button" class="link" id="manual">I already have a tunnel token</button></div></form>
-          ${b.lastSetupLog?.length ? `<h3 style="margin-top:18px">Last setup</h3><div class="mono sub" style="white-space:pre-wrap">${b.lastSetupLog.map(esc).join("\n")}</div>` : ""}
-        </div>
-        <div class="card wide"><h3>Linphone on your mobile — step by step</h3>
-          <ol>
-            <li>Install <b>Cloudflare One</b> (by Cloudflare) from the App Store or Google Play.</li>
-            <li>Open it → <b>Log in with Zero Trust</b> → team name <b class="mono">${esc(team || "your team name")}</b> → sign in with your email (Cloudflare sends a code). Then switch it <b>on</b>.
-              <div class="sub">First time only: in one.dash.cloudflare.com → Settings → WARP Client → <b>Device enrollment permissions</b>, add a rule that allows your email address.</div></li>
-            <li>Install <b>Linphone</b> → <b>Use SIP account</b>:
-              <dl class="kv" style="margin:8px 0"><dt>Username</dt><dd>your extension (${exts.map(esc).join(", ")})</dd><dt>Password</dt><dd>the extension's secret (Extensions → Edit)</dd>
-              <dt>Domain</dt><dd class="mono">${esc(b.sipHostname || "sip." + (b.zone || "powerchain.uk"))}</dd><dt>Transport</dt><dd>UDP</dd></dl></li>
-            <li>Make a test call to <b>*43</b> (echo test): you should hear yourself.</li>
-          </ol>
-          <p class="sub">Calls and voice go phone → Cloudflare → this PC through the encrypted Cloudflare One connection. Nothing is opened on your router.</p></div>
-        ${b.recentConnectorLog?.length ? `<div class="card wide"><h3>Connector log</h3><div class="mono sub" style="white-space:pre-wrap;max-height:240px;overflow:auto">${b.recentConnectorLog.map(esc).join("\n")}</div></div>` : ""}
-      </div>`;
-    $("#bridgeForm").addEventListener("submit", run(async e => {
-      e.preventDefault();
-      const d = formData(e.target);
-      const btn = e.target.querySelector(".btn.primary");
-      btn.disabled = true; btn.textContent = "Setting up…"; btn.id = "bridgeBusy";
-      try {
-        const r = await fetch("/api/bridge/setup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
-        const j = await r.json();
-        toast(j.ok ? "Bridge is set up" : "Setup stopped — see the log", !j.ok);
-      } finally {
-        btn.removeAttribute("id");
-        const t = $("#bridgeForm [name=apiToken]"); if (t) t.value = "";
-        document.activeElement?.blur();
-        pages.bridge.render();
-      }
-    }));
-    $("#manual").addEventListener("click", () => openModal("Use an existing tunnel token", `<form id="f">
-      <p class="sub">Create a tunnel in Cloudflare Zero Trust → Networks → Tunnels, copy its token, and add a public hostname pointing to <b class="mono">http://localhost:${st.httpPort}</b>.</p>
-      <label>Tunnel token<input name="token" required></label><label>Public hostname of the panel<input name="panelHostname" placeholder="pbx.powerchain.uk"></label>
-      <div class="modal-actions"><button class="btn primary">Save and connect</button></div></form>`, body => {
-        $("#f", body).addEventListener("submit", run(async ev => { ev.preventDefault(); await api("/bridge/token", { method: "POST", body: formData(ev.target) }); closeModal(); toast("Saved"); pages.bridge.render(); }));
-      }));
-    $("#toggle")?.addEventListener("click", run(async () => { await api("/bridge/enabled", { method: "POST", body: { on: !b.enabled } }); pages.bridge.render(); }));
-    $("#remove")?.addEventListener("click", run(async () => {
-      if (!confirm("Remove the bridge from this PC (and AFIF-PBX's DNS records)?")) return;
-      const r = await api("/bridge", { method: "DELETE" }); toast(r.log.join(" ")); pages.bridge.render();
-    }));
-  }
-};
-
 // ------------------------------------------------------------ settings
 pages.tailscale = {
-  title: "Tailscale", refresh: 5000,
+  title: "Secure network", refresh: 5000,
   async render() {
     if (document.activeElement && $("#view form")?.contains(document.activeElement)) return;
     if ($("#tsBusy") || $("#tsKey")?.value || $("#tsToken")?.value) return;
@@ -590,51 +504,49 @@ pages.tailscale = {
     const t = r.status;
     const altPort = r.sipPorts.find(p => p !== 5060) || r.sipPorts[0];
     const server = t.domain || t.dnsName || t.ipv4 || "";
-    const pill = !t.installed ? '<span class="pill bad">Not installed</span>'
+    const pill = !t.installed ? '<span class="pill bad">Engine missing</span>'
       : t.connected ? '<span class="pill good">Connected</span>'
+      : !t.enabled ? '<span class="pill">Off</span>'
       : `<span class="pill warn">${esc(t.message)}</span>`;
     const expires = t.keyExpiry ? new Date(t.keyExpiry) : null;
     const expSoon = expires && (expires - Date.now()) < 30 * 86400e3;
-    const phones = t.peers.filter(p => ["android", "iOS", "ios"].includes(p.os));
     $("#view").innerHTML = `
-      <div class="notice info">With <b>Tailscale</b>, your mobile and this PC join your private tailnet. Linphone then registers to AFIF-PBX
-        from anywhere — Wi-Fi or 4G — with voice going straight to this PC, encrypted, and <b>no router ports opened</b>.</div>
+      <div class="notice info">The <b>secure network</b> is built into AFIF-PBX (Tailscale engine). It connects <b>only the phone system</b>
+        to your private tailnet — no VPN or network adapter is added to Windows, and nothing else on this PC uses it.
+        AFIF Phone then reaches your extension from anywhere, encrypted, with <b>no router ports opened</b>.</div>
       <div class="grid">
-        <div class="card"><h3>This PC on Tailscale</h3><div class="row">${pill}</div>
+        <div class="card"><h3>AFIF-PBX on the secure network</h3><div class="row">${pill}</div>
           ${t.connected ? `<dl class="kv" style="margin-top:12px"><dt>Name</dt><dd class="mono">${esc(t.dnsName)}</dd>
             <dt>Address</dt><dd class="mono">${esc(t.ipv4)}</dd><dt>Tailnet</dt><dd>${esc(t.tailnet)}</dd>
+            <dt>Phone ports</dt><dd>${t.relayPorts ? `${t.relayPorts} open (SIP ${r.sipPorts.join(", ")} + voice)` : "opening…"}</dd>
             <dt>Key expiry</dt><dd>${expires ? `<span class="${expSoon ? "pill warn" : ""}">${expires.toLocaleDateString()}</span>` : "never"}</dd></dl>
-            <div class="row" style="margin-top:12px"><button class="btn small danger" id="tsLogout">Disconnect</button></div>`
+            <div class="row" style="margin-top:12px"><button class="btn small danger" id="tsLogout">Sign out and switch off</button></div>`
           : `<p class="sub">${esc(t.message || "")}</p>`}
-          ${t.health?.length ? `<div class="notice" style="margin-top:10px">${t.health.map(esc).join("<br>")}</div>` : ""}
-          ${t.version ? `<div class="sub" style="margin-top:8px">Tailscale ${esc(t.version)}</div>` : ""}</div>
-        <div class="card"><h3>Linphone settings</h3>
+          ${t.relayErrors?.length ? `<div class="notice" style="margin-top:10px">${t.relayErrors.slice(0, 5).map(esc).join("<br>")}</div>` : ""}
+          ${t.health?.length ? `<div class="notice" style="margin-top:10px">${t.health.map(esc).join("<br>")}</div>` : ""}</div>
+        <div class="card"><h3>AFIF Phone settings</h3>
           ${server ? `<dl class="kv"><dt>Username</dt><dd>your extension (${st.extensions.map(e => esc(e.number)).join(", ")})</dd>
             <dt>Password</dt><dd>the extension's secret</dd><dt>Domain</dt><dd class="mono">${esc(server)}:${altPort}</dd>
             <dt>Transport</dt><dd>UDP</dd></dl>
-            <div class="sub" style="margin-top:8px">AFIF-PBX listens on ports ${r.sipPorts.map(p => `<b>${p}</b>`).join(" and ")} — use either.</div>`
-          : '<div class="sub">Connect this PC to Tailscale first.</div>'}</div>
-        ${!t.installed ? `<div class="card wide"><h3>Step 1 — install Tailscale on this PC</h3>
-          <p class="sub">Tailscale runs as a Windows service and stays connected even when nobody is signed in to Windows.</p>
-          ${t.installerAvailable ? '<button class="btn primary" id="tsInstall">Install Tailscale</button>'
-            : '<p>Download it from <a href="https://tailscale.com/download/windows" target="_blank">tailscale.com/download/windows</a>, install, then come back here.</p>'}</div>` : ""}
-        ${t.installed && !t.connected ? `<div class="card wide"><h3>Step 2 — connect this PC to your tailnet</h3>
+            <div class="sub" style="margin-top:8px">At home on Wi-Fi the phone can also use this PC's local address.</div>`
+          : '<div class="sub">Connect AFIF-PBX to the secure network first.</div>'}</div>
+        ${t.installed && !t.connected ? `<div class="card wide"><h3>Connect AFIF-PBX to your tailnet</h3>
           <form id="tsConnect"><div class="form-grid">
             <label>Name on the tailnet<input name="hostname" value="${esc(t.wantedName || "afif-pbx")}"></label>
             <label>Auth key (optional)<input id="tsKey" name="authKey" type="password" autocomplete="off" placeholder="tskey-auth-…"></label></div>
             <p class="sub">Leave the key empty to sign in with your Tailscale account in the browser instead.
               Keys: Tailscale admin console → <b>Settings → Keys → Generate auth key</b>.</p>
-            <button class="btn primary">Connect</button></form>
+            <button class="btn primary">${t.enabled ? "Connect again" : "Switch on and connect"}</button></form>
           ${t.authUrl ? `<div class="notice info" style="margin-top:12px">Open this link and sign in with your Tailscale account:<br>
             <a href="${esc(t.authUrl)}" target="_blank" class="mono">${esc(t.authUrl)}</a></div>` : ""}</div>` : ""}
         ${t.connected ? `<div class="card wide"><h3>Your domain (optional)</h3>
-          <p class="sub">Give the PBX a name on your own domain, e.g. <b class="mono">voip.powerchain.uk</b>. AFIF-PBX creates a DNS-only record
-            pointing to <b class="mono">${esc(t.ipv4)}</b> in Cloudflare; it only answers for devices on your tailnet.
-            ${t.dnsName ? `Without a domain, Linphone can use <b class="mono">${esc(t.dnsName)}</b>.` : ""}</p>
+          <p class="sub">Give the PBX a name on your own domain, e.g. <b class="mono">voip.powerchain.uk</b>. AFIF-PBX keeps a DNS-only record
+            pointing to <b class="mono">${esc(t.ipv4)}</b> (Cloudflare DNS); it only answers for devices on your tailnet.
+            ${t.dnsName ? `Without a domain, AFIF Phone can use <b class="mono">${esc(t.dnsName)}</b>.` : ""}</p>
           <form id="tsDomain"><div class="form-grid">
             <label>Name<input name="domain" value="${esc(t.domain || "voip.powerchain.uk")}" required></label>
-            <label>Cloudflare API token ${t.hasApiToken || t.bridgeTokenAvailable ? "(saved — leave empty)" : ""}<input id="tsToken" name="apiToken" type="password" autocomplete="off"
-              placeholder="${t.hasApiToken || t.bridgeTokenAvailable ? "using the saved token" : "Zone · DNS · Edit"}"></label></div>
+            <label>DNS API token ${t.hasApiToken ? "(saved — leave empty)" : ""}<input id="tsToken" name="apiToken" type="password" autocomplete="off"
+              placeholder="${t.hasApiToken ? "using the saved token" : "Cloudflare: Zone · DNS · Edit"}"></label></div>
             <div class="row"><button class="btn primary">Point the name to this PBX</button>
             ${t.domain ? `<span class="pill ${t.domainOk ? "good" : "warn"}">${esc(t.domain)} → ${esc(t.domainResolvesTo || "?")}</span>
               <button type="button" class="link" id="tsDomainClear">Forget</button>` : ""}</div></form>
@@ -643,23 +555,21 @@ pages.tailscale = {
           ${t.peers.length ? `<div class="table-wrap"><table><tr><th>Device</th><th>System</th><th>Address</th><th>Status</th></tr>
             ${t.peers.map(p => `<tr><td>${esc(p.hostName)}</td><td>${esc(p.os)}</td><td class="mono">${esc(p.address)}</td>
               <td><span class="dot ${p.online ? "on" : "off"}"></span>${p.online ? esc(p.connection || "online") : "offline"}</td></tr>`).join("")}</table></div>`
-          : '<div class="empty">No other devices yet — install Tailscale on your mobile.</div>'}</div>` : ""}
+          : '<div class="empty">No phones yet — open AFIF Phone → menu → Secure network and sign in.</div>'}</div>` : ""}
         <div class="card wide"><h3>Your mobile — step by step</h3>
           <ol>
-            <li>Install <b>Tailscale</b> from Google Play or the App Store and sign in with the <b>same account</b> as this PC.
-              ${phones.length ? `<span class="pill good">${phones.length} phone${phones.length > 1 ? "s" : ""} on the tailnet</span>` : ""}</li>
-            <li>Android: Settings → Network → VPN → Tailscale → <b>Always-on VPN</b>, and allow Tailscale and Linphone to run without battery restrictions.</li>
-            <li>Install <b>Linphone</b> → <b>Use SIP account</b>: username = extension, password = its secret (Extensions → Edit),
+            <li>Install <b>AFIF Phone</b>. On first start choose <b>Connect</b> (or menu → <b>Secure network</b>) and sign in with the <b>same Tailscale account</b>.
+              Only AFIF Phone uses the secure network — the rest of the phone is not affected.</li>
+            <li>Add your account: username = extension, password = its secret (Extensions → Edit),
               domain = <b class="mono">${esc(server || "voip.powerchain.uk")}:${altPort}</b>, transport <b>UDP</b>.</li>
-            <li>Linphone → Settings → Advanced: turn on <b>Keep alive service</b> so calls ring when the app is in the background.</li>
+            <li>Allow AFIF Phone to run without battery restrictions so calls ring when it is in the background.</li>
             <li>Call <b>*43</b> (echo test) — you should hear yourself. Then try mobile data with Wi-Fi off.</li>
           </ol>
-          <p class="sub">In the Tailscale admin console, open this PC (${esc(t.hostName || t.wantedName || "afif-pbx")}) → <b>Disable key expiry</b>, so the PBX never drops off the tailnet.</p></div>
+          <p class="sub">In the Tailscale admin console, open ${esc(t.hostName || t.wantedName || "afif-pbx")} → <b>Disable key expiry</b>, so the PBX never drops off the tailnet.
+            If an older "afif-pbx" machine from the separate Tailscale app is listed there, you can remove it and uninstall the Tailscale app from Windows — AFIF-PBX no longer needs it.</p></div>
       </div>`;
     const busy = async (btn, fn) => { btn.disabled = true; const label = btn.textContent; btn.textContent = "Working…"; btn.id = "tsBusy";
       try { await fn(); } finally { btn.removeAttribute("id"); btn.disabled = false; btn.textContent = label; } };
-    $("#tsInstall")?.addEventListener("click", run(async e => busy(e.target, async () => {
-      const x = await api("/tailscale/install", { method: "POST" }); toast(x.message); pages.tailscale.render(); })));
     $("#tsConnect")?.addEventListener("submit", run(async e => { e.preventDefault(); const f = e.target;
       await busy(f.querySelector(".btn.primary"), async () => {
         const x = await api("/tailscale/connect", { method: "POST", body: formData(f) });
@@ -668,7 +578,7 @@ pages.tailscale = {
         toast(x.message); });
       document.activeElement?.blur(); pages.tailscale.render(); }));
     $("#tsLogout")?.addEventListener("click", run(async () => {
-      if (!confirm("Disconnect this PC from Tailscale? Phones outside your network will stop reaching AFIF-PBX.")) return;
+      if (!confirm("Sign AFIF-PBX out of the secure network? Phones outside your home network will stop reaching it.")) return;
       const x = await api("/tailscale/logout", { method: "POST" }); toast(x.message); pages.tailscale.render(); }));
     $("#tsDomain")?.addEventListener("submit", run(async e => { e.preventDefault(); const f = e.target;
       await busy(f.querySelector(".btn.primary"), async () => {

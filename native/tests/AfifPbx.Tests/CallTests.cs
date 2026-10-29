@@ -25,6 +25,8 @@ internal sealed class TestPhone : IDisposable
     public SIPUserAgent? Call { get; private set; }
     public RTPSession? Rtp { get; private set; }
     public bool AutoAnswer { get; set; }
+    /// <summary>Address the phone uses for the PBX (127.0.0.2 = the PBX's "tailnet" address in secure network tests).</summary>
+    public string PbxHost { get; set; } = "127.0.0.1";
     /// <summary>Behave like Linphone with encryption on: offer RTP/SAVP with SDES keys only.</summary>
     public bool Srtp { get; set; }
     public int LoudFrames;
@@ -70,7 +72,7 @@ internal sealed class TestPhone : IDisposable
     public async Task<bool> RegisterAsync(string? password = null)
     {
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _reg = new SIPRegistrationUserAgent(Transport, _ext, password ?? _secret, $"127.0.0.1:{_pbxPort}", 120,
+        _reg = new SIPRegistrationUserAgent(Transport, _ext, password ?? _secret, $"{PbxHost}:{_pbxPort}", 120,
             maxRegistrationAttemptTimeout: 5, maxRegisterAttempts: 3);
         _reg.RegistrationSuccessful += (_, _) => tcs.TrySetResult(true);
         _reg.RegistrationFailed += (_, _, _) => tcs.TrySetResult(false);
@@ -84,7 +86,7 @@ internal sealed class TestPhone : IDisposable
     {
         Call = new SIPUserAgent(Transport, null);
         Rtp = MakeRtp();
-        bool ok = await Call.Call($"sip:{number}@127.0.0.1:{_pbxPort}", _ext, _secret, Rtp, timeoutSeconds);
+        bool ok = await Call.Call($"sip:{number}@{PbxHost}:{_pbxPort}", _ext, _secret, Rtp, timeoutSeconds);
         if (ok) StartTone();
         return ok;
     }
@@ -329,6 +331,68 @@ public sealed class CallTests : IDisposable
         Assert.True(invite == b.IncomingInvite.Task, "pressing 1 should ring extension 101");
         Assert.True(await Eventually(() => a.LoudFrames > 10), "caller should be connected to 101");
         a.Hangup();
+    }
+
+    // ------------------------------------------------------------------ built-in secure network (afif-net relay)
+
+    /// <summary>Runs the real afif-net engine in test mode on 127.0.0.2 (stands in for the PBX's tailnet address).</summary>
+    private async Task<AfifPbx.Remote.TailscaleManager?> StartSecureNetwork(PbxEngine engine)
+    {
+        var exe = Environment.GetEnvironmentVariable("AFIF_NET_PATH");
+        if (string.IsNullOrEmpty(exe) || !File.Exists(exe)) { _out.WriteLine("AFIF_NET_PATH not set — skipping"); return null; }
+        var s = engine.Config.Current.Settings;
+        var mgr = new AfifPbx.Remote.TailscaleManager(engine.DataDir, new TestLogs(_out).CreateLogger("Tailscale"), sip: engine.Sip,
+            rtpRange: () => (s.TailnetRtpStart, s.TailnetRtpEnd))
+        { EnginePath = exe, ExtraArgs = "-plain-ip 127.0.0.2" };
+        _cleanup.Add(mgr);
+        mgr.Start();
+        var (ok, msg, _) = await mgr.ConnectAsync(null, "afif-pbx");
+        Assert.True(ok, msg);
+        Assert.True(await Eventually(() => engine.Sip.TailnetAddress?.ToString() == "127.0.0.2", 10000), "PBX should learn its secure network address");
+        var st = await mgr.StatusAsync(false);
+        Assert.True(await Eventually(() => mgr.StatusAsync(false).Result.RelayPorts >= 2, 10000), "relay should be listening");
+        _out.WriteLine($"secure network: {st.Message} {st.Ipv4}");
+        return mgr;
+    }
+
+    [Fact]
+    public async Task Phone_on_the_secure_network_reaches_the_pbx_through_the_relay()
+    {
+        var (engine, port) = StartEngine(configure: c => { c.Settings.TailnetRtpStart = 21300; c.Settings.TailnetRtpEnd = 21349; });
+        if (await StartSecureNetwork(engine) is null) return;
+        var a = Phone("100", port);
+        a.PbxHost = "127.0.0.2";
+        Assert.True(await a.RegisterAsync(), "should register through the relay");
+        var reg = Assert.Single(engine.Sip.Bindings("100"));
+        Assert.Equal("127.0.0.1", reg.RemoteEndPoint.Address.ToString()); // arrives from the relay
+        Assert.True(await a.DialAsync("*43"), "echo test must be answered");
+        var answer = a.Rtp!.RemoteDescription?.ToString() ?? "";
+        _out.WriteLine(answer);
+        Assert.Contains("c=IN IP4 127.0.0.2", answer); // voice goes to the tailnet address, not the PC's LAN
+        Assert.True(await Eventually(() => a.LoudFrames > 15, 15000), $"phone should hear its echo through the relay (heard {a.LoudFrames})");
+        a.Hangup();
+    }
+
+    [Fact]
+    public async Task Pbx_calls_a_phone_on_the_secure_network_with_audio_both_ways()
+    {
+        var (engine, port) = StartEngine(configure: c => { c.Settings.TailnetRtpStart = 21400; c.Settings.TailnetRtpEnd = 21449; });
+        if (await StartSecureNetwork(engine) is null) return;
+        var remote = Phone("100", port, 900);
+        remote.PbxHost = "127.0.0.2";
+        remote.AutoAnswer = true;
+        var local = Phone("101", port, 1300);
+        Assert.True(await remote.RegisterAsync());
+        Assert.True(await local.RegisterAsync());
+        Assert.True(await local.DialAsync("100"), "the remote phone should answer");
+        var invite = await remote.IncomingInvite.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        _out.WriteLine(invite.ToString());
+        Assert.Contains("127.0.0.2", invite.Header.Contact[0].ContactURI.Host); // replies come back through the relay
+        Assert.Contains("c=IN IP4 127.0.0.2", invite.Body);
+        Assert.True(await Eventually(() => remote.LoudFrames > 15 && local.LoudFrames > 15, 15000),
+            $"audio both ways (remote heard {remote.LoudFrames}, local heard {local.LoudFrames})");
+        local.Hangup();
+        Assert.True(await Eventually(() => engine.Calls.ActiveCalls.Count == 0, 8000), "call should end on both sides");
     }
 
     [Fact]

@@ -27,6 +27,18 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: "8.0.x" }
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.27.x", check-latest: true, cache: false }
+      - name: Secure network engine (afif-net)
+        working-directory: native/afif-net
+        run: |
+          set -o pipefail
+          go mod tidy 2>&1 | tail -3
+          go vet . 2>&1 | tee ../../go.log
+          go test -count=1 -tags relayonly -v . 2>&1 | tee -a ../../go.log
+          go build -trimpath -o "$RUNNER_TEMP/afif-net" . 2>&1 | tee -a ../../go.log
+          ls -la "$RUNNER_TEMP/afif-net"
+          echo "AFIF_NET_PATH=$RUNNER_TEMP/afif-net" >> "$GITHUB_ENV"
       - name: Build
         run: dotnet build native/tests/AfifPbx.Tests/AfifPbx.Tests.csproj -c Release 2>&1 | tee build.log
       - name: Test
@@ -68,7 +80,7 @@ jobs:
       - name: Publish logs to ci-logs branch
         if: always()
         run: |
-          mkdir -p /tmp/ci && cp build.log test.log /tmp/ci/ 2>/dev/null || true
+          mkdir -p /tmp/ci && cp build.log test.log go.log /tmp/ci/ 2>/dev/null || true
           cp native/tests/AfifPbx.Tests/TestResults/*.trx /tmp/ci/ 2>/dev/null || true
           cd /tmp/ci && git init -q -b ci-logs && git add -A
           git -c user.name=ci -c user.email=ci@localhost commit -q -m "run ${{ github.run_id }}"
@@ -97,26 +109,17 @@ jobs:
           dotnet publish native/src/AfifPbx.Server/AfifPbx.Server.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           dotnet publish native/src/AfifPbx.Tray/AfifPbx.Tray.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VERSION -o native/dist/app
           Get-ChildItem native/dist/app -Filter *.exe
-      - name: Bundle Cloudflare connector (cloudflared)
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.27.x", check-latest: true, cache: false }
+      - name: Secure network engine (afif-net.exe)
         shell: pwsh
-        env: { GH_TOKEN: "${{ github.token }}" }
+        working-directory: native/afif-net
         run: |
-          gh release download --repo cloudflare/cloudflared --pattern 'cloudflared-windows-amd64.exe' --dir native/dist
-          Move-Item native/dist/cloudflared-windows-amd64.exe native/dist/app/cloudflared.exe -Force
-          & native/dist/app/cloudflared.exe --version
-      - name: Bundle Tailscale (remote phones)
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force native/dist/app/deps | Out-Null
-          $name = $null
-          try { $name = (Invoke-RestMethod "https://pkgs.tailscale.com/stable/?mode=json").MSIs.amd64 } catch { Write-Warning $_ }
-          $url = if ($name) { "https://pkgs.tailscale.com/stable/$name" } else { "https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi" }
-          "Downloading $url"
-          Invoke-WebRequest $url -OutFile native/dist/app/deps/tailscale.msi -UseBasicParsing
-          $sig = Get-AuthenticodeSignature native/dist/app/deps/tailscale.msi
-          "Signature: $($sig.Status) — $($sig.SignerCertificate.Subject)"
-          if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Tailscale') { throw "Tailscale MSI signature check failed" }
-          (Get-Item native/dist/app/deps/tailscale.msi).Length
+          go mod tidy
+          $env:GOOS = "windows"; $env:GOARCH = "amd64"; $env:CGO_ENABLED = "0"
+          go build -trimpath -ldflags "-s -w" -o ../dist/app/afif-net.exe .
+          if ($LASTEXITCODE -ne 0) { throw "afif-net build failed" }
+          (Get-Item ../dist/app/afif-net.exe).Length
       - name: Build dongle driver catalog
         shell: pwsh
         run: |
@@ -157,27 +160,30 @@ jobs:
           $s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
           $login = Invoke-RestMethod "http://127.0.0.1:$port/api/login" -Method Post -ContentType "application/json" -Body '{"user":"admin","password":"admin"}' -WebSession $s
           $ext = Invoke-RestMethod "http://127.0.0.1:$port/api/extensions" -WebSession $s
-          $br = Invoke-RestMethod "http://127.0.0.1:$port/api/bridge" -WebSession $s
-          "Bridge: $($br.message) — connector installed: $($br.connectorInstalled)"
-          if (-not $br.connectorInstalled) { throw "cloudflared not bundled" }
           if ($ext.Count -lt 1) { throw "no extensions" }
           $local = Invoke-RestMethod "http://127.0.0.1:$port/api/local/status"
           "SIP ports in settings: $((Invoke-RestMethod "http://127.0.0.1:$port/api/settings" -WebSession $s).extraSipPorts)"
-          # Tailscale: install the bundled MSI the way the panel does, then ask AFIF-PBX for its status
+          # Secure network: the engine is built in; switching it on must give a sign-in link from Tailscale
           $ts0 = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale" -WebSession $s
-          "Tailscale before: installed=$($ts0.status.installed) installer=$($ts0.status.installerAvailable) ports=$($ts0.sipPorts -join ',')"
-          if (-not $ts0.status.installerAvailable) { throw "Tailscale MSI not bundled" }
+          "Secure network before: installed=$($ts0.status.installed) enabled=$($ts0.status.enabled) ports=$($ts0.sipPorts -join ',')"
+          if (-not $ts0.status.installed) { throw "afif-net.exe not bundled" }
           if (($ts0.sipPorts -join ',') -ne '5060,5160') { throw "SIP should listen on 5060 and 5160" }
-          $inst = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale/install" -Method Post -WebSession $s -TimeoutSec 400
-          "Install: $($inst.message)"
-          Start-Sleep 5
+          $con = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale/connect" -Method Post -ContentType "application/json" -Body '{"hostname":"afif-pbx-ci"}' -WebSession $s -TimeoutSec 120
+          "Connect: $($con.message) $($con.authUrl)"
+          if ($con.authUrl -notmatch '^https://login\.tailscale\.com/') { throw "the built-in engine did not produce a sign-in link" }
           $ts = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale" -WebSession $s
           $ts.status | ConvertTo-Json -Depth 3
-          if (-not $ts.status.installed) { throw "Tailscale did not install" }
-          if (-not $ts.status.daemonRunning) { Write-Warning "Tailscale service not answering yet" }
+          $adapters = Get-NetAdapter | Where-Object { $_.InterfaceDescription -match 'Tailscale|Wintun' }
+          if ($adapters) { throw "a network adapter was added to Windows" }
+          "No Tailscale/Wintun adapter in Windows — the engine is userspace only."
+          $off = Invoke-RestMethod "http://127.0.0.1:$port/api/tailscale/logout" -Method Post -WebSession $s -TimeoutSec 60
+          "Logout: $($off.message)"
+          Start-Sleep 3
+          if (Get-Process afif-net -ErrorAction SilentlyContinue) { throw "engine still running after switching off" }
           $fw = netsh advfirewall firewall show rule name="AFIF-PBX Phone System" | Out-String
           $fw
-          if ($fw -notmatch '100\.64\.0\.0/10') { throw "firewall rule does not allow the Tailscale range" }
+          if ($fw -match '100\.64\.0\.0/10') { throw "firewall rule should no longer open the PBX to the tailnet range" }
+          if (Test-Path native/dist/app/cloudflared.exe) { throw "cloudflared must not be bundled" }
           $wav = Invoke-WebRequest "http://127.0.0.1:$port/api/speech/preview" -Method Post -ContentType "application/json" -Body '{"text":"Welcome to AFIF PBX"}' -WebSession $s -UseBasicParsing
           "Speech preview bytes: $($wav.RawContentLength)"
           if ($wav.RawContentLength -lt 8000) { Write-Warning "Text-to-speech gave little audio on this build machine (no SAPI voices?)" }
