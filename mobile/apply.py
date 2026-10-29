@@ -225,6 +225,18 @@ s_login = read(login)
 i = s_login.index('android:id="@+id/login"')
 j = s_login.index('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"', i)
 write(login, s_login[:j] + 'app:layout_constraintTop_toBottomOf="@id/afif_secure_network"' + s_login[j + len('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"'):])
+# the tablet layout gets the same option when it has the same shape
+login600 = os.path.join(MAIN, "res", "layout-sw600dp", "assistant_third_party_sip_account_login_fragment.xml")
+if os.path.exists(login600):
+    t = read(login600)
+    anchor = "                <androidx.appcompat.widget.AppCompatTextView\n                    style=\"@style/primary_button_label_style\"\n                    android:onClick=\"@{() -> viewModel.login()}\""
+    if anchor in t and 'outbound_proxy_tooltip"' in t and 'app:layout_constraintTop_toBottomOf="@id/outbound_proxy"' in t[t.index('android:id="@+id/login"'):]:
+        t = t.replace("outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip\"", "outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip, afif_secure_network\"")
+        t = t.replace(anchor, CHECK.replace("AFTER", "outbound_proxy") + anchor)
+        i = t.index('android:id="@+id/login"'); j = t.index('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"', i)
+        t = t[:j] + 'app:layout_constraintTop_toBottomOf="@id/afif_secure_network"' + t[j + len('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"'):]
+        write(login600, t)
+        print("  tablet login layout: option added")
 lf = os.path.join(MAIN, "java", "org", "linphone", "ui", "assistant", "fragment", "ThirdPartySipAccountLoginFragment.kt")
 edit(lf, "        binding.viewModel = viewModel\n", "        binding.viewModel = viewModel\n        org.linphone.AfifSecureNetwork.bind(requireActivity(), binding.afifSecureNetwork)\n")
 acc = os.path.join(MAIN, "res", "layout", "account_settings_fragment.xml")

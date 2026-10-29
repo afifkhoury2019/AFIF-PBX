@@ -44,7 +44,8 @@ object AfifSecureNetwork {
     }
 
     /** A "Connect through the secure network (Tailscale)" check box wired to the setting. */
-    fun bind(activity: Activity, box: android.widget.CompoundButton) {
+    fun bind(activity: Activity, box: android.widget.CompoundButton?) {
+        if (box == null) return // tablet layouts without the option
         box.text = "Connect through the secure network (Tailscale)"
         box.isChecked = isEnabled(activity)
         box.setOnCheckedChangeListener { _, on -> setEnabled(activity, on) }
