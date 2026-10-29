@@ -28,6 +28,8 @@ public sealed class PbxSettings
     public string GsmAudioPort { get; set; } = "";
     /// <summary>Where calls arriving on the SIM go, e.g. "rg:600", "ext:100", "ivr:700".</summary>
     public string GsmInboundDestination { get; set; } = "rg:600";
+    /// <summary>Extensions whose phones (AFIF Phone) get incoming SMS as messages; empty = every extension.</summary>
+    public List<string> SmsExtensions { get; set; } = new();
     /// <summary>Numbers matching this (and not an internal number) go out through the GSM line.</summary>
     public string OutboundPattern { get; set; } = @"^\+?\d{3,}$";
     /// <summary>Digits removed from the front of an outbound number (e.g. an outside-line "9").</summary>

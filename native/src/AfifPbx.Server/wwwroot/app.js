@@ -405,12 +405,31 @@ pages.gsm = {
 pages.sms = {
   title: "SMS", refresh: 6000,
   async render() {
-    if (document.activeElement && $("#smsForm")?.contains(document.activeElement)) return;
-    const list = await api("/sms");
+    if (document.activeElement && $("#view form")?.contains(document.activeElement)) return;
+    if ($("#tgToken")?.value) return;
+    const [list, settings, cfg, tg] = await Promise.all([api("/sms"), api("/settings"), api("/status"), api("/telegram")]);
+    const chosen = settings.smsExtensions || [];
     $("#view").innerHTML = `<div class="grid"><div class="card wide"><h3>New message</h3>
         <form id="smsForm"><div class="form-grid"><label>To<input name="number" placeholder="07XXXXXXXX or +9627XXXXXXXX" required></label></div>
         <label>Message<textarea name="text" rows="3" dir="auto" required></textarea></label>
         <div class="row"><span class="sub" id="cnt"></span><span class="spacer"></span><button class="btn primary">Send</button></div></form></div>
+      <div class="card"><h3>On AFIF Phone</h3>
+        <p class="sub">Incoming SMS appear in the <b>Messages</b> of these extensions' phones, with a notification. Messages written there go out on the SIM.
+          If a phone is offline, the SMS waits and is delivered when it comes back.</p>
+        <form id="smsExt">${cfg.extensions.map(e => `<label class="check"><input type="checkbox" name="x" value="${esc(e.number)}" ${chosen.length === 0 || chosen.includes(e.number) ? "checked" : ""}>
+          ${esc(e.number)} ${esc(e.name)} ${e.registered ? '<span class="dot on"></span>' : ""}</label>`).join("")}
+          <div class="modal-actions"><button class="btn small primary">Save</button></div></form></div>
+      <div class="card"><h3>Telegram</h3>
+        <form id="tgForm">
+          <label class="check"><input type="checkbox" name="enabled" ${tg.enabled ? "checked" : ""}> Forward to Telegram</label>
+          <label>Bot token ${tg.hasToken ? "(saved — leave empty)" : ""}<input id="tgToken" name="token" type="password" autocomplete="off" placeholder="${tg.hasToken ? "using the saved token" : "123456789:ABC… from @BotFather"}"></label>
+          <label>Chat ID(s)<input name="chatIds" value="${esc((tg.chatIds || []).join(", "))}" placeholder="1655852624"></label>
+          <label class="check"><input type="checkbox" name="forwardSms" ${tg.forwardSms ? "checked" : ""}> Incoming SMS</label>
+          <label class="check"><input type="checkbox" name="forwardMissedCalls" ${tg.forwardMissedCalls ? "checked" : ""}> Missed GSM calls</label>
+          <div class="row"><button class="btn small primary">Save</button><button type="button" class="btn small" id="tgTest">Send test</button></div></form>
+        <div class="sub" style="margin-top:8px">${tg.lastError ? `<span class="pill bad">${esc(tg.lastError)}</span>` : tg.lastSentUtc ? `Last sent ${fmtTime(tg.lastSentUtc)}` : ""}
+          ${tg.queued ? ` · ${tg.queued} waiting` : ""}</div>
+        <p class="sub">Create a bot with <b>@BotFather</b>, open it in Telegram and press <b>Start</b>. Your chat ID: send a message to <b>@userinfobot</b>.</p></div>
       <div class="card wide"><h3>Messages</h3><div class="sms-list">${list.map(m => `<div class="sms ${m.direction === "out" ? "out" : ""}">
           <div class="meta">${m.direction === "out" ? "To" : "From"} <b>${esc(m.number)}</b> · ${fmtTime(m.time)} · ${esc(m.status)}
           <button class="link" data-reply="${esc(m.number)}">Reply</button> · <button class="link" data-del="${m.id}">Delete</button></div>
@@ -421,6 +440,19 @@ pages.sms = {
     f.addEventListener("submit", run(async e => { e.preventDefault(); await api("/sms", { method: "POST", body: formData(f) }); toast("Sent"); f.reset(); pages.sms.render(); }));
     $$("[data-reply]").forEach(b => b.addEventListener("click", () => { f.number.value = b.dataset.reply; f.text.focus(); }));
     $$("[data-del]").forEach(b => b.addEventListener("click", run(async () => { await api(`/sms/${b.dataset.del}`, { method: "DELETE" }); pages.sms.render(); })));
+    $("#smsExt").addEventListener("submit", run(async e => {
+      e.preventDefault();
+      const all = $$("#smsExt [name=x]"), on = all.filter(c => c.checked).map(c => c.value);
+      if (!on.length) { toast("Choose at least one extension", true); return; }
+      const s = await api("/settings"); s.smsExtensions = on.length === all.length ? [] : on;
+      await api("/settings", { method: "PUT", body: s }); toast("Saved"); document.activeElement?.blur(); }));
+    const tgBody = () => { const t = $("#tgForm"); return { enabled: t.enabled.checked, token: t.token.value, chatIds: t.chatIds.value,
+      forwardSms: t.forwardSms.checked, forwardMissedCalls: t.forwardMissedCalls.checked }; };
+    $("#tgForm").addEventListener("submit", run(async e => { e.preventDefault();
+      await api("/telegram", { method: "POST", body: tgBody() }); $("#tgToken").value = ""; toast("Saved"); document.activeElement?.blur(); pages.sms.render(); }));
+    $("#tgTest").addEventListener("click", run(async () => {
+      await api("/telegram", { method: "POST", body: tgBody() }); $("#tgToken").value = "";
+      const res = await fetch("/api/telegram/test", { method: "POST" }); const j = await res.json(); toast(j.message, !j.ok); pages.sms.render(); }));
     $("#smsBadge").textContent = "";
   }
 };

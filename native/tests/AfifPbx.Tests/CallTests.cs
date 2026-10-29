@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using AfifPbx.Data;
@@ -35,11 +36,20 @@ internal sealed class TestPhone : IDisposable
     private SIPRegistrationUserAgent? _reg;
     private readonly SIPUserAgent _listener;
 
+    /// <summary>Text messages this phone received: (sender user part, text).</summary>
+    public ConcurrentQueue<(string From, string Text)> Messages { get; } = new();
+
     public TestPhone(string ext, string secret, int pbxPort, double toneHz = 900)
     {
         _ext = ext; _secret = secret; _pbxPort = pbxPort;
         _tone = Tones.Sine(toneHz, 1000, 0.3);
         Transport.AddSIPChannel(new SIPUDPChannel(IPAddress.Loopback, 0));
+        Transport.SIPTransportRequestReceived += async (local, remote, req) =>
+        {
+            if (req.Method != SIPMethodsEnum.MESSAGE) return;
+            Messages.Enqueue((req.Header.From.FromURI.User, req.Body ?? ""));
+            await Transport.SendResponseAsync(SIPResponse.GetResponse(req, SIPResponseStatusCodesEnum.Ok, null));
+        };
         _listener = new SIPUserAgent(Transport, null);
         _listener.OnIncomingCall += async (ua, req) =>
         {
@@ -103,6 +113,24 @@ internal sealed class TestPhone : IDisposable
     }
 
     public Task SendDtmf(byte tone) => Call?.SendDtmf(tone) ?? Task.CompletedTask;
+
+    /// <summary>Send a text the way Linphone does (Message/CPIM wrapper, digest authentication). Returns the final SIP status.</summary>
+    public async Task<int> SendTextAsync(string to, string text, bool cpim = true)
+    {
+        string body = cpim
+            ? $"From: <sip:{_ext}@{PbxHost}>\r\nTo: <sip:{to}@{PbxHost}>\r\nDateTime: 2026-10-29T10:00:00Z\r\nNS: imdn <urn:ietf:params:imdn>\r\n" +
+              "imdn.Message-ID: abc123\r\nimdn.Disposition-Notification: positive-delivery, display\r\n\r\n" +
+              $"Content-Type: text/plain;charset=UTF-8\r\nContent-Length: {System.Text.Encoding.UTF8.GetByteCount(text)}\r\n\r\n{text}"
+            : text;
+        var desc = new SIPCallDescriptor(_ext, _secret, $"sip:{to}@{PbxHost}:{_pbxPort}", $"<sip:{_ext}@{PbxHost}>", $"sip:{to}@{PbxHost}",
+            null, null, null, SIPCallDirection.Out, cpim ? "Message/CPIM" : "text/plain;charset=UTF-8", body, null);
+        var ua = new SIPNonInviteClientUserAgent(Transport, null, desc);
+        var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        ua.ResponseReceived += r => tcs.TrySetResult(r.StatusCode);
+        ua.SendRequest(SIPMethodsEnum.MESSAGE);
+        var done = await Task.WhenAny(tcs.Task, Task.Delay(20000));
+        return done == tcs.Task ? tcs.Task.Result : 0;
+    }
 
     public void Hangup()
     {
@@ -393,6 +421,66 @@ public sealed class CallTests : IDisposable
             $"audio both ways (remote heard {remote.LoudFrames}, local heard {local.LoudFrames})");
         local.Hangup();
         Assert.True(await Eventually(() => engine.Calls.ActiveCalls.Count == 0, 8000), "call should end on both sides");
+    }
+
+    // ------------------------------------------------------------------ SMS ⇄ AFIF Phone
+
+    [Fact]
+    public async Task Incoming_sms_reaches_the_phone_and_its_reply_goes_out_on_the_sim()
+    {
+        var modem = new FakeModem();
+        var (engine, port) = StartEngine(modem, c => c.Settings.SmsExtensions = new() { "100" });
+        Assert.True(await Eventually(() => engine.Modem!.IsReady, 10000));
+        var a = Phone("100", port);
+        var b = Phone("101", port);
+        Assert.True(await a.RegisterAsync());
+        Assert.True(await b.RegisterAsync());
+        modem.DeliverSms(3, "00040C916972191122330008621070210000001406450631062D0628062700200041004600490046"); // "مرحبا AFIF" from +962791112233
+        Assert.True(await Eventually(() => a.Messages.Any(m => m.From == "+962791112233" && m.Text == "مرحبا AFIF")), "the phone should get the SMS as a message");
+        await Task.Delay(500);
+        Assert.Empty(b.Messages); // 101 is not chosen for SMS
+        Assert.Contains(engine.Db.Sms(), s => s.Direction == "in" && s.Status == "delivered");
+
+        int code = await a.SendTextAsync("+962791112233", "أهلاً، تمام ✓");
+        Assert.Equal(200, code);
+        var pdu = Assert.Single(modem.SentSmsPdus);
+        Assert.Contains(engine.Db.Sms(), s => s.Direction == "out" && s.Number == "+962791112233" && s.Text == "أهلاً، تمام ✓" && s.Status == "sent");
+
+        // delivery receipts and "typing" notifications are accepted but never sent as SMS
+        var desc = new SIPCallDescriptor("100", "s100", $"sip:+962791112233@127.0.0.1:{port}", "<sip:100@127.0.0.1>", "sip:+962791112233@127.0.0.1",
+            null, null, null, SIPCallDirection.Out, "message/imdn+xml", "<imdn/>", null);
+        var tcs = new TaskCompletionSource<int>();
+        var ua = new SIPNonInviteClientUserAgent(a.Transport, null, desc);
+        ua.ResponseReceived += r => tcs.TrySetResult(r.StatusCode);
+        ua.SendRequest(SIPMethodsEnum.MESSAGE);
+        Assert.Equal(200, await tcs.Task.WaitAsync(TimeSpan.FromSeconds(10)));
+        Assert.Single(modem.SentSmsPdus);
+    }
+
+    [Fact]
+    public async Task Sms_waits_for_an_offline_phone_and_is_delivered_when_it_registers()
+    {
+        var modem = new FakeModem();
+        var (engine, port) = StartEngine(modem);
+        Assert.True(await Eventually(() => engine.Modem!.IsReady, 10000));
+        modem.DeliverSms(4, "00040C916972191122330008621070210000001406450631062D0628062700200041004600490046");
+        Assert.True(await Eventually(() => engine.Db.SmsPending("100").Count == 1), "SMS should wait for 100's phone");
+        var a = Phone("100", port);
+        Assert.True(await a.RegisterAsync());
+        Assert.True(await Eventually(() => a.Messages.Any(m => m.Text.StartsWith("مرحبا AFIF")), 10000), "waiting SMS should arrive after registering");
+        Assert.True(await Eventually(() => engine.Db.SmsPending("100").Count == 0));
+    }
+
+    [Fact]
+    public async Task Phones_can_text_each_other()
+    {
+        var (engine, port) = StartEngine();
+        var a = Phone("100", port);
+        var b = Phone("101", port);
+        Assert.True(await a.RegisterAsync());
+        Assert.True(await b.RegisterAsync());
+        Assert.Equal(200, await a.SendTextAsync("101", "Hello 101", cpim: false));
+        Assert.True(await Eventually(() => b.Messages.Any(m => m.From == "100" && m.Text == "Hello 101")));
     }
 
     [Fact]

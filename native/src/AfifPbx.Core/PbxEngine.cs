@@ -63,6 +63,11 @@ public sealed class PbxEngine : IDisposable
         }
 
         Calls = new CallManager(Config, Sip, Modem, Media, Db, Prompts, DataDir, _logs.CreateLogger("Calls"));
+
+        // SMS ⇄ phones: texts written in AFIF Phone go out on the SIM; SMS that waited for an offline phone go out when it registers
+        Sip.TextFromPhone = async (ext, number, text) => await SendSmsAsync(CleanNumber(number), text).ConfigureAwait(false);
+        Sip.RegistrationChanged += (ext, registered) => { if (registered) _ = DeliverPendingSmsAsync(ext); };
+        _smsRetry = new Timer(_ => _ = DeliverPendingSmsAsync(null), null, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(60));
         Modem?.Start();
 
         Config.Changed += c =>
@@ -71,12 +76,56 @@ public sealed class PbxEngine : IDisposable
         };
     }
 
+    private Timer? _smsRetry;
+    private readonly SemaphoreSlim _smsDelivery = new(1, 1);
+
     private void OnSms(IncomingSms sms)
     {
         long id = Db.AddSms("in", sms.Sender, sms.Text, "received");
         var msg = Db.Sms(1).FirstOrDefault(m => m.Id == id);
+        foreach (var ext in SmsTargets()) Db.AddSmsPending(id, ext);
+        _ = DeliverPendingSmsAsync(null);
         if (msg is not null) SmsReceived?.Invoke(msg);
     }
+
+    /// <summary>Extensions that receive incoming SMS on their phones.</summary>
+    private List<string> SmsTargets()
+    {
+        var c = Config.Current;
+        var chosen = c.Settings.SmsExtensions ?? new List<string>();
+        return c.Extensions.Where(e => e.Enabled && (chosen.Count == 0 || chosen.Contains(e.Number))).Select(e => e.Number).ToList();
+    }
+
+    /// <summary>Send waiting SMS to the phones that are registered now (one extension, or all when null).</summary>
+    public async Task DeliverPendingSmsAsync(string? ext)
+    {
+        if (!await _smsDelivery.WaitAsync(0).ConfigureAwait(false))
+        {
+            // another delivery round is running; try again shortly so nothing is missed
+            _ = Task.Delay(3000).ContinueWith(_ => DeliverPendingSmsAsync(ext));
+            return;
+        }
+        try
+        {
+            foreach (var (pid, target, sms) in Db.SmsPending(ext))
+            {
+                if (!Sip.IsRegistered(target)) continue;
+                string text = sms.Text;
+                if (DateTime.UtcNow - sms.Time > TimeSpan.FromMinutes(5))
+                    text += $"\n\n({sms.Time.ToLocalTime():yyyy-MM-dd HH:mm})"; // it waited for the phone: say when it really arrived
+                if (await Sip.SendTextAsync(target, sms.Number, text).ConfigureAwait(false))
+                {
+                    Db.RemoveSmsPending(pid);
+                    Db.SetSmsStatus(sms.Id, "delivered");
+                }
+            }
+        }
+        catch { }
+        finally { _smsDelivery.Release(); }
+    }
+
+    private static string CleanNumber(string n) =>
+        new string(n.Trim().Where(c => char.IsDigit(c) || c == '+' || c == '*' || c == '#').ToArray());
 
     public async Task<bool> SendSmsAsync(string number, string text)
     {
@@ -88,6 +137,7 @@ public sealed class PbxEngine : IDisposable
 
     public void Dispose()
     {
+        _smsRetry?.Dispose();
         Modem?.Dispose();
         Sip.Dispose();
         Clock.Dispose();

@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS sms(id INTEGER PRIMARY KEY AUTOINCREMENT, time TEXT, 
 CREATE TABLE IF NOT EXISTS voicemail(id INTEGER PRIMARY KEY AUTOINCREMENT, mailbox TEXT, caller TEXT, time TEXT,
   duration INTEGER, file TEXT, heard INTEGER DEFAULT 0);
 CREATE INDEX IF NOT EXISTS ix_cdr_start ON cdr(start);
-CREATE INDEX IF NOT EXISTS ix_vm_box ON voicemail(mailbox);");
+CREATE INDEX IF NOT EXISTS ix_vm_box ON voicemail(mailbox);
+CREATE TABLE IF NOT EXISTS sms_pending(id INTEGER PRIMARY KEY AUTOINCREMENT, sms_id INTEGER, ext TEXT, tries INTEGER DEFAULT 0);");
     }
 
     private SqliteConnection Open()
@@ -107,7 +108,23 @@ CREATE INDEX IF NOT EXISTS ix_vm_box ON voicemail(mailbox);");
         "SELECT id,time,direction,number,text,status FROM sms ORDER BY id DESC LIMIT $l",
         r => new SmsMessage(r.GetInt64(0), ReadDate(r, 1) ?? DateTime.MinValue, S(r, 2), S(r, 3), S(r, 4), S(r, 5)), ("$l", limit));
 
-    public void DeleteSms(long id) => Exec("DELETE FROM sms WHERE id=$i", ("$i", id));
+    public void DeleteSms(long id)
+    {
+        Exec("DELETE FROM sms WHERE id=$i", ("$i", id));
+        Exec("DELETE FROM sms_pending WHERE sms_id=$i", ("$i", id));
+    }
+
+    // SMS waiting to be delivered to an extension's phone (AFIF Phone was offline)
+    public void AddSmsPending(long smsId, string ext) =>
+        Insert("INSERT INTO sms_pending(sms_id,ext,tries) VALUES($s,$e,0)", ("$s", smsId), ("$e", ext));
+
+    public List<(long PendingId, string Ext, SmsMessage Sms)> SmsPending(string? ext = null) => Query(
+        "SELECT p.id,p.ext,s.id,s.time,s.direction,s.number,s.text,s.status FROM sms_pending p JOIN sms s ON s.id=p.sms_id " +
+        "WHERE ($e IS NULL OR p.ext=$e) ORDER BY p.id",
+        r => (r.GetInt64(0), S(r, 1), new SmsMessage(r.GetInt64(2), ReadDate(r, 3) ?? DateTime.MinValue, S(r, 4), S(r, 5), S(r, 6), S(r, 7))),
+        ("$e", ext));
+
+    public void RemoveSmsPending(long pendingId) => Exec("DELETE FROM sms_pending WHERE id=$i", ("$i", pendingId));
 
     // ---- voicemail ----
     public long AddVoicemail(string mailbox, string caller, int seconds, string file) => Insert(

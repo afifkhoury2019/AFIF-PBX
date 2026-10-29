@@ -43,6 +43,11 @@ File.WriteAllText(Path.Combine(dataDir, "http-port.txt"), httpPort.ToString());
 var tailscale = new AfifPbx.Remote.TailscaleManager(dataDir, loggerFactory.CreateLogger("Tailscale"), sip: engine.Sip,
     rtpRange: () => (engine.Config.Current.Settings.TailnetRtpStart, engine.Config.Current.Settings.TailnetRtpEnd));
 tailscale.Start();
+// Telegram: incoming SMS and missed GSM calls go to your bot
+var telegram = new AfifPbx.Remote.TelegramForwarder(dataDir, loggerFactory.CreateLogger("Telegram"));
+engine.SmsReceived += m => telegram.Sms(m.Number, m.Text, m.Time);
+engine.Calls.CallLogged += r => telegram.Call(r);
+telegram.Start();
 Firewall.Ensure(startLog);
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -74,6 +79,7 @@ app.Lifetime.ApplicationStopping.Register(() =>
 {
     startLog.LogInformation("AFIF-PBX stopping");
     tailscale.Dispose();
+    telegram.Dispose();
     engine.Dispose();
 });
 
@@ -470,6 +476,26 @@ api.MapPost("/tailscale/domain", async (TailscaleDomainRequest req) =>
 });
 api.MapDelete("/tailscale/domain", () => { tailscale.ClearDomain(); return Results.Ok(); });
 
+// ---------------------------------------------------------------- Telegram
+api.MapGet("/telegram", () => telegram.Status());
+api.MapPost("/telegram", (TelegramRequest req) =>
+{
+    var chats = (req.ChatIds ?? "").Split(new[] { ',', ';', ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+    if (req.Enabled && !telegram.Status().HasToken && string.IsNullOrWhiteSpace(req.Token))
+        return Results.Json(new { error = "Enter the bot token" }, statusCode: 400);
+    if (chats.Any(c => !System.Text.RegularExpressions.Regex.IsMatch(c, @"^(-?\d+|@[A-Za-z0-9_]{5,})$")))
+        return Results.Json(new { error = "Chat IDs are numbers like 1655852624 (or @channelname)" }, statusCode: 400);
+    if (!string.IsNullOrWhiteSpace(req.Token) && !System.Text.RegularExpressions.Regex.IsMatch(req.Token.Trim(), @"^\d+:[A-Za-z0-9_-]{30,}$"))
+        return Results.Json(new { error = "That does not look like a bot token (123456789:ABC…)" }, statusCode: 400);
+    telegram.Configure(req.Enabled, req.Token, chats, req.ForwardSms ?? true, req.ForwardMissedCalls ?? true);
+    return Results.Ok(telegram.Status());
+});
+api.MapPost("/telegram/test", async () =>
+{
+    var (ok, msg) = await telegram.TestAsync();
+    return Results.Json(new { ok, message = msg }, statusCode: ok ? 200 : 400);
+});
+
 // SPA fallback
 app.MapFallbackToFile("index.html");
 
@@ -542,6 +568,7 @@ record PasswordRequest(string? Current, string? New, string? User);
 record SmsRequest(string? Number, string? Text);
 record UssdRequest(string? Code);
 record SpeechRequest(string? Text);
+record TelegramRequest(bool Enabled, string? Token, string? ChatIds, bool? ForwardSms, bool? ForwardMissedCalls);
 record TailscaleConnectRequest(string? AuthKey, string? Hostname);
 record TailscaleDomainRequest(string? Domain, string? ApiToken);
 

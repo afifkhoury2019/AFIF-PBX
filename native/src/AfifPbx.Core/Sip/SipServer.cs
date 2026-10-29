@@ -62,6 +62,14 @@ public sealed class SipServer : IDisposable
     /// <summary>"tailnet port:local port" pairs for the secure network relay, e.g. "5060:53122,5160:53123".</summary>
     public string RelaySipMap => string.Join(",", _relays.Select(r => $"{r.Public}:{r.Local}"));
 
+    /// <summary>
+    /// A phone sent a text (SIP MESSAGE) to an outside number: (extension, number, text) → true once it went out on the SIM.
+    /// </summary>
+    public Func<string, string, string, Task<bool>>? TextFromPhone { get; set; }
+
+    /// <summary>Final answers to MESSAGEs already handled (a phone resends while the SMS is still being sent).</summary>
+    private readonly ConcurrentDictionary<string, (DateTime At, int Code)> _seenMessages = new();
+
     /// <summary>A phone placed a call: (leg from the phone, dialled number).</summary>
     public event Action<SipLeg, string>? IncomingCall;
     public event Action<string, bool>? RegistrationChanged;
@@ -207,9 +215,10 @@ public sealed class SipServer : IDisposable
                     return HandleInvite(t, local, remote, req);
                 case SIPMethodsEnum.OPTIONS when !inDialog:
                     return Respond(t, req, SIPResponseStatusCodesEnum.Ok);
+                case SIPMethodsEnum.MESSAGE when !inDialog:
+                    return HandleMessage(t, local, remote, req);
                 case SIPMethodsEnum.SUBSCRIBE when !inDialog:
                 case SIPMethodsEnum.PUBLISH:
-                case SIPMethodsEnum.MESSAGE when !inDialog:
                     return Respond(t, req, SIPResponseStatusCodesEnum.MethodNotAllowed);
                 case SIPMethodsEnum.NOTIFY when !inDialog:
                     return Respond(t, req, SIPResponseStatusCodesEnum.Ok);
@@ -329,6 +338,116 @@ public sealed class SipServer : IDisposable
         string dialed = Uri.UnescapeDataString(req.URI.User ?? "");
         _log.LogInformation("Call from {Ext} to {Dialed}", ext.Number, dialed);
         IncomingCall?.Invoke(leg, dialed);
+    }
+
+    // ------------------------------------------------------------------ text messages (SMS ⇄ phones)
+
+    private async Task HandleMessage(SIPTransport t, SIPEndPoint local, SIPEndPoint remote, SIPRequest req)
+    {
+        string key = $"{req.Header.CallId}|{req.Header.CSeq}";
+        if (_seenMessages.TryGetValue(key, out var seen))
+        {
+            if (seen.Code > 0) await Respond(t, req, (SIPResponseStatusCodesEnum)seen.Code).ConfigureAwait(false);
+            return; // still sending the first copy
+        }
+        var ext = await AuthenticateAsync(t, local, remote, req, req.Header.From?.FromURI?.User).ConfigureAwait(false);
+        if (ext is null) return;
+        if (!_seenMessages.TryAdd(key, (DateTime.UtcNow, 0))) return;
+        foreach (var old in _seenMessages.Where(kv => DateTime.UtcNow - kv.Value.At > TimeSpan.FromMinutes(2)).Select(kv => kv.Key).ToList())
+            _seenMessages.TryRemove(old, out _);
+
+        var code = SIPResponseStatusCodesEnum.Ok;
+        try
+        {
+            var (type, text) = MessageText(req.Header.ContentType, req.Body);
+            if (!type.StartsWith("text/plain"))
+            {
+                // delivery/read receipts (IMDN), "is typing" and other non-text payloads: accept and ignore
+            }
+            else if (string.IsNullOrWhiteSpace(text)) code = SIPResponseStatusCodesEnum.BadRequest;
+            else
+            {
+                string to = Uri.UnescapeDataString(req.URI?.User ?? req.Header.To?.ToURI?.User ?? "").Trim();
+                if (FindExtension(to) is not null)
+                {
+                    _log.LogInformation("Message from {Ext} to extension {To}", ext.Number, to);
+                    code = await SendTextAsync(to, ext.Number, text).ConfigureAwait(false) ? SIPResponseStatusCodesEnum.Ok : SIPResponseStatusCodesEnum.TemporarilyUnavailable;
+                }
+                else if (to.Length == 0 || TextFromPhone is null) code = SIPResponseStatusCodesEnum.NotFound;
+                else
+                {
+                    _log.LogInformation("SMS from {Ext} to {To} ({Len} characters)", ext.Number, to, text.Length);
+                    code = await TextFromPhone(ext.Number, to, text).ConfigureAwait(false) ? SIPResponseStatusCodesEnum.Ok : SIPResponseStatusCodesEnum.ServiceUnavailable;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Message from {Ext} failed", ext.Number);
+            code = SIPResponseStatusCodesEnum.InternalServerError;
+        }
+        _seenMessages[key] = (DateTime.UtcNow, (int)code);
+        await Respond(t, req, code).ConfigureAwait(false);
+    }
+
+    /// <summary>The content type and text of a SIP MESSAGE, unwrapping Message/CPIM (what Linphone sends).</summary>
+    public static (string Type, string Text) MessageText(string? contentType, string? body)
+    {
+        string type = (contentType ?? "text/plain").Trim().ToLowerInvariant();
+        body ??= "";
+        if (type.StartsWith("message/cpim"))
+        {
+            // CPIM: message headers, blank line, MIME headers, blank line, content
+            var b = body.Replace("\r\n", "\n");
+            int first = b.IndexOf("\n\n", StringComparison.Ordinal);
+            if (first < 0) return ("text/plain", b.Trim());
+            var rest = b[(first + 2)..];
+            int second = rest.IndexOf("\n\n", StringComparison.Ordinal);
+            string mime = second < 0 ? "" : rest[..second];
+            string content = second < 0 ? rest : rest[(second + 2)..];
+            var ct = mime.Split('\n').FirstOrDefault(l => l.StartsWith("Content-Type:", StringComparison.OrdinalIgnoreCase));
+            type = ct is null ? "text/plain" : ct[13..].Trim().ToLowerInvariant();
+            body = content;
+        }
+        return (type, body.TrimEnd('\n', '\r'));
+    }
+
+    /// <summary>
+    /// Send a text to every phone of an extension (SIP MESSAGE, UTF-8 — Arabic and English). The sender shows as
+    /// <paramref name="fromNumber"/>, so replying in the phone's message screen goes back to that number.
+    /// True when at least one phone accepted it.
+    /// </summary>
+    public async Task<bool> SendTextAsync(string extension, string fromNumber, string text)
+    {
+        var tasks = new List<Task<bool>>();
+        foreach (var b in Bindings(extension))
+        {
+            string? host = IsRelay(b.Transport) ? TailnetAddress?.ToString() : HostFor(b.RemoteEndPoint);
+            if (host is null) continue;
+            try
+            {
+                var uri = SIPURI.ParseSIPURIRelaxed(b.ContactUri);
+                var req = SIPRequest.GetRequest(SIPMethodsEnum.MESSAGE, uri,
+                    new SIPToHeader(null, new SIPURI(extension, host, null), null),
+                    new SIPFromHeader(null, new SIPURI(fromNumber, host, null), CallProperties.CreateNewTag()));
+                req.Header.ContentType = "text/plain;charset=UTF-8";
+                req.Body = text;
+                var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var tx = new SIPNonInviteTransaction(b.Transport, req, b.RemoteEndPoint);
+                tx.NonInviteTransactionFinalResponseReceived += (_, _, _, resp) =>
+                {
+                    tcs.TrySetResult(resp.StatusCode is >= 200 and < 300);
+                    return Task.FromResult(SocketError.Success);
+                };
+                tx.NonInviteTransactionFailed += (_, _) => tcs.TrySetResult(false);
+                tx.SendRequest();
+                tasks.Add(tcs.Task.WaitAsync(TimeSpan.FromSeconds(35)).ContinueWith(x => x.IsCompletedSuccessfully && x.Result));
+            }
+            catch (Exception ex) { _log.LogWarning("Message to {Ext} at {Contact} failed: {Message}", extension, b.ContactUri, ex.Message); }
+        }
+        if (tasks.Count == 0) return false;
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+        return results.Any(r => r);
     }
 
     /// <summary>Current (non-expired) registrations for an extension.</summary>

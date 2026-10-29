@@ -44,6 +44,8 @@ public sealed class CallManager
     public event Action<VoicemailMessage>? VoicemailSaved;
 
     public IReadOnlyCollection<ActiveCall> ActiveCalls => _calls.Values.ToList();
+    /// <summary>A call finished and was written to the call log (Telegram uses it for missed GSM calls).</summary>
+    public event Action<CallRecord>? CallLogged;
     public string RecordingsDir => Path.Combine(_dataDir, "Recordings");
     public string VoicemailDir => Path.Combine(_dataDir, "Voicemail");
 
@@ -123,13 +125,12 @@ public sealed class CallManager
             _calls.TryRemove(call.Id, out _);
             var end = DateTime.UtcNow;
             int dur = call.Answer is null ? 0 : (int)(end - call.Answer.Value).TotalSeconds;
-            try
-            {
-                _db.AddCall(new CallRecord(0, call.Start, call.Answer, end, call.From, call.FromName,
-                    string.IsNullOrEmpty(call.ConnectedTo) ? call.To : $"{call.To} ({call.ConnectedTo})",
-                    call.Direction, call.Disposition, dur, call.Recording));
-            }
+            var record = new CallRecord(0, call.Start, call.Answer, end, call.From, call.FromName,
+                string.IsNullOrEmpty(call.ConnectedTo) ? call.To : $"{call.To} ({call.ConnectedTo})",
+                call.Direction, call.Disposition, dur, call.Recording);
+            try { _db.AddCall(record); }
             catch (Exception ex) { _log.LogWarning(ex, "Could not write call log"); }
+            try { CallLogged?.Invoke(record); } catch (Exception ex) { _log.LogWarning(ex, "Call log listener failed"); }
             CallsChanged?.Invoke();
         }
     }
