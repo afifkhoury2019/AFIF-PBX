@@ -173,11 +173,68 @@ edit(rc, "[ui]\ncontacts_filter=sip.linphone.org\n",
      "assistant_third_party_sip_account_transport=udp\n"
      "assistant_hide_create_account=1\n"
      "disable_meetings_feature=1\n"
-     "disable_chat_feature=1\n")
+     # SMS through AFIF-PBX appear as messages (SIP MESSAGE); screenshots allowed; colour can be changed
+     "enable_secure_mode=0\n"
+     "change_main_color_allowed=1\n"
+     "theme_main_color=orange\n")
+# no Linphone servers: no file uploads to linphone.org from the message screen, no log uploads
+edit(rc, "log_collection_upload_server_url=https://files.linphone.org/http-file-transfer-server/hft.php\n", "log_collection_upload_server_url=\n")
+edit(rc, "file_transfer_server_url=https://files.linphone.org/http-file-transfer-server/hft.php\n", "file_transfer_server_url=\n")
 tp = os.path.join(MAIN, "assets", "assistant_third_party_default_values")
 edit(tp, '<entry name="stun_server" overwrite="true">stun.linphone.org</entry>', '<entry name="stun_server" overwrite="true"></entry>')
 edit(tp, '<entry name="protocols" overwrite="true">stun,ice</entry>', '<entry name="protocols" overwrite="true"></entry>')
 edit(tp, '<entry name="media_encryption">srtp</entry>', '<entry name="media_encryption">none</entry>')
+
+print("== Messages, background, colours")
+en = os.path.join(MAIN, "res", "values", "strings.xml")
+edit(en, '<string name="bottom_navigation_conversations_label">Conversations</string>', '<string name="bottom_navigation_conversations_label">Messages</string>')
+edit(en, '<string name="settings_conversations_title">Conversations</string>', '<string name="settings_conversations_title">Messages</string>')
+edit(en, '<string name="generic_address_picker_conversations_list_title">Conversations</string>', '<string name="generic_address_picker_conversations_list_title">Messages</string>')
+edit(en, '<string name="orange">Orange</string>', '<string name="orange">AFIF Blue</string>')
+edit(en, '<string name="settings_advanced_keep_alive_service_title">Keep app alive using Service</string>',
+     '<string name="settings_advanced_keep_alive_service_title">Run in background (calls and messages with the screen off)</string>')
+edit(os.path.join(MAIN, "AndroidManifest.xml"), '    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />',
+     '    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />\n'
+     '    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />')
+svm = os.path.join(MAIN, "java", "org", "linphone", "ui", "main", "settings", "viewmodel", "SettingsViewModel.kt")
+edit(svm, "            corePreferences.keepServiceAlive = newValue\n",
+     "            corePreferences.keepServiceAlive = newValue\n"
+     "            if (newValue) coreContext.context.getSharedPreferences(\"afif_phone\", 0).edit().remove(\"battery_asked_v1\").apply()\n")
+
+print("== Secure network option in the SIP account's advanced settings")
+CHECK = ('                <androidx.appcompat.widget.AppCompatCheckBox\n'
+         '                    android:id="@+id/afif_secure_network"\n'
+         '                    android:layout_width="0dp"\n'
+         '                    android:layout_height="wrap_content"\n'
+         '                    android:layout_marginTop="16dp"\n'
+         '                    android:layout_marginStart="16dp"\n'
+         '                    android:layout_marginEnd="16dp"\n'
+         '                    android:text="@string/afif_secure_network_option"\n'
+         '                    android:textColor="?attr/color_main2_600"\n'
+         '                    android:textSize="14sp"\n'
+         '                    app:layout_constraintWidth_max="@dimen/text_input_max_width"\n'
+         '                    app:layout_constraintTop_toBottomOf="@id/AFTER"\n'
+         '                    app:layout_constraintStart_toStartOf="parent"\n'
+         '                    app:layout_constraintEnd_toEndOf="parent"/>\n\n')
+login = os.path.join(MAIN, "res", "layout", "assistant_third_party_sip_account_login_fragment.xml")
+edit(login, "outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip\"", "outbound_proxy_label, outbound_proxy, outbound_proxy_tooltip, afif_secure_network\"")
+edit(login, "                <androidx.appcompat.widget.AppCompatTextView\n                    style=\"@style/primary_button_label_style\"\n                    android:onClick=\"@{() -> viewModel.login()}\"",
+     CHECK.replace("AFTER", "outbound_proxy") +
+     "                <androidx.appcompat.widget.AppCompatTextView\n                    style=\"@style/primary_button_label_style\"\n                    android:onClick=\"@{() -> viewModel.login()}\"")
+s_login = read(login)
+i = s_login.index('android:id="@+id/login"')
+j = s_login.index('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"', i)
+write(login, s_login[:j] + 'app:layout_constraintTop_toBottomOf="@id/afif_secure_network"' + s_login[j + len('app:layout_constraintTop_toBottomOf="@id/outbound_proxy"'):])
+lf = os.path.join(MAIN, "java", "org", "linphone", "ui", "assistant", "fragment", "ThirdPartySipAccountLoginFragment.kt")
+edit(lf, "        binding.viewModel = viewModel\n", "        binding.viewModel = viewModel\n        org.linphone.AfifSecureNetwork.bind(requireActivity(), binding.afifSecureNetwork)\n")
+acc = os.path.join(MAIN, "res", "layout", "account_settings_fragment.xml")
+edit(acc, "                        app:layout_constraintTop_toBottomOf=\"@id/advanced_settings_header\"/>\n\n",
+     "                        app:layout_constraintTop_toBottomOf=\"@id/advanced_settings_header\"/>\n\n" +
+     CHECK.replace("AFTER", "account_advanced_settings").replace('android:layout_height="wrap_content"\n', 'android:layout_height="wrap_content"\n'
+        '                    android:layout_marginBottom="24dp"\n'
+        '                    android:visibility="@{viewModel.expandAdvancedSettings ? View.VISIBLE : View.GONE}"\n', 1))
+af = os.path.join(MAIN, "java", "org", "linphone", "ui", "main", "settings", "fragment", "AccountSettingsFragment.kt")
+edit(af, "        binding.viewModel = viewModel\n", "        binding.viewModel = viewModel\n        org.linphone.AfifSecureNetwork.bind(requireActivity(), binding.afifSecureNetwork)\n")
 
 print("== Keep the secure network's notification channels")
 # Linphone wipes every notification channel on first start/upgrade, including the ones the Tailscale engine just

@@ -30,7 +30,9 @@ adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1
 sleep 20; shot 1-start
 # the first-run question may be on any of the first screens
 for i in 1 2 3; do tap_text "Not now" && break; adb shell input keyevent KEYCODE_BACK; sleep 3; done
+sleep 2; tap_text "Not now" || true   # the "Run in background" question
 shot 2-after-choice
+tap_text "Messages" && sleep 3 && shot 2b-messages
 adb shell am start -n $PKG/com.tailscale.ipn.MainActivity || true
 sleep 10; shot 3-secure-network
 tap_text "Get Started"; sleep 8; shot 4-get-started

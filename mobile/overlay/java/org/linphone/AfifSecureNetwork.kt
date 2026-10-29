@@ -25,10 +25,38 @@ object AfifSecureNetwork {
     fun isEnabled(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(CHOSEN, false)
 
+    /**
+     * Switch the secure network on or off for AFIF Phone (used by the SIP account's advanced settings).
+     * On: connect, and show the secure network screen so the user can sign in the first time.
+     */
+    fun setEnabled(activity: Activity, on: Boolean) {
+        activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+            .putBoolean(CHOSEN, on).putBoolean(ASKED, true).apply()
+        try {
+            activity.sendBroadcast(
+                Intent(if (on) "com.tailscale.ipn.CONNECT_VPN" else "com.tailscale.ipn.DISCONNECT_VPN")
+                    .setPackage(activity.packageName)
+            )
+        } catch (e: Exception) {
+            org.linphone.core.tools.Log.e("[AFIF] Secure network switch failed: $e")
+        }
+        if (on) open(activity)
+    }
+
+    /** A "Connect through the secure network (Tailscale)" check box wired to the setting. */
+    fun bind(activity: Activity, box: android.widget.CompoundButton) {
+        box.text = "Connect through the secure network (Tailscale)"
+        box.isChecked = isEnabled(activity)
+        box.setOnCheckedChangeListener { _, on -> setEnabled(activity, on) }
+    }
+
     /** Ask once, on first setup, whether to connect the secure network. */
     fun askOnce(activity: Activity) {
         val prefs = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(ASKED, false)) return
+        if (prefs.getBoolean(ASKED, false)) {
+            AfifBackground.check(activity)
+            return
+        }
         activity.window.decorView.post {
             if (activity.isFinishing || activity.isDestroyed || prefs.getBoolean(ASKED, false)) return@post
             prefs.edit().putBoolean(ASKED, true).apply()
@@ -40,12 +68,10 @@ object AfifSecureNetwork {
                         "At home on the same Wi-Fi you don't need it.\n\n" +
                         "You can change this any time from the menu → Secure network."
                 )
-                .setPositiveButton("Connect") { _, _ ->
-                    prefs.edit().putBoolean(CHOSEN, true).apply()
-                    open(activity)
-                }
+                .setPositiveButton("Connect") { _, _ -> setEnabled(activity, true) }
                 .setNegativeButton("Not now") { _, _ ->
                     prefs.edit().putBoolean(CHOSEN, false).apply()
+                    AfifBackground.check(activity)
                 }
                 .setCancelable(true)
                 .show()

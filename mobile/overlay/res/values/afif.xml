@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="afif_secure_network">Secure network</string>
+    <string name="afif_secure_network_option">Connect through the secure network (Tailscale)</string>
     <color name="afif_launcher_background">#0B1630</color>
 </resources>
