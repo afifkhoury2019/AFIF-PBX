@@ -1,0 +1,339 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Using CI built SDK from maven repository at https://download.linphone.org/maven_repository
+
+> Configure project :app
+WARNING: The option setting 'android.builtInKotlin=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+Add android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE to the gradle.properties file to suppress this warning.
+WARNING: The option setting 'android.newDsl=false' is deprecated.
+The current default is 'true'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+Add android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE to the gradle.properties file to suppress this warning.
+WARNING: API 'applicationVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling applicationVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+Add android.sync.suppressAgpWarnings=DEPRECATED_DSL to the gradle.properties file to suppress this warning.
+WARNING: API 'testVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling testVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+Add android.sync.suppressAgpWarnings=DEPRECATED_DSL to the gradle.properties file to suppress this warning.
+WARNING: API 'unitTestVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling unitTestVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+Add android.sync.suppressAgpWarnings=DEPRECATED_DSL to the gradle.properties file to suppress this warning.
+google-services.json not found, disabling Firebase CloudMessaging feature
+Crashlytics has been disabled because either google-services.json file wasn't found or local Linphone SDK build folder isn't configured
+Git describe: 
+Git commits count: 0
+Git commit hash: e7e7937
+Git branch name: undefined
+Computed git version: 1.0.9
+Signing config release is using keystore [/home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/afif-phone.jks]
+Debug flavor app version is [1.0.9], app branch is [undefined]
+Release flavor app version is [1.0.9], app branch is [undefined]
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':app' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Configure project :tailscale
+WARNING: API 'libraryVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'.
+It will be removed in version 10.0 of the Android Gradle plugin.
+The legacy variant API is disabled by default in AGP 9.0, but can be re-enabled by adding 
+    android.newDsl=false
+to this project's gradle.properties file.
+For more information, see http://developer.android.com/build/r/new-dsl.
+
+To determine what is calling libraryVariants, use -Pandroid.debug.obsoleteApi=true on the command line to display more information.
+Add android.sync.suppressAgpWarnings=DEPRECATED_DSL to the gradle.properties file to suppress this warning.
+w: ⚠️ Deprecated 'org.jetbrains.kotlin.android' plugin usage
+The 'org.jetbrains.kotlin.android' plugin in project ':tailscale' is no longer required for Kotlin support since AGP 9.0.
+Solution: Remove both `android.builtInKotlin=true` and `android.newDsl=false` from `gradle.properties`, then migrate to built-in Kotlin.
+See https://kotl.in/gradle/agp-built-in-kotlin for more details.
+
+
+> Task :app:loadKtlintReporters
+
+> Task :app:linphoneSdkSource
+Linphone SDK used is 5.6.0-alpha.190+026b4e9992
+
+> Task :tailscale:preBuild UP-TO-DATE
+> Task :tailscale:preReleaseBuild UP-TO-DATE
+> Task :tailscale:mergeReleaseJniLibFolders
+> Task :tailscale:mergeReleaseNativeLibs NO-SOURCE
+> Task :tailscale:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :tailscale:copyReleaseJniLibsProjectOnly
+> Task :tailscale:generateReleaseBuildConfig
+> Task :tailscale:generateReleaseResources
+> Task :tailscale:packageReleaseResources
+> Task :tailscale:processReleaseNavigationResources
+> Task :app:runKtlintFormatOverKotlinScripts
+> Task :app:runKtlintFormatOverAndroidTestDebugSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestDebugSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverAndroidTestReleaseSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestReleaseSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverAndroidTestSourceSet NO-SOURCE
+> Task :app:ktlintAndroidTestSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverDebugSourceSet NO-SOURCE
+> Task :app:ktlintDebugSourceSetFormat SKIPPED
+> Task :app:ktlintKotlinScriptFormat
+> Task :app:runKtlintFormatOverReleaseSourceSet NO-SOURCE
+> Task :app:ktlintReleaseSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverTestDebugSourceSet NO-SOURCE
+> Task :app:ktlintTestDebugSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverTestFixturesDebugSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesDebugSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverTestFixturesReleaseSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesReleaseSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverTestFixturesSourceSet NO-SOURCE
+> Task :app:ktlintTestFixturesSourceSetFormat SKIPPED
+> Task :app:runKtlintFormatOverTestReleaseSourceSet NO-SOURCE
+> Task :app:ktlintTestReleaseSourceSetFormat SKIPPED
+> Task :tailscale:parseReleaseLocalResources
+> Task :tailscale:javaPreCompileRelease
+> Task :tailscale:generateReleaseRFile
+> Task :app:buildKotlinToolingMetadata
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :tailscale:prepareReleaseArtProfile
+> Task :tailscale:writeReleaseAarMetadata
+> Task :tailscale:extractDeepLinksRelease
+> Task :tailscale:processReleaseManifest
+> Task :tailscale:mapReleaseSourceSetPaths
+> Task :tailscale:compileReleaseLibraryResources
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :tailscale:generateReleaseAssets UP-TO-DATE
+> Task :tailscale:mergeReleaseAssets
+> Task :tailscale:extractProguardFiles
+> Task :tailscale:prepareLintJarForPublish
+> Task :app:runKtlintFormatOverTestSourceSet
+> Task :tailscale:checkReleaseAarMetadata
+> Task :tailscale:extractDeepLinksForAarRelease
+> Task :tailscale:writeReleaseLintModelMetadata
+> Task :tailscale:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:ktlintTestSourceSetFormat
+> Task :tailscale:copyReleaseJniLibsProjectAndLocalJars
+> Task :tailscale:mergeReleaseResources
+> Task :tailscale:verifyReleaseResources
+> Task :app:runKtlintFormatOverMainSourceSet
+> Task :app:ktlintMainSourceSetFormat
+> Task :app:ktlintFormat
+> Task :app:preBuild
+> Task :app:preReleaseBuild
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:mergeReleaseNativeLibs
+> Task :app:dataBindingMergeDependencyArtifactsRelease
+> Task :app:generateReleaseResValues
+> Task :app:generateReleaseResources
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libZXing.so, libandroidx.graphics.path.so, libbctoolbox.so, libc++_shared.so, libdatastore_shared_counter.so, libgojni.so, libjpeg.so, libjsoncpp.so, liblinphone.so, libmediastreamer2.so, libmsaaudio.so, libmsandroidcamera2.so, libmswebrtc.so, libortp.so, libsrtp2.so, libturbojpeg.so. Run with --info option to learn more.
+
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:mergeReleaseResources
+> Task :tailscale:compileReleaseKotlin
+> Task :app:packageReleaseResources
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:processReleaseNavigationResources
+> Task :app:dataBindingTriggerRelease
+> Task :app:generateReleaseBuildConfig
+> Task :app:parseReleaseLocalResources
+> Task :app:generateSafeArgsRelease
+> Task :app:dataBindingGenBaseClassesRelease
+> Task :app:javaPreCompileRelease
+> Task :app:generateReleaseRFile
+> Task :app:mergeReleaseArtProfile
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:checkReleaseAarMetadata
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:compileReleaseNavigationResources
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :app:extractProguardFiles
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeReleaseAssets
+> Task :app:processReleaseManifestForPackage
+> Task :app:compressReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:collectReleaseDependencies
+> Task :app:sdkReleaseDependencyData
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:processReleaseResources
+> Task :tailscale:compileReleaseJavaWithJavac
+> Task :tailscale:mergeReleaseGeneratedProguardFiles
+> Task :tailscale:exportReleaseConsumerProguardFiles
+> Task :tailscale:processReleaseJavaRes
+> Task :tailscale:bundleLibCompileToJarRelease
+> Task :tailscale:bundleLibRuntimeToJarRelease
+> Task :tailscale:generateReleaseLintModel
+> Task :tailscale:createFullJarRelease
+> Task :tailscale:extractReleaseAnnotations
+> Task :tailscale:mergeReleaseConsumerProguardFiles
+> Task :tailscale:mergeReleaseJavaResource
+> Task :tailscale:generateReleaseLintVitalModel
+> Task :tailscale:syncReleaseLibJars
+> Task :tailscale:bundleReleaseLocalLintAar
+> Task :tailscale:bundleReleaseAar
+> Task :tailscale:assembleRelease
+> Task :app:kaptGenerateStubsReleaseKotlin
+> Task :tailscale:lintVitalAnalyzeRelease
+> Task :app:kaptReleaseKotlin
+
+> Task :app:compileReleaseKotlin
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:117:13 'static field TRIM_MEMORY_RUNNING_LOW: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:118:13 'static field TRIM_MEMORY_RUNNING_CRITICAL: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:119:13 'static field TRIM_MEMORY_MODERATE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:120:13 'static field TRIM_MEMORY_COMPLETE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:165:13 'static field TRIM_MEMORY_RUNNING_MODERATE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:166:13 'static field TRIM_MEMORY_RUNNING_LOW: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:167:13 'static field TRIM_MEMORY_RUNNING_CRITICAL: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:169:13 'static field TRIM_MEMORY_MODERATE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/LinphoneApplication.kt:170:13 'static field TRIM_MEMORY_COMPLETE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Api28Compatibility.kt:84:32 'static field FEATURE_CONNECTION_SERVICE: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Api28Compatibility.kt:86:51 'static field FEATURE_CONNECTION_SERVICE: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Api33Compatibility.kt:52:21 'var isPendingIntentBackgroundActivityLaunchAllowed: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Api34Compatibility.kt:95:41 'static field MODE_BACKGROUND_ACTIVITY_START_ALLOWED: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Api34Compatibility.kt:98:41 'static field MODE_BACKGROUND_ACTIVITY_START_ALLOWED: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/compatibility/Compatibility.kt:216:29 'static field IP_ADDRESS: Pattern!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:87:46 'class SipAddress : Any, ContactsContract.CommonDataKinds.CommonColumns, ContactsContract.DataColumnsWithJoins' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:87:57 'static field CONTENT_ITEM_TYPE: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:168:50 'class SipAddress : Any, ContactsContract.CommonDataKinds.CommonColumns, ContactsContract.DataColumnsWithJoins' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:168:61 'static field SIP_ADDRESS: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:244:58 'class SipAddress : Any, ContactsContract.CommonDataKinds.CommonColumns, ContactsContract.DataColumnsWithJoins' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/contacts/ContactLoader.kt:244:69 'static field CONTENT_ITEM_TYPE: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:123:32 'class MasterKey : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:123:44 'class MasterKey : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:123:54 'constructor(p0: Context, p1: String): MasterKey.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:125:21 'class MasterKey : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:125:31 'static field DEFAULT_MASTER_KEY_ALIAS: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:126:32 'class MasterKey : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:126:42 'enum class KeyScheme : Enum<MasterKey.KeyScheme!>' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:128:17 'class EncryptedSharedPreferences : Any, SharedPreferences' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:132:21 'class EncryptedSharedPreferences : Any, SharedPreferences' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:132:48 'enum class PrefKeyEncryptionScheme : Enum<EncryptedSharedPreferences.PrefKeyEncryptionScheme!>' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:133:21 'class EncryptedSharedPreferences : Any, SharedPreferences' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/core/VFS.kt:133:48 'enum class PrefValueEncryptionScheme : Enum<EncryptedSharedPreferences.PrefValueEncryptionScheme!>' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/telecom/TelecomRedirectionService.kt:146:33 'fun createPrimaryContactParsed(): Address?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/call/viewmodel/CurrentCallViewModel.kt:1394:42 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ContactAvatarModel'.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/fileviewer/FileViewerActivity.kt:167:23 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/fileviewer/FileViewerActivity.kt:167:38 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/fileviewer/FileViewerActivity.kt:218:13 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/fileviewer/viewmodel/FileViewModel.kt:122:35 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/fileviewer/viewmodel/MediaViewModel.kt:83:33 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ObsoleteCoroutinesApi' or '@OptIn(kotlinx.coroutines.ObsoleteCoroutinesApi::class)'
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/MainActivity.kt:725:24 'fun <T : Parcelable!> getParcelableArrayListExtra(p0: String!): ArrayList<T!>?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/MainActivity.kt:734:30 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/MainActivity.kt:944:17 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/fragment/ConversationFragment.kt:1166:15 'fun onActivityResult(p0: Int, p1: Int, p2: Intent?): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/fragment/ConversationFragment.kt:1485:14 'fun setOnTabSelectedListener(p0: TabLayout.OnTabSelectedListener?): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/fragment/ConversationFragment.kt:1524:14 'fun setOnTabSelectedListener(p0: TabLayout.OnTabSelectedListener?): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/fragment/ConversationFragment.kt:1666:13 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/model/FileModel.kt:226:56 'static fun createVideoThumbnail(p0: String, p1: Int): Bitmap?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/model/FileModel.kt:228:43 'class Thumbnails : Any, BaseColumns' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/model/FileModel.kt:228:54 'static field MINI_KIND: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/model/MessageModel.kt:199:47 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/model/MessageModel.kt:331:49 Unnecessary non-null assertion (!!) on a non-null receiver of type 'FileModel'.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/chat/viewmodel/SendMessageInConversationViewModel.kt:153:47 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/meetings/viewmodel/MeetingWaitingRoomViewModel.kt:341:112 Unnecessary safe call on a non-null receiver of type 'AudioDevice'.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/recordings/viewmodel/RecordingMediaPlayerViewModel.kt:72:36 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/recordings/viewmodel/RecordingMediaPlayerViewModel.kt:79:33 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ObsoleteCoroutinesApi' or '@OptIn(kotlinx.coroutines.ObsoleteCoroutinesApi::class)'
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/fragment/SettingsFragment.kt:194:21 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/fragment/SettingsFragment.kt:354:35 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:91:30 'val ldapList: Array<(out) Ldap!>' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:92:20 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:92:27 'var server: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:101:41 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:102:44 'var enabled: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:104:44 'var server: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:109:45 'var maxResults: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:110:49 'var timeout: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:111:47 'var delay: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:112:48 'var minChars: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:125:44 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:125:51 'var server: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:126:22 'fun removeLdap(p0: Ldap): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:181:28 'var enabled: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:182:28 'var server: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:187:54 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:194:28 'var maxResults: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:195:28 'var timeout: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:196:28 'var delay: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:197:28 'var minChars: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:208:32 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:211:37 'fun createLdapWithParams(p0: LdapParams): Ldap' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/LdapViewModel.kt:212:26 'fun addLdap(p0: Ldap): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/SettingsViewModel.kt:667:31 'val ldapList: Array<(out) Ldap!>' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/SettingsViewModel.kt:668:34 'var params: LdapParams' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/main/settings/viewmodel/SettingsViewModel.kt:668:41 'var server: String' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/ui/sso/SingleSignOnActivity.kt:92:21 'fun startActivityForResult(p0: Intent, p1: Int): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AndroidUtils.kt:103:36 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AndroidUtils.kt:103:51 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:251:77 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:253:30 'class AudioAttributesCompat : Any, VersionedParcelable' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:253:52 'constructor(): AudioAttributesCompat.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:254:27 'class AudioAttributesCompat : Any, VersionedParcelable' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:255:33 'class AudioAttributesCompat : Any, VersionedParcelable' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:259:17 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:259:41 'constructor(p0: Int): AudioFocusRequestCompat.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:260:21 'class AudioManagerCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:265:19 'class AudioManagerCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:282:22 'class AudioFocusRequestCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/AudioUtils.kt:285:13 'class AudioManagerCompat : Any' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/DialogUtils.kt:647:61 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/LinphoneUtils.kt:748:30 'var isEphemeralEnabled: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/LinphoneUtils.kt:753:30 'var isEphemeralEnabled: Boolean' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/app/src/main/java/org/linphone/utils/LinphoneUtils.kt:758:30 'var ephemeralLifetime: Long' is deprecated. Deprecated in Java.
+
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:processReleaseJavaRes
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:mergeReleaseJavaResource
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:minifyReleaseWithR8
+> Task :app:lintVitalReportRelease
+> Task :app:lintVitalRelease
+> Task :app:compileReleaseArtProfile
+> Task :app:convertShrunkResourcesToBinaryRelease
+> Task :app:optimizeReleaseResources
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_8-1793299791013.json
+
+[Incubating] Problems report is available at: file:///home/runner/work/AFIF-PBX/AFIF-PBX/linphone/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 7m 23s
+106 actionable tasks: 106 executed
+
+For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 16s
+106 actionable tasks: 8 executed, 98 up-to-date

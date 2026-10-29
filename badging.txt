@@ -1,0 +1,8 @@
+package: name='com.afiftech.phone' versionCode='9' versionName='1.0.9' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+application-label:'AFIF Phone'
+launchable-activity: name='org.linphone.ui.main.MainActivity'  label='' icon=''
+native-code: 'arm64-v8a' 'armeabi-v7a'
+ 28005920  1981-01-01 01:01   lib/arm64-v8a/libgojni.so
+ 24796128  1981-01-01 01:01   lib/arm64-v8a/liblinphone.so
+ 34332592  1981-01-01 01:01   lib/armeabi-v7a/libgojni.so
+ 17919804  1981-01-01 01:01   lib/armeabi-v7a/liblinphone.so
