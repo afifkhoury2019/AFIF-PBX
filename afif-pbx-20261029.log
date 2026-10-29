@@ -1,0 +1,13 @@
+18:57:01.527 [Information] AFIF-PBX: AFIF-PBX 2.0.34 starting (data: D:\a\_temp\afif-data)
+18:57:01.653 [Information] SIP: SIP server listening on 0.0.0.0:5060
+18:57:01.654 [Information] SIP: SIP server listening on 0.0.0.0:5160
+18:57:01.656 [Information] SIP: Secure network SIP 5060 → 127.0.0.1:54069
+18:57:01.657 [Information] SIP: Secure network SIP 5160 → 127.0.0.1:54070
+18:57:01.659 [Warning] AFIF-PBX: Port 80 is in use; the web panel will use 8080
+18:57:03.197 [Information] AFIF-PBX: Firewall: AFIF-PBX open to the local network; secure network engine allowed
+18:57:03.243 [Information] AFIF-PBX: Web panel on http://localhost:8080/  — SIP on port 5060
+18:57:05.850 [Information] Tailscale: Secure network engine started (pid 8500)
+18:57:05.932 [Information] Tailscale: Secure network: tsnet running state path D:\a\_temp\afif-data\secure-network\tailscaled.state
+18:57:05.936 [Information] Tailscale: Secure network: tsnet starting with hostname "afif-pbx-ci", varRoot "D:\\a\\_temp\\afif-data\\secure-network"
+18:57:05.939 [Information] Tailscale: Secure network: LocalBackend state is NeedsLogin; running StartLoginInteractive...
+18:57:05.939 [Information] Tailscale: Secure network: afif-net ready (control 127.0.0.1:64545, afif-pbx-ci)
