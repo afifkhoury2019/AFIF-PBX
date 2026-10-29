@@ -138,7 +138,7 @@ public sealed class TailscaleManager : IDisposable
             var (rs, re) = _rtpRange();
             string sipMap = _sip?.RelaySipMap ?? "";
             var psi = new ProcessStartInfo(EnginePath,
-                $"-dir \"{_stateDir}\" -hostname {CleanHostname(_cfg.Hostname)} -sip {sipMap} -rtp {rs}-{re} -watch-stdin {ExtraArgs}".Trim())
+                $"-dir \"{_stateDir}\" -hostname {CleanHostname(_cfg.Hostname)} {(sipMap.Length > 0 ? "-sip " + sipMap : "")} -rtp {rs}-{re} -watch-stdin {ExtraArgs}".Trim())
             {
                 UseShellExecute = false, CreateNoWindow = true,
                 RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true,
