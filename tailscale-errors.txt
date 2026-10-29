@@ -1,0 +1,17 @@
+10-29 19:01:05.718  3689  3689 W Monkey  : args: [-p, com.afiftech.phone, -c, android.intent.category.LAUNCHER, 1]
+10-29 19:01:05.719  3689  3689 W Monkey  :  arg: "com.afiftech.phone"
+10-29 19:01:05.719  3689  3689 W Monkey  : data="com.afiftech.phone"
+10-29 19:01:06.366  3712  3712 W .afiftech.phone: Unexpected CPU variant for x86: x86_64.
+10-29 19:01:06.366  3712  3712 W .afiftech.phone: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-29 19:01:06.370  3712  3712 E .afiftech.phone: Not starting debugger since process cannot load the jdwp agent.
+10-29 19:01:08.690  3712  3712 W .afiftech.phone: Long monitor contention with owner Core Thread (3801) at boolean org.linphone.core.CoreImpl.isAutoIterateEnabled()(r8-map-id-df95953ef934b7e2c31cfa44d2f8fadaba3ca632f1455d622f3c5b338b1f86cf:8) waiters=0 in org.linphone.core.MagicSearch org.linphone.core.CoreImpl.createMagicSearch() for 661ms
+10-29 19:01:10.420   520  2427 W InputManager-JNI: Input channel object '68f0870 Splash Screen com.afiftech.phone (client)' was disposed without first being removed with the input manager!
+10-29 19:01:10.482   520   900 W InputManager-JNI: Input channel object '8567a3e com.afiftech.phone/org.linphone.ui.main.MainActivity (client)' was disposed without first being removed with the input manager!
+10-29 19:01:17.265  1462  2906 W libc    : Access denied finding property "ro.hardware.chipname"
+10-29 19:01:30.331  3712  3719 W .afiftech.phone: Cleared Reference was only reachable from finalizer (only reported once)
+10-29 19:01:31.485   520  1866 W InputManager-JNI: Input channel object '9fcec33 com.afiftech.phone/org.linphone.ui.assistant.AssistantActivity (client)' was disposed without first being removed with the input manager!
+10-29 19:01:46.805  3712  3712 E .afiftech.phone: Invalid resource ID 0x00000000.
+10-29 19:01:51.294  5352  5458 W libc    : Access denied finding property "ro.hardware.chipname"
+10-29 19:01:59.100  5352  5676 W libc    : Access denied finding property "ro.hardware.chipname"
+10-29 19:02:01.864   520   824 E AppOps  : Bad call made by uid 10097. Package "com.afiftech.phone" does not belong to uid 10097.
+10-29 19:02:01.868   520   824 E AppOps  : java.lang.SecurityException: Specified package "com.afiftech.phone" under uid 10097 but it is not
