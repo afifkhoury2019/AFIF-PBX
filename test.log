@@ -1,0 +1,57 @@
+Test run for /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/bin/Release/net8.0/AfifPbx.Tests.dll (.NETCoreApp,Version=v8.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 8.0.33)
+[xUnit.net 00:00:00.29]   Discovering: AfifPbx.Tests
+[xUnit.net 00:00:00.42]   Discovered:  AfifPbx.Tests
+[xUnit.net 00:00:00.42]   Starting:    AfifPbx.Tests
+  Passed AfifPbx.Tests.WinUsbChooseTests.Network_interface_is_never_taken_for_voice [26 ms]
+  Passed AfifPbx.Tests.MessageTextTests.Unwraps_linphone_cpim [27 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Nothing_answering_means_no_choice [< 1 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Classic_three_port_stick_picks_pcui_and_voice [< 1 ms]
+  Passed AfifPbx.Tests.WinUsbChooseTests.Settings_override_detection [< 1 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_ucs2_arabic [1 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_multipart_headers [2 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Decodes_gsm7_reference_pdu [< 1 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Splits_long_arabic_into_parts [4 ms]
+  Passed AfifPbx.Tests.SmsPduTests.Encodes_reference_submit [1 ms]
+  Passed AfifPbx.Tests.MediaTests.Dtmf_survives_g711 [20 ms]
+  Passed AfifPbx.Tests.MediaTests.Dtmf_detects_every_key_and_ignores_noise [13 ms]
+  Passed AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: True) [3 ms]
+  Passed AfifPbx.Tests.MediaTests.G711_round_trip_is_close(alaw: False) [< 1 ms]
+  Passed AfifPbx.Tests.MediaTests.Wav_round_trip_and_resample [6 ms]
+  Passed AfifPbx.Tests.TelegramTests.Nothing_is_sent_when_switched_off [189 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Points_the_domain_at_the_secure_network_address [502 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Old_bridge_token_is_kept_for_the_domain [1 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Parses_signed_out_state_with_login_link [< 1 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Status_serializes_like_the_web_panel_does [7 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Rejects_names_that_are_not_full_hostnames [< 1 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Domain_without_token_says_what_record_to_create [114 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Switching_on_starts_the_built_in_engine_and_switching_off_stops_it [164 ms]
+  Passed AfifPbx.Tests.TailscaleTests.Parses_tailscale_status [< 1 ms]
+  Passed AfifPbx.Tests.TelegramTests.Forwards_sms_and_missed_gsm_calls_but_not_answered_or_internal_calls [616 ms]
+  Passed AfifPbx.Tests.TelegramTests.Keeps_messages_while_offline_and_sends_them_later [205 ms]
+  Passed AfifPbx.Tests.TelegramTests.Test_message_explains_a_wrong_chat_id [2 ms]
+  Passed AfifPbx.Tests.CallTests.Extensions_register_and_call_each_other_with_audio_both_ways [1 s]
+  Passed AfifPbx.Tests.CallTests.Sms_are_received_and_sent [255 ms]
+  Passed AfifPbx.Tests.CallTests.Sms_waits_for_an_offline_phone_and_is_delivered_when_it_registers [334 ms]
+  Passed AfifPbx.Tests.CallTests.Phone_on_the_extra_sip_port_is_called_from_that_port [712 ms]
+  Passed AfifPbx.Tests.CallTests.Phones_can_text_each_other [42 ms]
+  Passed AfifPbx.Tests.CallTests.Phone_on_the_secure_network_reaches_the_pbx_through_the_relay [1 s]
+  Passed AfifPbx.Tests.CallTests.Unavailable_extension_goes_to_voicemail [6 s]
+  Passed AfifPbx.Tests.CallTests.Ivr_sends_the_caller_where_they_press [4 s]
+  Passed AfifPbx.Tests.CallTests.Wrong_password_cannot_register [41 ms]
+  Passed AfifPbx.Tests.CallTests.Incoming_gsm_call_rings_the_inbound_destination [634 ms]
+  Passed AfifPbx.Tests.CallTests.Calls_are_recorded_when_enabled [2 s]
+  Passed AfifPbx.Tests.CallTests.Ring_group_rings_every_member_and_connects_the_one_who_answers [390 ms]
+  Passed AfifPbx.Tests.CallTests.Pbx_calls_a_phone_on_the_secure_network_with_audio_both_ways [741 ms]
+  Passed AfifPbx.Tests.CallTests.Incoming_sms_reaches_the_phone_and_its_reply_goes_out_on_the_sim [741 ms]
+  Passed AfifPbx.Tests.CallTests.Calling_an_outside_number_uses_the_gsm_line [1 s]
+[xUnit.net 00:00:23.04]   Finished:    AfifPbx.Tests
+Data collector 'Blame' message: All tests finished running, Sequence file will not be generated.
+  Passed AfifPbx.Tests.CallTests.Phone_that_requires_srtp_is_answered_with_srtp_and_hears_audio [1 s]
+
+Test Run Successful.
+Total tests: 43
+     Passed: 43
+ Total time: 25.9826 Seconds
+Results File: /home/runner/work/AFIF-PBX/AFIF-PBX/native/tests/AfifPbx.Tests/TestResults/results.trx

@@ -1,0 +1,9 @@
+=== RUN   TestRelayForwardsBothWaysPerPeer
+    relay.go:248: relaying 1 UDP ports on 127.0.0.1 (0 failed)
+--- PASS: TestRelayForwardsBothWaysPerPeer (0.00s)
+=== RUN   TestIdleFlowsAreDropped
+--- PASS: TestIdleFlowsAreDropped (2.70s)
+=== RUN   TestParseMaps
+--- PASS: TestParseMaps (0.00s)
+PASS
+ok  	afif-tech/afif-net	2.705s
